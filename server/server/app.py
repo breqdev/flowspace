@@ -15,10 +15,15 @@ def create_app(database_uri=None):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "test")
+
     from server.model import db
     db.init_app(app)
 
-    @app.route("/")
+    from server.auth import auth
+    app.register_blueprint(auth, url_prefix="/auth")
+
+    @app.get("/")
     def index():
         return "Hello World!"
 
