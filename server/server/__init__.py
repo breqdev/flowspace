@@ -1,1 +1,1 @@
-__version__ = '0.1.0'
+from server.app import create_app
