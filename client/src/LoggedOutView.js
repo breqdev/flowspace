@@ -23,7 +23,7 @@ function Button(props) {
 
 
 export default function LoggedOutView(props) {
-    const [token, setToken] = React.useContext(AuthContext)
+    const [, setToken] = React.useContext(AuthContext)
 
     const [signup, setSignup] = React.useState(false)
 
