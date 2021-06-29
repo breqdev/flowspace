@@ -1,16 +1,5 @@
 import React from "react"
 
-function FormWrapper(props) {
-    return (
-        <div className="flex flex-col min-h-screen items-center bg-gradient-to-r from-green-400 to-blue-500">
-            <h1 className="text-white text-8xl my-24">Flowspace</h1>
-            <div className="w-96 p-8 bg-white rounded-3xl flex flex-col text-center text-xl my-12">
-                {props.children}
-            </div>
-        </div>
-    )
-}
-
 
 function Input(props) {
     return (
@@ -31,61 +20,7 @@ function Button(props) {
 }
 
 
-function LoginForm(props) {
-
-    const buttonIsValid = (
-        /^[^\s@]+@[^\s@]+$/.test(props.user.email)
-        && props.user.password.length > 4
-    )
-
-    return (
-        <>
-            <h1 className="text-3xl justify-self-start mb-8">Log In</h1>
-            <form className="flex-grow flex flex-col h-80" onSubmit={props.onLogin}>
-                <Input type="email" placeholder="email"
-                value={props.user.email} onChange={e => props.onEdit({...props.user, email: e.target.value})}
-                />
-                <Input type="password" placeholder="password"
-                value={props.user.password} onChange={e => props.onEdit({...props.user, password: e.target.value})}
-                />
-                <Button disabled={!buttonIsValid}>continue</Button>
-            </form>
-            <span>or <button className="justify-self-end underline" onClick={props.onSwitch}>sign up?</button></span>
-        </>
-    )
-}
-
-
-function SignupForm(props) {
-
-    const buttonIsValid = (
-        /^[^\s@]+@[^\s@]+$/.test(props.user.email)
-        && props.user.password.length > 4
-        && props.user.name.length
-    )
-
-    return (
-        <>
-            <h1 className="text-3xl justify-self-start mb-8">Sign Up</h1>
-            <form className="flex-grow flex flex-col h-80" onSubmit={props.onSignup}>
-            <Input type="email" placeholder="email"
-                value={props.user.email} onChange={e => props.onEdit({...props.user, email: e.target.value})}
-                />
-                <Input type="password" placeholder="password"
-                value={props.user.password} onChange={e => props.onEdit({...props.user, password: e.target.value})}
-                />
-                <Input type="text" placeholder="name"
-                value={props.user.name} onChange={e => props.onEdit({...props.user, name: e.target.value})}
-                />
-                <Button disabled={!buttonIsValid}>continue</Button>
-            </form>
-            <span>or <button className="justify-self-end underline" onClick={props.onSwitch}>log in?</button></span>
-        </>
-    )
-}
-
-
-export default function LoggedOutView() {
+export default function LoggedOutView(props) {
     const [signup, setSignup] = React.useState(false)
 
     const [user, setUser] = React.useState({
@@ -94,19 +29,56 @@ export default function LoggedOutView() {
         name: ""
     })
 
-    const handleSignup = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
+
+        const formData = new URLSearchParams()
+        formData.append("email", user.email)
+        formData.append("password", user.password)
+        if (signup) {
+            formData.append("name", user.name)
+        }
+
+        const response = await fetch("http://localhost:5000/auth/" + (signup ? "signup" : "login"), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData
+        })
+
+        const data = await response.json()
+        const token = data.auth_token
+
+        props.setToken(token)
     }
 
-    const handleLogin = async (e) => {
-        e.preventDefault()
-    }
+    const buttonIsValid = (
+        /^[^\s@]+@[^\s@]+$/.test(user.email)
+        && user.password.length > 4
+        && !(signup && !user.name.length)
+    )
 
     return (
-        <FormWrapper>
-            {signup
-            ? <SignupForm onSwitch={() => setSignup(false)} onSignup={handleSignup} user={user} onEdit={setUser} />
-            : <LoginForm onSwitch={() => setSignup(true)} onLogin={handleLogin} user={user} onEdit={setUser} />}
-        </FormWrapper>
+        <div className="flex flex-col min-h-screen items-center bg-gradient-to-r from-green-400 to-blue-500">
+            <h1 className="text-white text-8xl my-24">flowspace</h1>
+            <div className="w-96 p-8 bg-white rounded-3xl flex flex-col text-center text-xl my-12">
+                <form className="flex-grow flex flex-col h-80" onSubmit={handleSubmit}>
+                <Input type="email" name="email" placeholder="email"
+                    value={user.email} onChange={e => setUser({...user, email: e.target.value})}
+                    />
+                    <Input type="password" name="password" placeholder="password"
+                    value={user.password} onChange={e => setUser({...user, password: e.target.value})}
+                    />
+                    {signup &&
+                        <Input type="text" name="name" placeholder="name"
+                        value={user.name} onChange={e => setUser({...user, name: e.target.value})}
+                        />
+                    }
+                    <Button disabled={!buttonIsValid}>{signup ? "sign up" : "log in"}</Button>
+                </form>
+                <span>or <button className="justify-self-end underline" onClick={() => setSignup(!signup)}>{!signup ? "sign up" : "log in"}?</button></span>
+            </div>
+        </div>
     )
 }

@@ -41,3 +41,9 @@ class User(db.Model):
             algorithms=["HS256"]
         )
         return User.query.filter_by(id=payload["sub"]).first()
+
+
+if __name__ == "__main__":
+    from server.app import create_app
+    with create_app().app_context():
+        db.create_all()

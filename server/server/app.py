@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask_cors import CORS
 from dotenv import load_dotenv
 
 
@@ -8,6 +9,7 @@ load_dotenv()
 
 def create_app(database_uri=None):
     app = Flask(__name__)
+    CORS(app, resources={"/*": {"origins": "*"}})
 
     if database_uri is None:
         database_uri = os.environ["SQLALCHEMY_DATABASE_URI"]
