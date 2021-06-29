@@ -1,4 +1,8 @@
+import React from "react"
 import { NavLink, Switch, Route, Redirect } from "react-router-dom"
+import { Formik, Field, Form } from "formik"
+
+import { useAPI, useFetcher } from "./api.js"
 
 function Sidebar(props) {
     const items = props.items.map(
@@ -16,8 +20,8 @@ function Sidebar(props) {
 function Input(props) {
     return (
         <label className="flex flex-col my-2">
-            <span>{props.name}</span>
-            <input className="rounded-md border-2 border-gray-200 focus:border-blue-500 outline-none px-3 py-2 my-2" type="text" name={props.name}/>
+            <span>{props.label || props.field.name}</span>
+            <input className="rounded-md border-2 border-gray-200 focus:border-blue-500 outline-none px-3 py-2 my-2" type="text" {...props.field} />
         </label>
     )
 }
@@ -42,36 +46,84 @@ function SubmitButton(props) {
 
 
 function ProfileSettings(props) {
+    const fetcher = useFetcher()
+    const { data: currentProfile } = useAPI("/profile/@me")
+    console.log(currentProfile)
+
+    const initialValues = currentProfile || {
+        name: "",
+        pronouns: "",
+        url: "",
+        location: "",
+        bio: ""
+    }
+
     return (
         <SettingsPane title="profile">
-            <form className="flex flex-col">
-                <Input name="name" />
-                <Input name="pronouns" />
-                <Input name="url" />
-                <Input name="location" />
-                <label className="flex flex-col my-2">
-                    bio
-                    <textarea className="rounded-md border-2 border-gray-200 focus:border-blue-500 outline-none px-3 py-2 my-2" />
-                </label>
-                <SubmitButton text="save" />
-            </form>
+            <Formik
+                initialValues={initialValues}
+                enableReinitialize={true}
+                onSubmit={async (values, actions) => {
+                    await fetcher("/profile/@me", {
+                        method: "POST",
+                        body: JSON.stringify(values)
+                    })
+                }}
+            >
+                {formik => (
+                    <Form className="flex flex-col">
+                        <Field type="text" name="name" component={Input} />
+                        <Field type="text" name="pronouns" component={Input} />
+                        <Field type="url" name="url" component={Input} />
+                        <Field type="text" name="location" component={Input} />
+                        <label className="flex flex-col my-2">
+                            bio
+                            <Field component="textarea" name="bio"
+                            className="rounded-md border-2 border-gray-200 focus:border-blue-500 outline-none px-3 py-2 my-2" />
+                        </label>
+                        <SubmitButton text="save" />
+                    </Form>
+                )}
+            </Formik>
         </SettingsPane>
     )
 }
 
 
 function AccountSettings(props) {
+    const { data: currentAccount } = useAPI("/auth/status")
+
     return (
         <SettingsPane title="account">
-            <form className="flex flex-col">
-                <Input name="email" />
-                <SubmitButton text="change email" />
-            </form>
+            <Formik
+                initialValues={{email: currentAccount?.email || "", password: ""}}
+                enableReinitialize={true}
+                onSubmit={async (values, actions) => {
+                }}
+            >
+                {formik => (
+                    <Form className="flex flex-col">
+                        <Field type="email" name="email" label="new email" component={Input} />
+                        <Field type="password" name="password" component={Input} />
+                        <SubmitButton text="change email" />
+                    </Form>
+                )}
+            </Formik>
 
-            <form className="flex flex-col">
-                <Input name="password" />
-                <SubmitButton text="change password" />
-            </form>
+            <Formik
+                initialValues={{old_password: "", new_password: ""}}
+                enableReinitialize={true}
+                onSubmit={async (values, actions) => {
+                }}
+            >
+                {formik => (
+                    <Form className="flex flex-col">
+                        <Field type="password" name="old_password" label="old password" component={Input} />
+                        <Field type="password" name="new_password" label="new password" component={Input} />
+                        <SubmitButton text="change password" />
+                    </Form>
+                )}
+            </Formik>
         </SettingsPane>
     )
 }

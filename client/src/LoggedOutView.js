@@ -1,6 +1,8 @@
 import React from "react"
+import { Switch, Route, Redirect } from "react-router-dom"
 
 import AuthContext from "./AuthContext.js"
+import { BASE_URL } from "./api.js"
 
 
 function Input(props) {
@@ -22,7 +24,7 @@ function Button(props) {
 }
 
 
-export default function LoggedOutView(props) {
+function LoggedOutView(props) {
     const [, setToken] = React.useContext(AuthContext)
 
     const [signup, setSignup] = React.useState(false)
@@ -43,7 +45,7 @@ export default function LoggedOutView(props) {
             formData.append("name", user.name)
         }
 
-        const response = await fetch("http://localhost:5000/auth/" + (signup ? "signup" : "login"), {
+        const response = await fetch(BASE_URL + "/auth/" + (signup ? "signup" : "login"), {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
@@ -83,5 +85,18 @@ export default function LoggedOutView(props) {
                 <span>or <button className="justify-self-end underline" onClick={() => setSignup(!signup)}>{!signup ? "sign up" : "log in"}?</button></span>
             </div>
         </div>
+    )
+}
+
+export default function RedirectingView(props) {
+    return (
+        <Switch>
+            <Route exact path="/">
+                <LoggedOutView />
+            </Route>
+            <Route path="/">
+                <Redirect to="/" />
+            </Route>
+        </Switch>
     )
 }

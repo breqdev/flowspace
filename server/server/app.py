@@ -25,11 +25,15 @@ def create_app(database_uri=None):
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(hours=1)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = datetime.timedelta(days=30)
 
-    from server.model import db
+    from server.model import db, migrate
     db.init_app(app)
+    migrate.init_app(app)
 
     from server.auth import auth
     app.register_blueprint(auth, url_prefix="/auth")
+
+    from server.profile import profile
+    app.register_blueprint(profile, url_prefix="/profile")
 
     @app.get("/")
     def index():

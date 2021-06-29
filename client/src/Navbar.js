@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons"
 
 import AuthContext from "./AuthContext.js"
-import useAPI from "./api.js"
+import { useAPI } from "./api.js"
 
 
 function ExpandedDropdown(props) {
