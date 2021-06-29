@@ -70,6 +70,22 @@ Flask = ">=0.9"
 Six = "*"
 
 [[package]]
+name = "flask-jwt-extended"
+version = "4.2.1"
+description = "Extended JWT integration with Flask"
+category = "main"
+optional = false
+python-versions = ">=3.6,<4"
+
+[package.dependencies]
+Flask = ">=1.0,<3.0"
+PyJWT = ">=2.0,<3.0"
+Werkzeug = ">=0.14"
+
+[package.extras]
+asymmetric_crypto = ["cryptography (>=3.0,<4.0)"]
+
+[[package]]
 name = "flask-sqlalchemy"
 version = "2.5.1"
 description = "Adds SQLAlchemy support to your Flask application."
@@ -284,7 +300,7 @@ watchdog = ["watchdog"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "e586194ba3fede1ca8cdb226ec797b38b1834433f12198a939dad756b194aef0"
+content-hash = "31d082c2b75d75045e3517337aa3b4a98b403665ec30128e148284eb2a54394a"
 
 [metadata.files]
 atomicwrites = [
@@ -310,6 +326,10 @@ flask = [
 flask-cors = [
     {file = "Flask-Cors-3.0.10.tar.gz", hash = "sha256:b60839393f3b84a0f3746f6cdca56c1ad7426aa738b70d6c61375857823181de"},
     {file = "Flask_Cors-3.0.10-py2.py3-none-any.whl", hash = "sha256:74efc975af1194fc7891ff5cd85b0f7478be4f7f59fe158102e91abb72bb4438"},
+]
+flask-jwt-extended = [
+    {file = "Flask-JWT-Extended-4.2.1.tar.gz", hash = "sha256:76461f2dbdf502261c69ddecd858eaf4164fbcfbf05aa456f3927fc2ab0315de"},
+    {file = "Flask_JWT_Extended-4.2.1-py2.py3-none-any.whl", hash = "sha256:6a9d7a45d4c4b4c6277aee40f07cdf5fe307c29d404700a2ba8ebf520b30abee"},
 ]
 flask-sqlalchemy = [
     {file = "Flask-SQLAlchemy-2.5.1.tar.gz", hash = "sha256:2bda44b43e7cacb15d4e05ff3cc1f8bc97936cc464623424102bfc2c35e95912"},

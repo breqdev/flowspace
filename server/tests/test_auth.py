@@ -1,14 +1,6 @@
-def test_signup_login(client):
-    user = {
-        "name": "Test User",
-        "email": "test@example.com",
-        "password": "test_password"
-    }
-
-    rv = client.post("/auth/signup", data=user).get_json()
-
+def test_login(client, user):
     rv = client.post("/auth/login", data=user).get_json()
-    token = rv["auth_token"]
+    token = rv["access_token"]
 
     rv = client.get(
         "/auth/status",
@@ -16,3 +8,54 @@ def test_signup_login(client):
     ).get_json()
 
     assert rv["name"] == "Test User"
+
+
+def test_wrong_password(client, user):
+    fake_user = user.copy()
+    fake_user["password"] = "incorrect"
+
+    rv = client.post("/auth/login", data=fake_user)
+
+    assert rv.status_code >= 400
+
+
+def test_invalid_email(client, user):
+    fake_user = user.copy()
+    fake_user["email"] = "incorrect"
+
+    rv = client.post("/auth/login", data=fake_user)
+
+    assert rv.status_code >= 400
+
+
+def test_refresh_token(client, user):
+    rv = client.post("/auth/login", data=user).get_json()
+    refresh_token = rv["refresh_token"]
+
+    rv = client.post(
+        "/auth/refresh",
+        headers={"Authorization": f"Bearer {refresh_token}"}
+    ).get_json()
+
+    new_token = rv["access_token"]
+
+    rv = client.get(
+        "/auth/status",
+        headers={"Authorization": f"Bearer {new_token}"}
+    ).get_json()
+
+    assert rv["name"] == "Test User"
+
+
+def test_revoked_token(client, user):
+    rv = client.post("/auth/login", data=user).get_json()
+    token = rv["access_token"]
+
+    rv = client.post("/auth/logout", headers={"Authorization": f"Bearer {token}"})
+
+    rv = client.get(
+        "/auth/status",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert rv.status_code >= 400
