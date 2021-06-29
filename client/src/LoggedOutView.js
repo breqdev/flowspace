@@ -1,5 +1,7 @@
 import React from "react"
 
+import AuthContext from "./AuthContext.js"
+
 
 function Input(props) {
     return (
@@ -21,6 +23,8 @@ function Button(props) {
 
 
 export default function LoggedOutView(props) {
+    const [token, setToken] = React.useContext(AuthContext)
+
     const [signup, setSignup] = React.useState(false)
 
     const [user, setUser] = React.useState({
@@ -47,10 +51,9 @@ export default function LoggedOutView(props) {
             body: formData
         })
 
-        const data = await response.json()
-        const token = data.auth_token
+        const token = await response.json()
 
-        props.setToken(token)
+        setToken(token)
     }
 
     const buttonIsValid = (

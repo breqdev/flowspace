@@ -1,3 +1,7 @@
+import useAPI from "./api.js"
+
 export default function LoggedInView() {
-    return <div>Hello User! You have a token :)</div>
+    const { data: user } = useAPI("/auth/status")
+
+    return <div>Hello {user?.name}! You have a token :)</div>
 }
