@@ -10,7 +10,7 @@ load_dotenv()
 
 def create_app(database_uri=None):
     app = Flask(__name__)
-    CORS(app, resources={"/*": {"origins": "*"}})
+    CORS(app, resources={"/*": {"origins": "*"}}, max_age=datetime.timedelta(days=30))
 
     from server.jwtmanager import jwt
     jwt.init_app(app)
