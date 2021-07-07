@@ -46,10 +46,47 @@ function SubmitButton(props) {
 }
 
 
+const ToastContext = React.createContext()
+
+
+function Toast(props) {
+    const [expanded, setExpanded] = React.useState(false)
+
+    const translate = expanded ? " translate-y-0" : " translate-y-32"
+
+    const { message, clearMessage } = props
+
+    React.useEffect(() => {
+        if (message) {
+            setExpanded(true)
+        }
+
+        let expandTimer = setTimeout(() => setExpanded(false), 2000)
+        let messageTimer = setTimeout(() => clearMessage(), 2500)
+
+        return () => {
+            clearTimeout(expandTimer)
+            clearTimeout(messageTimer)
+        }
+    }, [message, clearMessage])
+
+    return (
+        <div className="container fixed bottom-0 flex justify-center pointer-events-none">
+            <div className={"w-1/2 my-16 transition-transform transform " + translate}>
+                <div className="-mx-16 p-4 border-2 rounded-full shadow-2xl bg-green-300 flex justify-center">
+                    {message}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
 function ProfileSettings(props) {
     const fetcher = useFetcher()
     const { data: currentProfile } = useAPI("/profile/@me")
-    console.log(currentProfile)
+
+    const toastMessage = React.useContext(ToastContext)
 
     const initialValues = currentProfile || {
         name: "",
@@ -69,6 +106,7 @@ function ProfileSettings(props) {
                         method: "POST",
                         body: JSON.stringify(values)
                     })
+                    toastMessage("saved successfully")
                 }}
             >
                 {formik => (
@@ -150,16 +188,27 @@ function AccountSettings(props) {
 
 
 export default function Settings(props) {
+    const [message, setMessage] = React.useState(null)
+
+    const toastMessage = (message) => {
+        setMessage(message)
+    }
+
+    const clearMessage = React.useCallback(() => setMessage(""), [setMessage])
+
     return (
-        <div className="mx-auto px-4 flex justify-center items-start gap-8">
-            <Sidebar items={["profile", "account"]}/>
-            <Switch>
-                <Route path="/settings/profile" component={ProfileSettings} />
-                <Route path="/settings/account" component={AccountSettings} />
-                <Route path="/settings">
-                    <Redirect to="/settings/profile" />
-                </Route>
-            </Switch>
-        </div>
+        <ToastContext.Provider value={toastMessage}>
+            <div className="mx-auto px-4 flex justify-center items-start gap-8">
+                <Sidebar items={["profile", "account"]}/>
+                <Switch>
+                    <Route path="/settings/profile" component={ProfileSettings} />
+                    <Route path="/settings/account" component={AccountSettings} />
+                    <Route path="/settings">
+                        <Redirect to="/settings/profile" />
+                    </Route>
+                </Switch>
+                <Toast message={message} clearMessage={clearMessage}/>
+            </div>
+        </ToastContext.Provider>
     )
 }

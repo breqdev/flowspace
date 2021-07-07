@@ -175,8 +175,6 @@ function DoVerify(props) {
 
             const new_token = await refresh_response.json()
 
-            console.log(new_token)
-
             setToken({refresh_token, ...new_token})
         }
 
