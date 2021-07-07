@@ -26,6 +26,8 @@ function Button(props) {
 function LogIn(props) {
     const [, setToken] = React.useContext(AuthContext)
 
+    const history = useHistory()
+
     return (
         <>
             <Formik
@@ -45,7 +47,12 @@ function LogIn(props) {
 
                     const token = await response.json()
 
-                    setToken(token)
+                    if (response.ok) {
+                        setToken(token)
+                    } else {
+                        props.onError(token.msg)
+                        history.push("/error")
+                    }
                 }}
             >
                 {formik => (
@@ -63,19 +70,7 @@ function LogIn(props) {
 
 
 function SignUp(props) {
-    const [submitted, setSubmitted] = React.useState({
-        status: "pending",
-        error: undefined
-    })
-
-    if (submitted.status === "success") {
-        return <Redirect to="/verify" />
-    }
-
-    if (submitted.status === "error") {
-        props.onError(submitted.error)
-        return <Redirect to="/error" />
-    }
+    const history = useHistory()
 
     return (
         <>
@@ -98,15 +93,10 @@ function SignUp(props) {
                     const data = await response.json()
 
                     if (response.ok) {
-                        setSubmitted({
-                            status: "success",
-                            error: undefined
-                        })
+                        history.push("/verify")
                     } else {
-                        setSubmitted({
-                            status: "error",
-                            error: data.msg
-                        })
+                        props.onError(data.msg)
+                        history.push("/error")
                     }
                 }}
             >
