@@ -1,6 +1,7 @@
 import React from "react"
 import { NavLink, Switch, Route, Redirect, useHistory } from "react-router-dom"
 import { Formik, Field, Form } from "formik"
+import { mutate } from "swr"
 
 import AuthContext from "./AuthContext.js"
 import { useAPI, useFetcher } from "./api.js"
@@ -106,6 +107,8 @@ function ProfileSettings(props) {
                         method: "POST",
                         body: JSON.stringify(values)
                     })
+                    mutate("/profile/@me")
+                    mutate("/auth/status")
                     toastMessage("saved successfully")
                 }}
             >
@@ -140,6 +143,7 @@ function AccountSettings(props) {
         fetch("/auth/delete", {
             method: "POST"
         }).then(() => {
+            mutate("/auth/status")
             setToken(null)
             history.push("/")
         })
