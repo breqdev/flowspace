@@ -55,17 +55,10 @@ function Dropdown(props) {
 }
 
 function UserDropdownMenu(props) {
-    const [token, setToken] = React.useContext(AuthContext)
+    const [, setToken] = React.useContext(AuthContext)
 
     const handleLogout = (e) => {
         props.doRetract()
-
-        fetch("http://localhost:5000/auth/logout", {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token.access_token}`
-            }
-        })
         mutate("/auth/status")
         setToken(null)
     }
