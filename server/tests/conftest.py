@@ -41,7 +41,10 @@ def user(client, emails):
 
     token = emails[0]["params"]["token"]
 
-    response = client.post(f"/auth/verify?token={token}").get_json()
+    response = client.post(
+        f"/auth/verify",
+        headers={"Authorization": f"Bearer {token}"}
+    ).get_json()
 
     token = response["access_token"]
 

@@ -140,64 +140,69 @@ function Error(props) {
 }
 
 
+function PromptForVerify(props) {
+    return (
+        <>
+            <h2 className="text-2xl mb-4">one more thing</h2>
+            <hr />
+            <p className="text-lg my-2">
+                we need you to verify your email address.
+                click the link in the email you received.
+            </p>
+        </>
+    )
+}
 
-function VerifyEmail(props) {
+
+
+function DoVerify(props) {
     const [, setToken] = React.useContext(AuthContext)
 
     const { search } = useLocation()
-    const params = React.useMemo(() => new URLSearchParams(search), [search])
 
-    const [status, setStatus] = React.useState(params.has("token") ? "not_started" : "no_token")
+    React.useEffect(() => {
+        const params = new URLSearchParams(search)
 
-    const do_refresh = async () => {
-        const refresh_token = params.get("token")
+        async function doVerify() {
+            const refresh_token = params.get("token")
 
-        const refresh_response = await fetch(BASE_URL + "/auth/verify", {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${refresh_token}`
-            }
-        })
+            const refresh_response = await fetch(BASE_URL + "/auth/verify", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${refresh_token}`
+                }
+            })
 
-        const new_token = await refresh_response.json()
+            const new_token = await refresh_response.json()
 
-        setToken({refresh_token, ...new_token})
+            console.log(new_token)
 
-        setStatus("complete")
-    }
+            setToken({refresh_token, ...new_token})
+        }
 
-    if (status === "not_started") {
-        do_refresh()
-        setStatus("pending")
-    }
+        doVerify()
+    }, [setToken, search])
 
-    if (status === "no_token") {
-        return (
-            <>
-                <h2 className="text-2xl mb-4">one more thing</h2>
-                <hr />
-                <p className="text-lg my-2">
-                    we need you to verify your email address.
-                    click the link in the email you received.
-                </p>
-            </>
-        )
-    }
+    return (
+        <>
+            <h2 className="text-2xl mb-4">just a sec</h2>
+            <hr />
+            <p className="text-lg my-2">
+                validating your email address now...
+            </p>
+        </>
+    )
+}
 
-    if (status === "pending") {
-        return (
-            <>
-                <h2 className="text-2xl mb-4">just a sec</h2>
-                <hr />
-                <p className="text-lg my-2">
-                    validating your email address now...
-                </p>
-            </>
-        )
-    }
 
-    if (status === "complete") {
-        return <Redirect to="/" />
+function VerifyEmail(props) {
+    const { search } = useLocation()
+    const params = new URLSearchParams(search)
+
+    if (params.get("token")) {
+        return <DoVerify />
+    } else {
+        return <PromptForVerify />
     }
 }
 

@@ -65,7 +65,7 @@ def login():
 
 
 @auth.post("/verify")
-@jwt_required(refresh=True, locations=["query_string"])
+@jwt_required(refresh=True)
 def verify():
     identity = get_current_user()
 
