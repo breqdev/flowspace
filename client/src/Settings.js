@@ -1,7 +1,8 @@
 import React from "react"
-import { NavLink, Switch, Route, Redirect } from "react-router-dom"
+import { NavLink, Switch, Route, Redirect, useHistory } from "react-router-dom"
 import { Formik, Field, Form } from "formik"
 
+import AuthContext from "./AuthContext.js"
 import { useAPI, useFetcher } from "./api.js"
 
 function Sidebar(props) {
@@ -40,7 +41,7 @@ function SettingsPane(props) {
 
 function SubmitButton(props) {
     return (
-        <input type="submit" value={props.text || "submit"} className="rounded-lg bg-green-300 disabled:bg-gray-200 hover:bg-green-500 transition-colors duration-300 p-4 my-2" />
+        <input type="submit" value={props.text || "submit"} className={props.className + " rounded-lg bg-green-300 disabled:bg-gray-200 hover:bg-green-500 transition-colors duration-300 p-4 my-2"} onClick={props.onClick} />
     )
 }
 
@@ -92,6 +93,19 @@ function ProfileSettings(props) {
 
 function AccountSettings(props) {
     const { data: currentAccount } = useAPI("/auth/status")
+    const [, setToken] = React.useContext(AuthContext)
+
+    const fetch = useFetcher()
+    const history = useHistory()
+
+    const handleDeleteAccount = () => {
+        fetch("/auth/delete", {
+            method: "POST"
+        }).then(() => {
+            setToken(null)
+            history.push("/")
+        })
+    }
 
     return (
         <SettingsPane title="account">
@@ -110,6 +124,8 @@ function AccountSettings(props) {
                 )}
             </Formik>
 
+            <hr />
+
             <Formik
                 initialValues={{old_password: "", new_password: ""}}
                 enableReinitialize={true}
@@ -124,6 +140,10 @@ function AccountSettings(props) {
                     </Form>
                 )}
             </Formik>
+
+            <hr />
+
+            <SubmitButton className="w-full" text="delete account" onClick={handleDeleteAccount} />
         </SettingsPane>
     )
 }

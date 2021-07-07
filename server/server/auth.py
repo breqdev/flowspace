@@ -105,7 +105,15 @@ def logout():
     db.session.add(TokenBlocklist(jti=jti, revoked_at=now))
     db.session.commit()
 
-    return jsonify({})
+    return jsonify({"msg": "Logged out successfully"})
+
+@auth.post("/delete")
+@jwt_required()
+def delete():
+    db.session.delete(current_user)
+    db.session.commit()
+
+    return jsonify({"msg": "Deleted user account"})
 
 @auth.get("/status")
 @jwt_required()

@@ -59,3 +59,11 @@ def test_revoked_token(client, user):
     )
 
     assert rv.status_code >= 400
+
+
+def test_delete_account(client, headers):
+    client.post("/auth/delete", headers=headers).get_json()
+
+    rv = client.get("/auth/status", headers=headers)
+
+    assert rv.status_code >= 400
