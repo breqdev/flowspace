@@ -43,7 +43,7 @@ function Dropdown(props) {
     }, [wrapperRef, expanded])
 
     return (
-        <div className="relative cursor-pointer" ref={wrapperRef}>
+        <div className="relative cursor-pointer select-none" ref={wrapperRef}>
             <div onClick={handleExpand}>
                 <span className="mx-4">{props.text}</span>
                 <FontAwesomeIcon icon={faChevronDown}
