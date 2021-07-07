@@ -1,8 +1,11 @@
+import os
 import datetime
+
+import requests
 
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_jwt_extended import create_access_token, create_refresh_token, current_user, jwt_required, get_jwt
+from flask_jwt_extended import create_access_token, create_refresh_token, current_user, jwt_required, get_jwt, get_jwt_identity
 
 from server.model import db, User, TokenBlocklist
 
@@ -18,27 +21,51 @@ def signup():
 
     user = User.query.filter_by(email=email).one_or_none()
     if user:
-        return "Email Already Exists", 400
+        return jsonify({"msg": "Email already exists"}), 400
 
     new_user = User(
         email=email,
+        verified=False,
         name=name,
         password=password_hash,
         registered_on=datetime.datetime.now()
     )
 
+    refresh_token = create_refresh_token(identity=new_user)
+
+    # todo: send refresh token over email
+
+    requests.post(
+        "https://api.sendgrid.com/v3/mail/send",
+        headers = {
+            "Authorization": f"Bearer {os.environ['SENDGRID_API_KEY']}"
+        },
+        json={
+            "from": {
+                "email": "flowspace@breq.dev"
+            },
+            "personalizations": [
+                {
+                    "to": [
+                        {
+                            "email": email
+                        }
+                    ],
+                    "dynamic_template_data": {
+                        "name": name,
+                        "token": refresh_token
+                    }
+                }
+            ],
+            "template_id": "d-58a37a60f5e54322afb9f918d3c13b03"
+        }
+    ).raise_for_status()
+
     db.session.add(new_user)
     db.session.commit()
 
-    access_token = create_access_token(identity=new_user)
-    refresh_token = create_refresh_token(identity=new_user)
+    return jsonify({"msg": "refresh token sent to email"}), 200
 
-    return jsonify({
-        "access_token": access_token,
-        "token_type": "Bearer",
-        "expiers_in": current_app.config.get("JWT_ACCESS_TOKEN_EXPIRES").total_seconds(),
-        "refresh_token": refresh_token
-    })
 
 
 @auth.post("/login")
@@ -49,7 +76,7 @@ def login():
     user = User.query.filter_by(email=email).one_or_none()
 
     if not user or not check_password_hash(user.password, password):
-        return "Invalid Login", 400
+        return jsonify({"msg": "Invalid login"}), 400
 
     access_token = create_access_token(identity=user)
     refresh_token = create_refresh_token(identity=user)
@@ -62,15 +89,34 @@ def login():
     })
 
 
+@auth.post("/verify")
+@jwt_required(refresh=True)
+def verify():
+    identity = get_jwt_identity()
+    access_token = create_access_token(identity=identity)
+
+    identity.verified = True
+    db.session.commit()
+
+    return jsonify({
+        "access_token": access_token,
+        "token_type": "Bearer",
+        "expires_in": current_app.config.get("JWT_ACCESS_TOKEN_EXPIRES").total_seconds()
+    })
+
+
 @auth.post("/refresh")
 @jwt_required(refresh=True)
 def refresh():
+    if not current_user.verified:
+        return jsonify({"msg": "User not verified"}), 400
+
     access_token = create_access_token(identity=current_user)
 
     return jsonify({
         "access_token": access_token,
         "token_type": "Bearer",
-        "expiers_in": current_app.config.get("JWT_ACCESS_TOKEN_EXPIRES").total_seconds()
+        "expires_in": current_app.config.get("JWT_ACCESS_TOKEN_EXPIRES").total_seconds()
     })
 
 

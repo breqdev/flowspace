@@ -20,6 +20,7 @@ class User(db.Model):
     # Registration Data
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
+    verified = db.Column(db.Boolean, nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
 
     # User Profile
