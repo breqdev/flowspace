@@ -38,13 +38,21 @@ def user(client, emails):
     }
 
     response = client.post("/auth/signup", data=user).get_json()
-    print(response)
 
     token = emails[0]["params"]["token"]
 
     response = client.post(f"/auth/verify?token={token}").get_json()
-    print(response)
 
     token = response["access_token"]
 
     return user
+
+@pytest.fixture
+def token(client, user):
+    rv = client.post("/auth/login", data=user).get_json()
+    token = rv["access_token"]
+    return token
+
+@pytest.fixture
+def headers(token):
+    return {"Authorization": f"Bearer {token}"}

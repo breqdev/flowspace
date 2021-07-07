@@ -24,11 +24,11 @@ def get_own_profile():
 @profile.post("/@me")
 @jwt_required()
 def edit_own_profile():
-    current_user.name = request.json["name"]
-    current_user.pronouns = request.json["pronouns"]
-    current_user.url = request.json["url"]
-    current_user.location = request.json["location"]
-    current_user.bio = request.json["bio"]
+    fields = ["name", "pronouns", "url", "location", "bio"]
+
+    for field in fields:
+        if field in request.json:
+            setattr(current_user, field, request.json[field])
 
     db.session.commit()
     return jsonify({})
