@@ -116,10 +116,20 @@ def test_change_password(client, user, headers):
 
     # Log in with new password
     rv = client.post("/auth/login", data=new_user).get_json()
-    assert rv["access_token"]
+    token = rv["access_token"]
+    assert token
 
     # Ensure old password cannot be used for login
     rv = client.post("/auth/login", data=user)
     assert rv.status_code >= 400
+
+    # Ensure the existing token is dead
+    rv = client.get("/auth/status", headers=headers)
+    assert rv.status_code >= 400
+
+    # Ensure that the new token works
+    rv = client.get(
+        "/auth/status", headers={"Authorization": f"Bearer {token}"})
+    assert rv.status_code < 300
 
 
