@@ -2,9 +2,9 @@ import datetime
 
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_jwt_extended import create_access_token, create_refresh_token, current_user, jwt_required, get_jwt, get_current_user
+from flask_jwt_extended import create_access_token, create_refresh_token, current_user, jwt_required, get_current_user
 
-from server.model import db, User, TokenBlocklist
+from server.model import db, User
 import server.email as email_client
 
 auth = Blueprint("auth", __name__)
@@ -98,17 +98,6 @@ def refresh():
         "expires_in": current_app.config.get("JWT_ACCESS_TOKEN_EXPIRES").total_seconds()
     })
 
-
-@auth.post("/logout")
-@jwt_required()
-def logout():
-    jti = get_jwt()["jti"]
-    now = datetime.datetime.utcnow()
-
-    db.session.add(TokenBlocklist(jti=jti, revoked_at=now))
-    db.session.commit()
-
-    return jsonify({"msg": "Logged out successfully"})
 
 @auth.post("/delete")
 @jwt_required()

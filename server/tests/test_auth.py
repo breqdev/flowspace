@@ -58,20 +58,6 @@ def test_refresh_token(client, user):
     assert rv["name"] == "Test User"
 
 
-def test_revoked_token(client, user):
-    rv = client.post("/auth/login", data=user).get_json()
-    token = rv["access_token"]
-
-    rv = client.post("/auth/logout", headers={"Authorization": f"Bearer {token}"})
-
-    rv = client.get(
-        "/auth/status",
-        headers={"Authorization": f"Bearer {token}"}
-    )
-
-    assert rv.status_code >= 400
-
-
 def test_delete_account(client, headers):
     client.post("/auth/delete", headers=headers).get_json()
 

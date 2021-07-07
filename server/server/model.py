@@ -8,12 +8,6 @@ db = SQLAlchemy()
 migrate = Migrate(db=db)
 
 
-class TokenBlocklist(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    jti = db.Column(db.String(), nullable=False)
-    revoked_at = db.Column(db.DateTime, nullable=False)
-
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
