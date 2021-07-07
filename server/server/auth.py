@@ -53,6 +53,9 @@ def login():
     if not user or not check_password_hash(user.password, password):
         return jsonify({"msg": "Invalid login"}), 400
 
+    if not user.verified:
+        return jsonify({"msg": "Verify email first"}), 400
+
     access_token = create_access_token(identity=user)
     refresh_token = create_refresh_token(identity=user)
 
@@ -114,6 +117,38 @@ def delete():
     db.session.commit()
 
     return jsonify({"msg": "Deleted user account"})
+
+@auth.post("/email")
+@jwt_required()
+def modify_email():
+    new_email = request.form["email"]
+    password = request.form["password"]
+
+    if not check_password_hash(current_user.password, password):
+        return jsonify({"msg": "Invalid login"}), 400
+
+    current_user.email = new_email
+    current_user.verified = False
+    db.session.commit()
+
+    return jsonify({"msg": "Changed email, please verify now"})
+
+
+@auth.post("/password")
+@jwt_required()
+def modify_password():
+    old_password = request.form["password"]
+    new_password = request.form["new_password"]
+
+    if not check_password_hash(current_user.password, old_password):
+        return jsonify({"msg": "Invalid login"}), 400
+
+    current_user.password = generate_password_hash(
+        new_password, method="sha256")
+    db.session.commit()
+
+    return jsonify({"msg": "Password changed successfully"})
+
 
 @auth.get("/status")
 @jwt_required()
