@@ -1,13 +1,11 @@
-import os
 import datetime
-
-import requests
 
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_jwt_extended import create_access_token, create_refresh_token, current_user, jwt_required, get_jwt, get_jwt_identity
+from flask_jwt_extended import create_access_token, create_refresh_token, current_user, jwt_required, get_jwt, get_current_user
 
 from server.model import db, User, TokenBlocklist
+import server.email as email_client
 
 auth = Blueprint("auth", __name__)
 
@@ -31,38 +29,15 @@ def signup():
         registered_on=datetime.datetime.now()
     )
 
-    refresh_token = create_refresh_token(identity=new_user)
-
-    # todo: send refresh token over email
-
-    requests.post(
-        "https://api.sendgrid.com/v3/mail/send",
-        headers = {
-            "Authorization": f"Bearer {os.environ['SENDGRID_API_KEY']}"
-        },
-        json={
-            "from": {
-                "email": "flowspace@breq.dev"
-            },
-            "personalizations": [
-                {
-                    "to": [
-                        {
-                            "email": email
-                        }
-                    ],
-                    "dynamic_template_data": {
-                        "name": name,
-                        "token": refresh_token
-                    }
-                }
-            ],
-            "template_id": "d-58a37a60f5e54322afb9f918d3c13b03"
-        }
-    ).raise_for_status()
-
     db.session.add(new_user)
     db.session.commit()
+
+    refresh_token = create_refresh_token(identity=new_user)
+
+    email_client.send_email(email, "d-58a37a60f5e54322afb9f918d3c13b03", {
+        "name": name,
+        "token": refresh_token
+    })
 
     return jsonify({"msg": "refresh token sent to email"}), 200
 
@@ -90,13 +65,14 @@ def login():
 
 
 @auth.post("/verify")
-@jwt_required(refresh=True)
+@jwt_required(refresh=True, locations=["query_string"])
 def verify():
-    identity = get_jwt_identity()
-    access_token = create_access_token(identity=identity)
+    identity = get_current_user()
 
     identity.verified = True
     db.session.commit()
+
+    access_token = create_access_token(identity=identity)
 
     return jsonify({
         "access_token": access_token,

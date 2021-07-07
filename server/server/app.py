@@ -24,6 +24,7 @@ def create_app(database_uri=None):
     app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY", "test")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(hours=1)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = datetime.timedelta(days=30)
+    app.config["JWT_QUERY_STRING_NAME"] = "token"
 
     from server.model import db, migrate
     db.init_app(app)
