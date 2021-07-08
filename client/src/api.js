@@ -6,46 +6,82 @@ import AuthContext from "./AuthContext.js"
 export const BASE_URL = "http://localhost:5000"
 
 
-export function useFetcher() {
-    const [token, setToken] = React.useContext(AuthContext)
+// Token must be an argument to the fetcher.
+// We can't take it from the context.
+// https://swr.vercel.app/docs/arguments#multiple-arguments
 
-    return async (url, options) => {
-        const token_data = JSON.parse(atob(token.access_token.split(".")[1]))
 
-        const now = Math.floor((new Date()).getTime() / 1000)
+async function refreshToken(token, now) {
+    const refreshTokenData = JSON.parse(atob(token.refresh_token.split(".")[1]))
 
-        if (now > token_data.exp) {
-            const refresh_response = await fetch(BASE_URL + "/auth/refresh", {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token.refresh_token}`
-                }
-            })
+    if (now >= refreshTokenData.exp) {
+        console.log("Refresh token is not valid")
+        return null
+    }
 
-            const new_token = await refresh_response.json()
-
-            setToken({...token, access_token: new_token.access_token})
-        }
-
-        const response = await fetch(BASE_URL + url, {
+    const refreshResponse = await fetch(
+        BASE_URL + "/auth/refresh",
+        {
             headers: {
-                Authorization: `Bearer ${token.access_token}`,
-                "Content-Type": (options?.contentType || (["PUT", "POST", "PATCH"].includes(options?.method) ? "application/json" : undefined))
+                Authorization: `Bearer ${token.refresh_token}`
             },
-            ...options
-        })
+            method: "POST"
+        }
+    )
 
-        const data = await response.json()
+    const refreshData = await refreshResponse.json()
 
-        return data
+    if (!refreshResponse.ok) {
+        return null
+    } else {
+        return {
+            access_token: refreshData.access_token,
+            refresh_token: token.refresh_token
+        }
     }
 }
 
 
-export function useAPI(url) {
-    const fetcher = useFetcher()
+async function refreshIfNeeded(token, setToken) {
+    const tokenData = JSON.parse(atob(token.access_token.split(".")[1]))
+    const now = Math.floor((new Date()).getTime() / 1000)
 
-    const result = useSWR(url, fetcher)
+    if (now >= tokenData.exp) {
+        const newToken = await refreshToken(token, now)
+        setToken(newToken)
+        return newToken
+    }
+
+    return token
+}
+
+
+export async function fetchWithToken(url, token, setToken, options) {
+    const newToken = await refreshIfNeeded(token, setToken)
+
+    const response = await fetch(BASE_URL + url, {
+        headers: {
+            Authorization: `Bearer ${newToken.access_token}`,
+            "Content-Type": (
+                options?.contentType
+                || (["PUT", "POST", "PATCH"].includes(options?.method)
+                    ? "application/json"
+                    : undefined
+                )
+            )
+        },
+        ...options
+    })
+
+    const data = await response.json()
+    return data
+}
+
+
+export function useAPI(url) {
+    const [token, setToken] = React.useContext(AuthContext)
+
+    const result = useSWR([url, token, setToken], fetchWithToken)
 
     if (result.error) {
         console.log(result.error)

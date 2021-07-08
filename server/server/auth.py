@@ -54,6 +54,13 @@ def login():
         return jsonify({"msg": "Invalid login"}), 400
 
     if not user.verified:
+        refresh_token = create_refresh_token(identity=user)
+
+        email_client.send_email(user.email, "d-58a37a60f5e54322afb9f918d3c13b03", {
+            "name": user.name,
+            "token": refresh_token
+        })
+
         return jsonify({"msg": "Verify email first"}), 400
 
     access_token = create_access_token(identity=user)
@@ -119,6 +126,13 @@ def modify_email():
     current_user.email = new_email
     current_user.verified = False
     db.session.commit()
+
+    refresh_token = create_refresh_token(identity=current_user)
+
+    email_client.send_email(new_email, "d-58a37a60f5e54322afb9f918d3c13b03", {
+        "name": current_user.name,
+        "token": refresh_token
+    })
 
     return jsonify({"msg": "Changed email, please verify now"})
 

@@ -4,7 +4,7 @@ import { Formik, Field, Form } from "formik"
 import { mutate } from "swr"
 
 import AuthContext from "./AuthContext.js"
-import { useAPI, useFetcher } from "./api.js"
+import { useAPI, fetchWithToken } from "./api.js"
 
 function Sidebar(props) {
     const items = props.items.map(
@@ -23,7 +23,7 @@ function Input(props) {
     return (
         <label className="flex flex-col my-2">
             <span>{props.label || props.field.name}</span>
-            <input className="rounded-md border-2 border-gray-200 focus:border-blue-500 outline-none px-3 py-2 my-2" type="text" {...props.field} />
+            <input className="rounded-md border-2 border-gray-200 focus:border-blue-500 outline-none px-3 py-2 my-2" type={props.type || "text"} {...props.field} />
         </label>
     )
 }
@@ -84,17 +84,17 @@ function Toast(props) {
 
 
 function ProfileSettings(props) {
-    const fetcher = useFetcher()
     const { data: currentProfile } = useAPI("/profile/@me")
+    const [token, setToken] = React.useContext(AuthContext)
 
     const toastMessage = React.useContext(ToastContext)
 
-    const initialValues = currentProfile || {
-        name: "",
-        pronouns: "",
-        url: "",
-        location: "",
-        bio: ""
+    const initialValues = {
+        name: currentProfile?.name || "",
+        pronouns: currentProfile?.pronouns || "",
+        url: currentProfile?.url || "",
+        location: currentProfile?.location || "",
+        bio: currentProfile?.bio || ""
     }
 
     return (
@@ -103,7 +103,7 @@ function ProfileSettings(props) {
                 initialValues={initialValues}
                 enableReinitialize={true}
                 onSubmit={async (values, actions) => {
-                    await fetcher("/profile/@me", {
+                    await fetchWithToken("/profile/@me", token, setToken, {
                         method: "POST",
                         body: JSON.stringify(values)
                     })
@@ -134,13 +134,14 @@ function ProfileSettings(props) {
 
 function AccountSettings(props) {
     const { data: currentAccount } = useAPI("/auth/status")
-    const [, setToken] = React.useContext(AuthContext)
+    const [token, setToken] = React.useContext(AuthContext)
 
-    const fetch = useFetcher()
     const history = useHistory()
 
+    const toastMessage = React.useContext(ToastContext)
+
     const handleDeleteAccount = () => {
-        fetch("/auth/delete", {
+        fetchWithToken("/auth/delete", token, setToken, {
             method: "POST"
         }).then(() => {
             mutate("/auth/status")
@@ -155,6 +156,23 @@ function AccountSettings(props) {
                 initialValues={{email: currentAccount?.email || "", password: ""}}
                 enableReinitialize={true}
                 onSubmit={async (values, actions) => {
+                    const data = new URLSearchParams()
+                    data.append("email", values.email)
+                    data.append("password", values.password)
+
+                    const response = await fetch("/auth/email", {
+                        method: "POST",
+                        contentType: "application/x-www-form-urlencoded",
+                        body: data
+                    })
+
+                    if (response.ok) {
+                        setToken(null)
+                        history.push("/verify")
+                    } else {
+                        const msg = response.msg
+                        toastMessage(msg)
+                    }
                 }}
             >
                 {formik => (
