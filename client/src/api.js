@@ -85,6 +85,7 @@ export function useAPI(url) {
 
     if (result.error) {
         console.log(result.error)
+        throw (result.error)
     }
 
     return result
