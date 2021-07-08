@@ -74,6 +74,11 @@ export async function fetchWithToken(url, token, setToken, options) {
     })
 
     const data = await response.json()
+
+    // ugly hack to expose some response fields on the data object
+    data.ok = response.ok
+    data.status_code = response.status_code
+
     return data
 }
 

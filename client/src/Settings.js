@@ -160,7 +160,7 @@ function AccountSettings(props) {
                     data.append("email", values.email)
                     data.append("password", values.password)
 
-                    const response = await fetch("/auth/email", {
+                    const response = await fetchWithToken("/auth/email", token, setToken, {
                         method: "POST",
                         contentType: "application/x-www-form-urlencoded",
                         body: data
@@ -190,6 +190,23 @@ function AccountSettings(props) {
                 initialValues={{old_password: "", new_password: ""}}
                 enableReinitialize={true}
                 onSubmit={async (values, actions) => {
+                    const data = new URLSearchParams()
+                    data.append("password", values.old_password)
+                    data.append("new_password", values.new_password)
+
+                    const response = await fetchWithToken("/auth/password", token, setToken, {
+                        method: "POST",
+                        contentType: "application/x-www-form-urlencoded",
+                        body: data
+                    })
+
+                    if (response.ok) {
+                        setToken(null)
+                        history.push("/")
+                    } else {
+                        const msg = response.msg
+                        toastMessage(msg)
+                    }
                 }}
             >
                 {formik => (
