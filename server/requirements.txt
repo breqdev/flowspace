@@ -9,7 +9,7 @@ flask-migrate==3.0.1
 flask-sqlalchemy==2.5.1; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.4.0")
 flask==2.0.1; python_version >= "3.6"
 greenlet==1.1.0; python_version >= "3" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3"
-gunicorn==20.1.0; python_version >= "3.8" and python_version < "4.0"
+gunicorn==20.1.0; python_version >= "3.5"
 idna==2.10; python_version >= "3.8" and python_full_version < "3.0.0" and python_version < "4.0" or python_version >= "3.8" and python_version < "4.0" and python_full_version >= "3.5.0"
 itsdangerous==2.0.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
 jinja2==3.0.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
@@ -25,7 +25,7 @@ redis==3.5.3; python_version >= "3.8" and python_full_version < "3.0.0" and pyth
 requests==2.25.1; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
 sendgrid==6.7.1; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
 six==1.16.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0"
-snowcloud==0.1.0; python_version >= "3.8" and python_version < "4.0"
+snowcloud==0.1.2; python_version >= "3.8" and python_version < "4.0"
 sqlalchemy==1.4.20; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0"
 starkbank-ecdsa==1.1.1; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 urllib3==1.26.6; python_version >= "3.8" and python_full_version < "3.0.0" and python_version < "4.0" or python_full_version >= "3.5.0" and python_version < "4" and python_version >= "3.8"

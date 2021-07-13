@@ -16,6 +16,7 @@ Flask-Migrate = "^3.0.1"
 sendgrid = "^6.7.1"
 requests = "^2.25.1"
 snowcloud = "^0.1.0"
+gunicorn = "^20.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
