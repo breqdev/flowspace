@@ -5,11 +5,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
 db = SQLAlchemy()
-migrate = Migrate(db=db)
+migrate = Migrate(db=db, compare_type=True)
 
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=False)
 
     # Registration Data
     email = db.Column(db.String, unique=True, nullable=False)

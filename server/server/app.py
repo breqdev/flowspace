@@ -15,6 +15,9 @@ def create_app(database_uri=None):
     from server.jwtmanager import jwt
     jwt.init_app(app)
 
+    from server.cloudmanager import cloud
+    cloud.init_app(app)
+
     if database_uri is None:
         database_uri = os.environ["SQLALCHEMY_DATABASE_URI"]
 
@@ -25,6 +28,9 @@ def create_app(database_uri=None):
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(hours=1)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = datetime.timedelta(days=30)
     app.config["JWT_QUERY_STRING_NAME"] = "token"
+
+    app.config["SNOWCLOUD_URL"] = "https://snowcloud.breq.dev/"
+    app.config["SNOWCLOUD_KEY"] = os.getenv("SNOWCLOUD_KEY")
 
     from server.model import db, migrate
     db.init_app(app)

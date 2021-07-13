@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import create_access_token, create_refresh_token, current_user, jwt_required, get_current_user
 
 from server.model import db, User
+from server.cloudmanager import cloud
 import server.email as email_client
 
 auth = Blueprint("auth", __name__)
@@ -22,6 +23,7 @@ def signup():
         return jsonify({"msg": "Email already exists"}), 400
 
     new_user = User(
+        id=cloud.generate(),
         email=email,
         verified=False,
         name=name,

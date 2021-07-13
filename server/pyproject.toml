@@ -15,6 +15,7 @@ Flask-JWT-Extended = "^4.2.1"
 Flask-Migrate = "^3.0.1"
 sendgrid = "^6.7.1"
 requests = "^2.25.1"
+snowcloud = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
