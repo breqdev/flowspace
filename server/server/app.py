@@ -21,7 +21,7 @@ def create_app(database_uri=None):
     if database_uri is None:
         database_uri = (
             os.getenv("SQLALCHEMY_DATABASE_URI")  # used in development
-            or os.getenv("DATABASE_URL")  # used for Dokku deploy
+            or os.getenv("DATABASE_URL").replace('postgres://', 'postgresql://')  # used for Dokku deploy
         )
 
     app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
