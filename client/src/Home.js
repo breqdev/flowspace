@@ -1,15 +1,56 @@
+import React from "react"
+
+
+function BlinkingCursor(props) {
+    const cursor = React.useRef(null)
+
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            const color = cursor.current.style.color
+            cursor.current.style.color = (
+                color === "rgb(0, 0, 0)"
+                ? "rgb(255, 255, 255)"
+                : "rgb(0, 0, 0)"
+            )
+        }, 500)
+        return () => clearInterval(interval)
+    }, [])
+
+    return (
+        <span ref={cursor}>_</span>
+    )
+}
+
+function Placeholder(props) {
+    return (
+        <div className="mx-auto my-8 px-8 py-8 bg-black text-white">
+            <code className="text-xl">
+                you are currently at the flowspace homepage.
+                <br />
+                there is nothing here.
+                <br />
+                brooke is hard at work right now building this.
+                <br />
+                pardon the dust.
+                <br />
+                in the meantime, send brooke an email at breq@breq.dev.
+                <br />
+                comments, complaints, feedback, whatever.
+                <br />
+                she'd love to hear from you.
+                <br />
+                &gt; <BlinkingCursor />
+            </code>
+        </div>
+    )
+}
+
+
 export default function Home(props) {
     return (
         <div className="container mx-auto px-4">
             <h1 className="text-6xl md:text-9xl text-center my-8">flowspace</h1>
-            <h2 className="text-4xl text-center my-4">welcome to a <span className="text-blue-500">new space</span> to talk.</h2>
-
-            <p className="w-96 mx-auto text-xl text-center my-8">
-                flowspace connects you to your friends like never before.
-                it's a space where ideas, thoughts, and experiences can flow
-                freely. it's a haven from the world of gatekeeping algorithms
-                and intrusive advertising. just you and your community. flowspace.
-            </p>
+            <Placeholder />
         </div>
     )
 }
