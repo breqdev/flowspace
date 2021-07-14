@@ -167,7 +167,10 @@ def modify_password():
         new_password, method="sha256")
     db.session.commit()
 
-    return jsonify({"msg": "Password changed successfully"})
+    return jsonify({
+        "msg": "Password changed successfully",
+        "email": current_user.email
+    })
 
 
 @auth.post("/reset")
