@@ -2,7 +2,7 @@ import datetime
 
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_jwt_extended import create_access_token, create_refresh_token, current_user, jwt_required, get_current_user
+from flask_jwt_extended import create_access_token, create_refresh_token, current_user, jwt_required, get_current_user, get_jwt
 
 from server.model import db, User
 from server.cloudmanager import cloud
@@ -152,19 +152,54 @@ def modify_email():
 
 
 @auth.post("/password")
-@jwt_required()
+@jwt_required(optional=True)
 def modify_password():
-    old_password = request.form["password"]
     new_password = request.form["new_password"]
+    claims = get_jwt() or {}
 
-    if not check_password_hash(current_user.password, old_password):
-        return jsonify({"msg": "Invalid login"}), 400
+    if not claims.get("reset_password"):
+        old_password = request.form["password"]
+
+        if not check_password_hash(current_user.password, old_password):
+            return jsonify({"msg": "Invalid login"}), 400
 
     current_user.password = generate_password_hash(
         new_password, method="sha256")
     db.session.commit()
 
     return jsonify({"msg": "Password changed successfully"})
+
+
+@auth.post("/reset")
+def reset_password():
+    email = request.form["email"]
+
+    user = User.query.filter_by(email=email).one_or_none()
+
+    if not user:
+        return jsonify({"msg": "Account does not exist"}), 400
+
+    if not user.verified:
+        db.session.delete(user)
+        db.session.commit()
+
+        return jsonify({"msg": "User not verified, account has been deleted"}), 400
+
+    access_token = create_access_token(
+        identity=user,
+        additional_claims={"reset_password": True}
+    )
+
+    email_client.send_email(
+        email,
+        email_client.TEMPLATE_IDS["RESET_PASSWORD"],
+        {
+            "name": user.name,
+            "token": access_token
+        }
+    )
+
+    return jsonify({"msg": "Please check email for verification link"})
 
 
 @auth.get("/status")

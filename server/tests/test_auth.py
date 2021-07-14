@@ -118,4 +118,41 @@ def test_change_password(client, user, headers):
         "/auth/status", headers={"Authorization": f"Bearer {token}"})
     assert rv.status_code < 300
 
+def test_reset_password(client, user, emails):
+    # Request a password reset email
+    rv = client.post(
+        "/auth/reset",
+        data={"email": user["email"]},
+    )
+    assert rv.status_code < 300
 
+    # Perform the password reset
+    token = emails[-1]["params"]["token"]
+
+    rv = client.post(
+        "/auth/password",
+        data={"new_password": "password1"},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert rv.status_code < 300
+
+    # Log in using the new password
+    rv = client.post(
+        "/auth/login",
+        data={"email": user["email"], "password": "password1"}
+    )
+    assert rv.status_code < 300
+
+    access = rv.get_json()["access_token"]
+
+    # Ensure the old token does not work anymore
+    rv = client.get(
+        "/auth/status", headers={"Authorization": f"Bearer {token}"})
+    print(rv.get_json())
+    assert rv.status_code >= 400
+
+    # Check the login status
+    rv = client.get(
+        "/auth/status", headers={"Authorization": f"Bearer {access}"})
+    print(rv.get_json())
+    assert rv.status_code < 300
