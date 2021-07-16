@@ -33,8 +33,8 @@ function ResetPassword(props) {
 function LoggedOutView(props) {
     return (
         <div className="flex flex-col min-h-screen items-center bg-gradient-to-r from-green-400 to-blue-500">
-            <h1 className="text-white text-8xl my-24">flowspace</h1>
-            <div className="w-96 p-8 bg-white rounded-3xl flex flex-col text-center text-xl my-12">
+            <h1 className="text-white text-6xl md:text-8xl mt-24 mb-12">flowspace</h1>
+            <div className="self-stretch md:self-center mx-4 my-6 md:w-96 p-8 bg-white rounded-3xl flex flex-col text-center text-xl">
                 {props.children}
             </div>
         </div>
