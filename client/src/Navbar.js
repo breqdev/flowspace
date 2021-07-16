@@ -43,9 +43,9 @@ function Dropdown(props) {
     }, [wrapperRef, expanded])
 
     return (
-        <div className="relative cursor-pointer select-none" ref={wrapperRef}>
-            <div onClick={handleExpand}>
-                <span className="mx-4">{props.text}</span>
+        <div className="flex-shrink min-w-0 relative cursor-pointer select-none" ref={wrapperRef}>
+            <div className="flex" onClick={handleExpand}>
+                <span className="flex-shrink min-w-0 mx-4 whitespace-nowrap overflow-ellipsis overflow-hidden">{props.text}</span>
                 <FontAwesomeIcon icon={faChevronDown}
                 className={"transform transition-transform " + (expanded ? "rotate-180" : "rotate-0")} />
             </div>
@@ -76,7 +76,7 @@ export default function Navbar(props) {
     const { data: user } = useAPI("/auth/status")
 
     return (
-        <div className="px-8 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white text-xl">
+        <div className="px-4 md:px-8 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white text-xl">
             <div className="container mx-auto px-4 flex">
                 <Link to="/">flowspace</Link>
                 <div className="flex-grow" />
