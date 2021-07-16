@@ -12,7 +12,7 @@ function Sidebar(props) {
     )
 
     return (
-        <div className="flex flex-col m-4 w-48 rounded-xl border-2 divide-y overflow-hidden">
+        <div className="flex flex-col self-stretch md:self-auto m-4 md:w-48 rounded-xl border-2 divide-y overflow-hidden">
             {items}
         </div>
     )
@@ -31,7 +31,7 @@ function Input(props) {
 
 function SettingsPane(props) {
     return (
-        <div className="w-96 my-4">
+        <div className="w-full md:w-96 my-4">
             <h1 className="text-2xl text-center">{props.title} settings</h1>
             <hr className="my-4" />
             {props.children}
@@ -73,8 +73,8 @@ function Toast(props) {
 
     return (
         <div className="container fixed bottom-0 flex justify-center pointer-events-none">
-            <div className={"w-1/2 my-16 transition-transform transform " + translate}>
-                <div className="-mx-16 p-4 border-2 rounded-full shadow-2xl bg-green-300 flex justify-center">
+            <div className={"md:w-1/2 my-16 transition-transform transform " + translate}>
+                <div className="md:-mx-16 px-8 py-4 border-2 rounded-full shadow-2xl bg-green-300 flex justify-center">
                     {message}
                 </div>
             </div>
@@ -237,7 +237,7 @@ export default function Settings(props) {
 
     return (
         <ToastContext.Provider value={toastMessage}>
-            <div className="mx-auto px-4 flex justify-center items-start gap-8">
+            <div className="mx-auto px-4 flex flex-col md:flex-row justify-center items-start gap-8">
                 <Sidebar items={["profile", "account"]}/>
                 <Switch>
                     <Route path="/settings/profile" component={ProfileSettings} />
