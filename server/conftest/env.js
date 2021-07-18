@@ -28,7 +28,7 @@ class PrismaTestEnvironment extends NodeEnvironment {
         process.env.DATABASE_URL = this.dbURL
         this.global.process.env.DATABASE_URL = this.dbURL
 
-        await exec(`${prismaBinary} migrate dev`)
+        await exec(`${prismaBinary} migrate reset --force`)
 
         await prisma.$connect()
     }
