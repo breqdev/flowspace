@@ -16,4 +16,8 @@ app.use(authMiddleware)
 app.use(indexRoutes.routes())
 app.use(indexRoutes.allowedMethods())
 
-app.listen(5000)
+if (require.main === module) {
+    app.listen(3000)
+}
+
+module.exports = app

@@ -1,8 +1,9 @@
 const Router = require("@koa/router")
-const { PrismaClient } = require("@prisma/client")
+
+const prisma = require("../utils/prisma")
 
 const router = new Router()
-const prisma = new PrismaClient()
+
 
 
 router.get("/", async ctx => {

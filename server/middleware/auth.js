@@ -1,10 +1,8 @@
 const compose = require("koa-compose")
 const jwt = require("jsonwebtoken")
-const { PrismaClient } = require("@prisma/client")
 
-const { getSignature } = require("./utils/createJWT")
-
-const prisma = new PrismaClient()
+const { getSignature } = require("../utils/createJWT")
+const prisma = require("../utils/prisma")
 
 const getAuthHeader = async (ctx, next) => {
     ctx.state.token = null
@@ -29,7 +27,7 @@ const getAuthHeader = async (ctx, next) => {
         }
     }
 
-    await next()
+    return next()
 }
 
 const getClaimedUser = async (ctx, next) => {

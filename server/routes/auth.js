@@ -1,14 +1,13 @@
 const Router = require("@koa/router")
-const { PrismaClient } = require("@prisma/client")
 
-const { generatePasswordHash, checkPasswordHash } = require("./utils/hashing")
-const { createAccessToken, createRefreshToken, ACCESS_TOKEN_EXPIRES } = require("./utils/createJWT")
-const { sendEmail, EMAIL_TEMPLATES } = require("./utils/email")
+const { generatePasswordHash, checkPasswordHash } = require("../utils/hashing")
+const { createAccessToken, createRefreshToken, ACCESS_TOKEN_EXPIRES } = require("../utils/createJWT")
+const { sendEmail, EMAIL_TEMPLATES } = require("../utils/email")
 
-const snowcloud = require("./utils/snowcloud")
+const snowcloud = require("../utils/snowcloud")
+const prisma = require("../utils/prisma")
 
 const router = new Router()
-const prisma = new PrismaClient()
 
 
 router.post("/signup", async (ctx) => {
