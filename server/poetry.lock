@@ -219,6 +219,18 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "minio"
+version = "7.1.0"
+description = "MinIO Python SDK for Amazon S3 Compatible Cloud Storage"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+certifi = "*"
+urllib3 = "*"
+
+[[package]]
 name = "more-itertools"
 version = "8.8.0"
 description = "More routines for operating on iterables, beyond itertools"
@@ -397,7 +409,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "snowcloud"
-version = "0.1.0"
+version = "0.1.2"
 description = "Service for generating unique, time-ordered IDs across distributed worker processes."
 category = "main"
 optional = false
@@ -483,7 +495,7 @@ watchdog = ["watchdog"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "46570cefd54b3b078b66b38cf1ef3504ece31802a80ac87884424a0fe7805486"
+content-hash = "77d2b67679b466f7df2020f71c9390fa2436ee8d6ccf96ea607ed645423e6ab5"
 
 [metadata.files]
 alembic = [
@@ -641,6 +653,10 @@ markupsafe = [
     {file = "MarkupSafe-2.0.1-cp39-cp39-win_amd64.whl", hash = "sha256:693ce3f9e70a6cf7d2fb9e6c9d8b204b6b39897a2c4a1aa65728d5ac97dcc1d8"},
     {file = "MarkupSafe-2.0.1.tar.gz", hash = "sha256:594c67807fb16238b30c44bdf74f36c02cdf22d1c8cda91ef8a0ed8dabf5620a"},
 ]
+minio = [
+    {file = "minio-7.1.0-py3-none-any.whl", hash = "sha256:c78d5559b3c37b0b3a09983aade272d6ec2a437e02335a44949f30000e5e46a4"},
+    {file = "minio-7.1.0.tar.gz", hash = "sha256:90b853a48422240028d0720668808d2cc7498b5f843271b533ba6fa91e3e3797"},
+]
 more-itertools = [
     {file = "more-itertools-8.8.0.tar.gz", hash = "sha256:83f0308e05477c68f56ea3a888172c78ed5d5b3c282addb67508e7ba6c8f813a"},
     {file = "more_itertools-8.8.0-py3-none-any.whl", hash = "sha256:2cf89ec599962f2ddc4d568a05defc40e0a587fbc10d5989713638864c36be4d"},
@@ -735,8 +751,8 @@ six = [
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
 ]
 snowcloud = [
-    {file = "snowcloud-0.1.0-py3-none-any.whl", hash = "sha256:ed8d7533c278e8904eda4368b2f25942686e7095842d8d245a7ec311ed59ce80"},
-    {file = "snowcloud-0.1.0.tar.gz", hash = "sha256:d766c0d3fa82fc655e6a2c726fcd51563601855aacc9468ceeb2d95a9ad2c351"},
+    {file = "snowcloud-0.1.2-py3-none-any.whl", hash = "sha256:6106fe40f2c548895407b135810efc34c16692449bed0a367ffa789740ab0c87"},
+    {file = "snowcloud-0.1.2.tar.gz", hash = "sha256:ae2355a6c64429f8ee8cb0767b6465014507fdf26b979f70187129770bc974d3"},
 ]
 sqlalchemy = [
     {file = "SQLAlchemy-1.4.20-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:525dd3c2205b11a2bc6d770bf1ec63bde0253fd754b4c19c399d27ddc9dad0d3"},
