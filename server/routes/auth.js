@@ -218,3 +218,17 @@ router.post("/reset", async (ctx) => {
         msg: "Please check email for verification link"
     }
 })
+
+
+router.get("/status", async (ctx) => {
+    if (!ctx.user) {
+        ctx.throw(401, "Unauthorized")
+    }
+
+    return {
+        name: user.name,
+        email: user.email,
+        registered_on: user.registered_on,
+        id: user.id
+    }
+})
