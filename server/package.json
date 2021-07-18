@@ -24,9 +24,12 @@
   "devDependencies": {
     "jest": "^27.0.6",
     "nodemon": "^2.0.12",
+    "pg": "^8.6.0",
     "prisma": "^2.27.0"
   },
   "jest": {
-    "setupFilesAfterEnv": ["<rootDir>/setupTests.js"]
+    "setupFilesAfterEnv": [
+      "<rootDir>/setupTests.js"
+    ]
   }
 }
