@@ -1,10 +1,9 @@
-const express = require("express")
-const app = express()
+const Koa = require("koa")
 
-app.get("/", (req, res) => {
-    res.send("Hello World!")
-})
+const indexRoutes = require("./routes/index")
 
-app.listen(5000, () => {
-    console.log("Server started on port 5000")
-})
+const app = new Koa()
+
+app.use(indexRoutes.routes())
+
+app.listen(5000)
