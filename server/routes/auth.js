@@ -10,7 +10,7 @@ const prisma = require("../utils/prisma")
 const router = new Router()
 
 
-router.post("/signup", async (ctx) => {
+router.post("/auth/signup", async (ctx) => {
     const name = ctx.request.body.name
     const email = ctx.request.body.email
     const password = ctx.request.body.password
@@ -50,7 +50,7 @@ router.post("/signup", async (ctx) => {
 })
 
 
-router.post("/login", async (ctx) => {
+router.post("/auth/login", async (ctx) => {
     const email = ctx.request.body.email
     const password = ctx.request.body.password
 
@@ -80,7 +80,7 @@ router.post("/login", async (ctx) => {
 })
 
 
-router.post("/verify", async (ctx) => {
+router.post("/auth/verify", async (ctx) => {
     if (ctx.state.tokenType !== "refresh") {
         ctx.throw(401, "Invalid token")
     }
@@ -100,7 +100,7 @@ router.post("/verify", async (ctx) => {
 })
 
 
-router.post("/refresh", async (ctx) => {
+router.post("/auth/refresh", async (ctx) => {
     if (ctx.state.tokenType !== "refresh") {
         ctx.throw(401, "Invalid token")
     }
@@ -119,7 +119,7 @@ router.post("/refresh", async (ctx) => {
 })
 
 
-router.post("/delete", async (ctx) => {
+router.post("/auth/delete", async (ctx) => {
     if (!ctx.user) {
         ctx.throw(401, "Unauthorized")
     }
@@ -132,7 +132,7 @@ router.post("/delete", async (ctx) => {
 })
 
 
-router.post("/email", async (ctx) => {
+router.post("/auth/email", async (ctx) => {
     if (!ctx.user) {
         ctx.throw(401, "Unauthorized")
     }
@@ -165,7 +165,7 @@ router.post("/email", async (ctx) => {
 })
 
 
-router.post("/password", async (ctx) => {
+router.post("/auth/password", async (ctx) => {
     const newPassword = ctx.request.body.new_password
 
     if (ctx.state.tokenType == "reset_password") {
@@ -194,7 +194,7 @@ router.post("/password", async (ctx) => {
 })
 
 
-router.post("/reset", async (ctx) => {
+router.post("/auth/reset", async (ctx) => {
     const email = ctx.request.body.email
 
     const user = await prisma.user.findUnique({ where: { email } })
@@ -220,7 +220,7 @@ router.post("/reset", async (ctx) => {
 })
 
 
-router.get("/status", async (ctx) => {
+router.get("/auth/status", async (ctx) => {
     if (!ctx.user) {
         ctx.throw(401, "Unauthorized")
     }
@@ -232,3 +232,5 @@ router.get("/status", async (ctx) => {
         id: user.id
     }
 })
+
+module.exports = router

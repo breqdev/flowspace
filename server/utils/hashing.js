@@ -15,7 +15,7 @@ function checkPasswordHash(hash, password) {
         return false
     }
 
-    const [algorithm, salt, hash] = parts
+    const [algorithm, salt, bareHash] = parts
 
     if (algorithm !== "sha256") {
         return false
@@ -23,7 +23,7 @@ function checkPasswordHash(hash, password) {
 
     const newHash = crypto.createHmac("sha256", salt).update(password).digest("base64")
 
-    return newHash === hash
+    return newHash === bareHash
 }
 
 

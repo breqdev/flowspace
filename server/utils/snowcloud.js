@@ -80,7 +80,7 @@ class Snowcloud {
     }
 }
 
-module.exports = Snowcloud({
+module.exports = new Snowcloud({
     url: process.env.SNOWCLOUD_URL,
     key: process.env.SNOWCLOUD_KEY
 })
