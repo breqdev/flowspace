@@ -5,10 +5,15 @@ const prisma = require("./utils/prisma")
 
 test("root", async () => {
     const response = await request(app.callback()).get("/")
-    expect(response).toBeDefined()
+    expect(response.body.userCount).toBeDefined()
 })
 
 
-afterAll(async () => {
+beforeEach(() => {
+    prisma.$connect()
+})
+
+
+afterEach(async () => {
     prisma.$disconnect()
 })
