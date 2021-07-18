@@ -26,10 +26,5 @@
     "nodemon": "^2.0.12",
     "pg": "^8.6.0",
     "prisma": "^2.27.0"
-  },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "<rootDir>/setupTests.js"
-    ]
   }
 }

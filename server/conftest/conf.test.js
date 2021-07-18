@@ -1,11 +1,11 @@
 const prisma = require("../utils/prisma")
 
 
-describe("set up isolated databases for test cases", () => {
+describe("test database environment", () => {
     it("creates a working database connection", async () => {
         await prisma.user.create({
             data: {
-                id: 0n,
+                id: 100,
 
                 email: "test@example.com",
                 password: "algorithm$salt$hash",
@@ -17,6 +17,12 @@ describe("set up isolated databases for test cases", () => {
 
         const user = await prisma.user.findUnique({ where: { email: "test@example.com" } })
 
-        expect(user.id).toBe(0n)
+        expect(user.email).toBe("test@example.com")
+    })
+
+    it("is a database isolated from other tests", async () => {
+        const user = await prisma.user.findUnique({ where: { email: "test@example.com" } })
+
+        expect(user).toBe(null)
     })
 })
