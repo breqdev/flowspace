@@ -6,6 +6,7 @@ const bodyparser = require("koa-bodyparser")
 const authMiddleware = require("./middleware/auth")
 const { errorHandler, errorCatcher } = require("./middleware/error")
 const requireLogin = require("./middleware/requireLogin")
+const cors = require("./middleware/cors")
 
 const indexRoutes = require("./routes/index")
 const authRoutes = require("./routes/auth")
@@ -14,6 +15,8 @@ const profileRoutes = require("./routes/profile")
 const app = new Koa()
 
 // App Configuration
+app.use(cors)
+
 app.use(errorCatcher)
 app.on("error", errorHandler)
 
@@ -41,7 +44,7 @@ app.use(profileRoutes.allowedMethods())
 
 
 if (require.main === module) {
-    app.listen(3000)
+    app.listen(5000)
 }
 
 module.exports = app
