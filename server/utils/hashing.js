@@ -21,7 +21,7 @@ function checkPasswordHash(hash, password) {
         return false
     }
 
-    const newHash = crypto.createHmac("sha256", salt).update(password).digest("base64")
+    const newHash = crypto.createHmac("sha256", salt).update(password).digest("hex")
 
     return newHash === bareHash
 }
