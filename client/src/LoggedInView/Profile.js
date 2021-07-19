@@ -19,7 +19,7 @@ function UserInfo(props) {
 
 function UserCard(props) {
     return (
-        <div className="m-4 md:m-16">
+        <div className="flex-grow m-4 md:m-16">
             <h1 className="text-6xl mb-4">{props.name}</h1>
             <div className="flex flex-col md:flex-row text-xl justify-between">
                 <UserInfo icon={faUser}>
@@ -36,6 +36,12 @@ function UserCard(props) {
             <div>
                 {props.bio}
             </div>
+            <hr className="my-4 border-black" />
+            <div className="bg-yellow-500 p-4">
+                Note from Brooke: Profile pictures are coming soon!
+                I need to set up object storage first.
+                Thanks for your patience!
+            </div>
         </div>
     )
 }
@@ -43,7 +49,7 @@ function UserCard(props) {
 
 function BigProfile(props) {
     return (
-        <img className="rounded-full md:w-96 m-4 md:m-16" alt="User profile" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" />
+        <img className="flex-grow-0 rounded-full md:w-96 m-8 md:m-16" alt="User profile" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" />
     )
 }
 
@@ -53,8 +59,8 @@ export default function Profile(props) {
 
     const { data, error } = useAPI(`/profile/${id}`)
 
-    if (id === "@me") {
-        return <Redirect to={`/profile/${data?.id}`} />
+    if (id === "@me" && data?.id) {
+        return <Redirect to={`/profile/${data.id}`} />
     }
 
     if (error?.status === 404) {
