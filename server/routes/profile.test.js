@@ -128,3 +128,47 @@ describe("set profile", () => {
         expect(profile.body.bio).toBe(null)
     })
 })
+
+describe("get profile by id", () => {
+    it("allows users to get their own profile", async () => {
+        const { user, token } = await loginUser()
+
+        const profile = await request(app.callback())
+            .get("/profile/@me")
+            .set("Authorization", `Bearer ${token}`)
+
+        const id = profile.body.id
+
+        const response = await request(app.callback())
+            .get(`/profile/${id}`)
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.statusCode).toBe(200)
+        expect(response.body.name).toBe(user.name)
+    })
+
+    it("allows users to get other users' profiles", async () => {
+        const {
+            user: viewer,
+            token: viewerToken
+        } = await loginUser({ email: "viewer@example.com" })
+
+        const {
+            user: target,
+            token: targetToken
+        } = await loginUser()
+
+        const targetOwnProfile = await request(app.callback())
+            .get("/profile/@me")
+            .set("Authorization", `Bearer ${targetToken}`)
+
+        const targetId = targetOwnProfile.body.id
+
+        const response = await request(app.callback())
+            .get(`/profile/${targetId}`)
+            .set("Authorization", `Bearer ${viewerToken}`)
+
+        expect(response.statusCode).toBe(200)
+        expect(response.body.name).toBe(target.name)
+    })
+})

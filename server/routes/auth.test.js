@@ -29,7 +29,16 @@ describe("user signup", () => {
     it("does not allow users to sign up with an existing email", async () => {
         await signupUser()
 
-        const { response } = await signupUser({ name: "Second User" })
+        const secondUser = {
+            name: "Second User",
+            email: "test@example.com",
+            password: "test_password"
+        }
+
+        const response = await request(app.callback())
+            .post("/auth/signup")
+            .type("form")
+            .send(secondUser)
 
         expect(response.statusCode).toBe(400)
 

@@ -1,4 +1,4 @@
-require('dotenv').config()
+require("dotenv").config()
 
 const Koa = require("koa")
 const bodyparser = require("koa-bodyparser")
@@ -7,6 +7,7 @@ const authMiddleware = require("./middleware/auth")
 const { errorHandler, errorCatcher } = require("./middleware/error")
 const requireLogin = require("./middleware/requireLogin")
 const cors = require("./middleware/cors")
+const serializeBigInt = require("./middleware/serializeBigInt")
 
 const indexRoutes = require("./routes/index")
 const authRoutes = require("./routes/auth")
@@ -23,6 +24,8 @@ app.on("error", errorHandler)
 app.use(bodyparser({
     enableTypes: ["json", "form", "text"]
 }))
+
+app.use(serializeBigInt)
 
 // Preliminary Authentication Middleware
 app.use(authMiddleware)

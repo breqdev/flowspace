@@ -16,16 +16,24 @@ const signupUser = async (userOverride) => {
         .type("form")
         .send(user)
 
+    if (!response.ok) {
+        throw new Error(response.body.msg)
+    }
+
     return { user, response }
 }
 
 const verifyUser = async (userOverride) => {
     const { user } = await signupUser(userOverride)
-    const params = sendEmail.mock.calls[0][2]
+    const params = sendEmail.mock.calls.slice(-1)[0][2]
 
     const response = await request(app.callback())
         .post("/auth/verify")
         .set("Authorization", `Bearer ${params.token}`)
+
+    if (!response.ok) {
+        throw new Error(response.body.msg)
+    }
 
     return { user, response }
 }
@@ -37,6 +45,10 @@ const loginUser = async (userOverride) => {
         .post("/auth/login")
         .type("form")
         .send({ email: user.email, password: user.password })
+
+    if (!response.ok) {
+        throw new Error(response.body.msg)
+    }
 
     return {
         user,
