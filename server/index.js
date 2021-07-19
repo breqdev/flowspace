@@ -44,7 +44,7 @@ app.use(profileRoutes.allowedMethods())
 
 
 if (require.main === module) {
-    app.listen(5000)
+    app.listen(process.env.PORT || 5000, process.env.HOST || "0.0.0.0")
 }
 
 module.exports = app
