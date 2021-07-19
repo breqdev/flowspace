@@ -13,29 +13,31 @@ const getSignature = (user) => {
 }
 
 
-const createAccessToken = (user) => {
-    jwt.sign({
+const createAccessToken = (user) => jwt.sign(
+    {
         type: "access"
     },
     getSignature(user), // password hash
     {
         algorithm: "HS256",
         expiresIn: ACCESS_TOKEN_EXPIRES,
-        subject: user.id,
-    })
-}
+        subject: user.id.toString(),
+    }
+)
 
-const createRefreshToken = (user) => {
-    jwt.sign({
-        type: "refresh"
+
+const createRefreshToken = (user, type) => jwt.sign(
+    {
+        type: type || "refresh"
     },
     getSignature(user), // password hash
     {
         algorithm: "HS256",
         expiresIn: REFRESH_TOKEN_EXPIRES,
-        subject: user.id,
-    })
-}
+        subject: user.id.toString(),
+    }
+)
+
 
 module.exports = {
     getSignature,

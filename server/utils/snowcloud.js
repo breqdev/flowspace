@@ -16,8 +16,6 @@ class Snowcloud {
     urlWithParams(params) {
         const url = new URL(this.url)
 
-        url.searchParams = new URLSearchParams()
-
         for (const key in params) {
             url.searchParams.append(key, params[key])
         }
@@ -27,8 +25,8 @@ class Snowcloud {
 
     async register() {
         const result = await fetch(
-            self.urlWithParams({
-                url: this.url,
+            this.urlWithParams({
+                user: this.user,
                 key: this.key
             }),
             { method: "POST" }
@@ -43,8 +41,8 @@ class Snowcloud {
 
     async renew() {
         const result = await fetch(
-            self.urlWithParams({
-                url: this.url,
+            this.urlWithParams({
+                user: this.user,
                 key: this.key,
                 renew: this.workerId
             }),
@@ -66,17 +64,21 @@ class Snowcloud {
     }
 
     async generate() {
-        await renewIfNeeded()
+        await this.renewIfNeeded()
 
-        const timestamp = BigInt(Date.now() - this.EPOCH) * 1000n
+        const unixTime = Math.floor(Date.now() / 1000)
 
-        let snowflake = BigInt()
+        const timestamp = BigInt(unixTime - this.EPOCH) * 1000n
 
-        snowflake |= timestamp << 22
-        snowflake |= BigInt(this.workerId) << 12
+        let snowflake = 0n
+
+        snowflake |= timestamp << 22n
+        snowflake |= BigInt(this.workerId) << 12n
         snowflake |= BigInt(this.increment)
 
         this.increment = (this.increment + 1) & 0xFFF
+
+        return snowflake
     }
 }
 

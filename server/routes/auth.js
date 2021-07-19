@@ -2,7 +2,7 @@ const Router = require("@koa/router")
 
 const { generatePasswordHash, checkPasswordHash } = require("../utils/hashing")
 const { createAccessToken, createRefreshToken, ACCESS_TOKEN_EXPIRES } = require("../utils/createJWT")
-const { sendEmail, EMAIL_TEMPLATES } = require("../utils/email")
+const sendEmail = require("../utils/email")
 
 const snowcloud = require("../utils/snowcloud")
 const prisma = require("../utils/prisma")
@@ -17,13 +17,13 @@ router.post("/auth/signup", async (ctx) => {
 
     const hash = generatePasswordHash(password)
 
-    const existingUser = await primsa.user.findUnique({ where: { email } })
+    const existingUser = await prisma.user.findUnique({ where: { email } })
 
     if (existingUser) {
         ctx.throw(400, "Email already taken")
     }
 
-    const id = snowcloud.generate()
+    const id = await snowcloud.generate()
 
     const user = await prisma.user.create({
         data: {
@@ -39,12 +39,12 @@ router.post("/auth/signup", async (ctx) => {
 
     const refreshToken = createRefreshToken(user)
 
-    await sendEmail(user.address, EMAIL_TEMPLATES.SIGNUP, {
+    await sendEmail(user.email, "SIGNUP", {
         name,
         token: refreshToken
     })
 
-    return {
+    ctx.body = {
         msg: "Refresh token sent to email"
     }
 })
@@ -63,7 +63,7 @@ router.post("/auth/login", async (ctx) => {
     if (!user.verified) {
         const refreshToken = createRefreshToken(user)
 
-        await sendEmail(user.address, EMAIL_TEMPLATES.VERIFY_LOGIN, {
+        await sendEmail(user.email, "VERIFY_LOGIN", {
             name: user.name,
             token: refreshToken
         })
@@ -71,7 +71,7 @@ router.post("/auth/login", async (ctx) => {
         ctx.throw(401, "Verify email first")
     }
 
-    return {
+    ctx.body = {
         access_token: createAccessToken(user),
         refresh_token: createRefreshToken(user),
         token_type: "Bearer",
@@ -92,7 +92,7 @@ router.post("/auth/verify", async (ctx) => {
         data: { verified: true },
     })
 
-    return {
+    ctx.body = {
         access_token: createAccessToken(user),
         token_type: "Bearer",
         expires_in: ACCESS_TOKEN_EXPIRES,
@@ -111,7 +111,7 @@ router.post("/auth/refresh", async (ctx) => {
         ctx.throw(401, "Email not verified")
     }
 
-    return {
+    ctx.body = {
         access_token: createAccessToken(user),
         token_type: "Bearer",
         expires_in: ACCESS_TOKEN_EXPIRES,
@@ -126,7 +126,7 @@ router.post("/auth/delete", async (ctx) => {
 
     await prisma.user.delete({ where: { id: ctx.user.id }})
 
-    return {
+    ctx.body = {
         msg: "User deleted"
     }
 })
@@ -154,12 +154,12 @@ router.post("/auth/email", async (ctx) => {
 
     const refreshToken = createRefreshToken(ctx.user)
 
-    await sendEmail(ctx.user.address, EMAIL_TEMPLATES.EMAIL_CHANGE, {
+    await sendEmail(ctx.user.email, "EMAIL_CHANGE", {
         name: ctx.user.name,
         token: refreshToken
     })
 
-    return {
+    ctx.body = {
         msg: "Changed email, please verify now"
     }
 })
@@ -168,28 +168,40 @@ router.post("/auth/email", async (ctx) => {
 router.post("/auth/password", async (ctx) => {
     const newPassword = ctx.request.body.new_password
 
-    if (ctx.state.tokenType == "reset_password") {
+    let user
+
+    if (ctx.state.tokenType == "reset") {
         // Password reset, user followed a link from their email
+        // The token is valid for only this route
+
+        user = ctx.state.claimedUser
+
     } else {
         // Verify that the user specified their old password
         // before allowing them to change it without proving email access
 
         const oldPassword = ctx.request.body.password
 
+        if (!oldPassword) {
+            ctx.throw(401, "Specify previous password")
+        }
+
         if (!checkPasswordHash(ctx.user.password, oldPassword)) {
             ctx.throw(401, "Invalid login")
         }
+
+        // They should have sent us their actual token
+        user = ctx.user
     }
 
-    ctx.user.password = generatePasswordHash(newPassword)
     await prisma.user.update({
-        where: { id: ctx.user.id },
-        data: { password: ctx.user.password }
+        where: { id: user.id },
+        data: { password: generatePasswordHash(newPassword) }
     })
 
-    return {
+    ctx.body = {
         msg: "Password changed successfully",
-        email: ctx.user.email
+        email: user.email
     }
 })
 
@@ -207,14 +219,14 @@ router.post("/auth/reset", async (ctx) => {
         await prisma.user.delete({ where: { id: user.id }})
     }
 
-    const refreshToken = createRefreshToken(user)
+    const resetToken = createRefreshToken(user, "reset")
 
-    await sendEmail(user.address, EMAIL_TEMPLATES.RESET_PASSWORD, {
+    await sendEmail(user.email, "RESET_PASSWORD", {
         name: user.name,
-        token: refreshToken
+        token: resetToken
     })
 
-    return {
+    ctx.body = {
         msg: "Please check email for verification link"
     }
 })
@@ -225,11 +237,11 @@ router.get("/auth/status", async (ctx) => {
         ctx.throw(401, "Unauthorized")
     }
 
-    return {
-        name: user.name,
-        email: user.email,
-        registered_on: user.registered_on,
-        id: user.id
+    ctx.body = {
+        name: ctx.user.name,
+        email: ctx.user.email,
+        registered_on: ctx.user.registered_on,
+        id: ctx.user.id.toString()
     }
 })
 

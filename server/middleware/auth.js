@@ -27,12 +27,19 @@ const getAuthHeader = async (ctx, next) => {
         }
     }
 
-    return next()
+    await next()
 }
 
 const getClaimedUser = async (ctx, next) => {
     if (ctx.state.token) {
         ctx.state.jwtPayload = jwt.decode(ctx.state.token)
+
+        if (ctx.state.jwtPayload === null) {
+            ctx.throw(401, "Invalid token")
+        }
+
+        // BigInt can't be represented as JSON
+        ctx.state.jwtPayload.sub = BigInt(ctx.state.jwtPayload.sub)
 
         ctx.state.claimedUser = await prisma.user.findUnique({
             where: {
@@ -49,11 +56,11 @@ const verifyUserJwt = async (ctx, next) => {
     if (ctx.state.claimedUser) {
         try {
             jwt.verify(
-                ctx.token,
+                ctx.state.token,
                 getSignature(ctx.state.claimedUser),
                 {
                     algorithms: ["HS256"],
-                    subject: ctx.state.claimedUser.id,
+                    subject: ctx.state.claimedUser.id.toString(),
                 }
             )
         } catch (e) {

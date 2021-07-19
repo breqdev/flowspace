@@ -25,15 +25,17 @@ const sendEmail = async (address, template, params) => {
                     to: [ { email: address } ],
                     dynamic_template_data: params
                 }],
-                template_id: template
+                template_id: EMAIL_TEMPLATES[template],
+                mail_settings: {
+                    sandbox_mode: {
+                        enable: (process.env.SENDGRID_SANDBOX === "enabled")
+                    }
+                }
             })
         }
     )
 
-    return result.status === 200
+    return result
 }
 
-module.exports = {
-    sendEmail,
-    EMAIL_TEMPLATES
-}
+module.exports = sendEmail
