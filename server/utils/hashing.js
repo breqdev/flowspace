@@ -3,7 +3,7 @@ const crypto = require("crypto")
 
 function generatePasswordHash(password) {
     const salt = crypto.randomBytes(16).toString("base64")
-    const hash = crypto.createHmac("sha256", salt).update(password).digest("base64")
+    const hash = crypto.createHmac("sha256", salt).update(password).digest("hex")
 
     return `sha256$${salt}$${hash}`
 }
