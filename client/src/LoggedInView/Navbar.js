@@ -4,8 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons"
 import { mutate } from "swr"
 
-import AuthContext from "./AuthContext.js"
-import { useAPI } from "./api.js"
+import AuthContext from "../AuthContext.js"
+import { useAPI } from "../api.js"
 
 
 function ExpandedDropdown(props) {
@@ -65,6 +65,8 @@ function UserDropdownMenu(props) {
 
     return (
         <>
+            <Link to="/profile/@me" onClick={props.doRetract}>my profile</Link>
+            <hr />
             <Link to="/settings" onClick={props.doRetract}>settings</Link>
             <hr />
             <button className="text-left" onClick={handleLogout}>log out</button>

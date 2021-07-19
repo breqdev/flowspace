@@ -171,4 +171,14 @@ describe("get profile by id", () => {
         expect(response.statusCode).toBe(200)
         expect(response.body.name).toBe(target.name)
     })
+
+    it("returns 404 for nonexistent profiles", async () => {
+        const { token } = await loginUser()
+
+        const response = await request(app.callback())
+            .get("/profile/123")
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.statusCode).toBe(404)
+    })
 })

@@ -4,7 +4,7 @@ import useLocalStorageState from "use-local-storage-state"
 
 import AuthContext from "./AuthContext.js"
 import LoggedOutView from "./LoggedOutView/LoggedOutView.js"
-import LoggedInView from "./LoggedInView.js"
+import LoggedInView from "./LoggedInView/LoggedInView.js"
 
 
 

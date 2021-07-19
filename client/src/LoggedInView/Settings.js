@@ -3,8 +3,8 @@ import { NavLink, Switch, Route, Redirect, useHistory } from "react-router-dom"
 import { Formik, Field, Form } from "formik"
 import { mutate } from "swr"
 
-import AuthContext from "./AuthContext.js"
-import { useAPI, fetchWithToken } from "./api.js"
+import AuthContext from "../AuthContext.js"
+import { useAPI, fetchWithToken } from "../api.js"
 
 function Sidebar(props) {
     const items = props.items.map(
