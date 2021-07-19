@@ -5,7 +5,7 @@ import AuthContext from "./AuthContext.js"
 
 export const BASE_URL = (process.env.NODE_ENV === "development"
                             ? "http://localhost:5000"
-                            : "https://flowspace.api.breq.dev/")
+                            : "https://flowspace.api.breq.dev")
 
 
 // Token must be an argument to the fetcher.
