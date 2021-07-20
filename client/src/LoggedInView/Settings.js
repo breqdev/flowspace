@@ -1,7 +1,7 @@
 import React from "react"
 import { NavLink, Switch, Route, Redirect, useHistory } from "react-router-dom"
 import { Formik, Field, Form } from "formik"
-import { mutate } from "swr"
+import { mutate as globalMutate } from "swr"
 
 import AuthContext from "../AuthContext.js"
 import { useAPI, fetchWithToken, BASE_URL } from "../api.js"
@@ -84,17 +84,17 @@ function Toast(props) {
 
 
 function ProfileSettings(props) {
-    const { data: currentProfile } = useAPI("/profile/@me")
+    const { data, mutate } = useAPI("/profile/@me")
     const [token, setToken] = React.useContext(AuthContext)
 
     const toastMessage = React.useContext(ToastContext)
 
     const initialValues = {
-        name: currentProfile?.name || "",
-        pronouns: currentProfile?.pronouns || "",
-        url: currentProfile?.url || "",
-        location: currentProfile?.location || "",
-        bio: currentProfile?.bio || ""
+        name: data?.name || "",
+        pronouns: data?.pronouns || "",
+        url: data?.url || "",
+        location: data?.location || "",
+        bio: data?.bio || ""
     }
 
     return (
@@ -107,8 +107,8 @@ function ProfileSettings(props) {
                         method: "POST",
                         body: JSON.stringify(values)
                     })
-                    mutate("/profile/@me")
-                    mutate("/auth/status")
+                    mutate(values)
+                    globalMutate("/auth/status")
                     toastMessage("saved successfully")
                 }}
             >
@@ -133,7 +133,7 @@ function ProfileSettings(props) {
 
 
 function AccountSettings(props) {
-    const { data: currentAccount } = useAPI("/auth/status")
+    const { data, mutate } = useAPI("/auth/status")
     const [token, setToken] = React.useContext(AuthContext)
 
     const history = useHistory()
@@ -144,7 +144,7 @@ function AccountSettings(props) {
         fetchWithToken("/auth/delete", token, setToken, {
             method: "POST"
         }).then(() => {
-            mutate("/auth/status")
+            mutate()
             setToken(null)
             history.push("/")
         })
@@ -153,7 +153,7 @@ function AccountSettings(props) {
     return (
         <SettingsPane title="account">
             <Formik
-                initialValues={{email: currentAccount?.email || "", password: ""}}
+                initialValues={{email: data?.email || "", password: ""}}
                 enableReinitialize={true}
                 onSubmit={async (values, actions) => {
                     const data = new URLSearchParams()
