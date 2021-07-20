@@ -20,22 +20,32 @@ function UserInfo(props) {
 function UserCard(props) {
     return (
         <div className="flex-grow m-4 md:m-16">
-            <h1 className="text-6xl mb-4">{props.name}</h1>
-            <div className="flex flex-col md:flex-row text-xl justify-between">
-                <UserInfo icon={faUser}>
-                    {props.pronouns}
-                </UserInfo>
-                <UserInfo icon={faLink}>
-                    <a className="underline" href={props.url}>{props.url}</a>
-                </UserInfo>
-                <UserInfo icon={faMapMarkerAlt}>
-                    {props.location}
-                </UserInfo>
+            <h1 className="text-6xl mb-4 text-center md:text-left">{props.name}</h1>
+            <div className="flex flex-col md:flex-row text-xl justify-start md:gap-8">
+                {props.pronouns &&
+                    <UserInfo icon={faUser}>
+                        {props.pronouns}
+                    </UserInfo>
+                }
+                {props.url &&
+                    <UserInfo icon={faLink}>
+                        <a className="underline" href={props.url}>{props.url}</a>
+                    </UserInfo>
+                }
+                {props.location &&
+                    <UserInfo icon={faMapMarkerAlt}>
+                        {props.location}
+                    </UserInfo>
+                }
             </div>
-            <hr className="my-4 border-black" />
-            <div>
-                {props.bio}
-            </div>
+            {props.bio &&
+                <>
+                    <hr className="my-4 border-black" />
+                    <div>
+                        {props.bio}
+                    </div>
+                </>
+            }
             <hr className="my-4 border-black" />
             <div className="bg-yellow-500 p-4">
                 Note from Brooke: Profile pictures are coming soon!
@@ -75,7 +85,7 @@ export default function Profile(props) {
 
     return (
         <div className="flex-grow w-full bg-gradient-to-r from-yellow-500 via-pink-400 to-purple-300">
-            <div className="flex flex-col md:flex-row justify-center">
+            <div className="flex flex-col md:flex-row">
                 <BigProfile />
                 <UserCard {...data} />
             </div>

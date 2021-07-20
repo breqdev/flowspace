@@ -31,7 +31,7 @@ function Input(props) {
 
 function SettingsPane(props) {
     return (
-        <div className="w-full md:w-96 my-4">
+        <div className="md:w-96 my-4">
             <h1 className="text-2xl text-center">{props.title} settings</h1>
             <hr className="my-4" />
             {props.children}
@@ -72,7 +72,7 @@ function Toast(props) {
     }, [message, clearMessage])
 
     return (
-        <div className="container fixed bottom-0 flex justify-center pointer-events-none">
+        <div className="fixed bottom-0 w-screen flex justify-center pointer-events-none">
             <div className={"md:w-1/2 my-16 transition-transform transform " + translate}>
                 <div className="md:-mx-16 px-8 py-4 border-2 rounded-full shadow-2xl bg-green-300 flex justify-center">
                     {message}
@@ -237,7 +237,7 @@ export default function Settings(props) {
 
     return (
         <ToastContext.Provider value={toastMessage}>
-            <div className="mx-auto px-4 flex flex-col md:flex-row justify-center items-start gap-8">
+            <div className="w-full my-4 px-4 flex flex-col md:flex-row justify-center items-start md:gap-8 items-stretch md:items-start">
                 <Sidebar items={["profile", "account"]}/>
                 <Switch>
                     <Route path="/settings/profile" component={ProfileSettings} />
@@ -246,8 +246,8 @@ export default function Settings(props) {
                         <Redirect to="/settings/profile" />
                     </Route>
                 </Switch>
-                <Toast message={message} clearMessage={clearMessage}/>
             </div>
+            <Toast message={message} clearMessage={clearMessage}/>
         </ToastContext.Provider>
     )
 }
