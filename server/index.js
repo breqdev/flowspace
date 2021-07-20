@@ -7,13 +7,18 @@ const authMiddleware = require("./middleware/auth")
 const { errorHandler, errorCatcher } = require("./middleware/error")
 const requireLogin = require("./middleware/requireLogin")
 const cors = require("./middleware/cors")
-const serializeBigInt = require("./middleware/serializeBigInt")
 
 const indexRoutes = require("./routes/index")
+const avatarRoutes = require("./routes/avatar")
 const authRoutes = require("./routes/auth")
 const profileRoutes = require("./routes/profile")
 
 const app = new Koa()
+
+
+// BigInt JSON Serialization hack using prototype manipulation
+BigInt.prototype.toJSON = function() { return this.toString() }
+
 
 // App Configuration
 app.use(cors)
@@ -25,14 +30,16 @@ app.use(bodyparser({
     enableTypes: ["json", "form", "text"]
 }))
 
-app.use(serializeBigInt)
-
 // Preliminary Authentication Middleware
 app.use(authMiddleware)
 
 // Unprotected Routes
 app.use(indexRoutes.routes())
 app.use(indexRoutes.allowedMethods())
+
+// Avatars are public
+app.use(avatarRoutes.routes())
+app.use(avatarRoutes.allowedMethods())
 
 // (auth routes must be unprotected, how else would users get a token?)
 app.use(authRoutes.routes())

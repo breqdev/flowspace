@@ -17,9 +17,10 @@ model User {
     registeredOn DateTime
 
     // user profile data
-    name     String
-    pronouns String?
-    url      String?
-    location String?
-    bio      String?
+    name       String
+    pronouns   String?
+    url        String?
+    location   String?
+    bio        String?
+    avatarHash String?
 }

@@ -1,10 +1,10 @@
 import React from "react"
 import { NavLink, Switch, Route, Redirect, useHistory } from "react-router-dom"
 import { Formik, Field, Form } from "formik"
-import { mutate } from "swr"
+import { mutate as globalMutate } from "swr"
 
 import AuthContext from "../AuthContext.js"
-import { useAPI, fetchWithToken } from "../api.js"
+import { useAPI, fetchWithToken, BASE_URL } from "../api.js"
 
 function Sidebar(props) {
     const items = props.items.map(
@@ -84,17 +84,17 @@ function Toast(props) {
 
 
 function ProfileSettings(props) {
-    const { data: currentProfile } = useAPI("/profile/@me")
+    const { data, mutate } = useAPI("/profile/@me")
     const [token, setToken] = React.useContext(AuthContext)
 
     const toastMessage = React.useContext(ToastContext)
 
     const initialValues = {
-        name: currentProfile?.name || "",
-        pronouns: currentProfile?.pronouns || "",
-        url: currentProfile?.url || "",
-        location: currentProfile?.location || "",
-        bio: currentProfile?.bio || ""
+        name: data?.name || "",
+        pronouns: data?.pronouns || "",
+        url: data?.url || "",
+        location: data?.location || "",
+        bio: data?.bio || ""
     }
 
     return (
@@ -107,8 +107,8 @@ function ProfileSettings(props) {
                         method: "POST",
                         body: JSON.stringify(values)
                     })
-                    mutate("/profile/@me")
-                    mutate("/auth/status")
+                    mutate(values)
+                    globalMutate("/auth/status")
                     toastMessage("saved successfully")
                 }}
             >
@@ -133,7 +133,7 @@ function ProfileSettings(props) {
 
 
 function AccountSettings(props) {
-    const { data: currentAccount } = useAPI("/auth/status")
+    const { data, mutate } = useAPI("/auth/status")
     const [token, setToken] = React.useContext(AuthContext)
 
     const history = useHistory()
@@ -144,7 +144,7 @@ function AccountSettings(props) {
         fetchWithToken("/auth/delete", token, setToken, {
             method: "POST"
         }).then(() => {
-            mutate("/auth/status")
+            mutate()
             setToken(null)
             history.push("/")
         })
@@ -153,7 +153,7 @@ function AccountSettings(props) {
     return (
         <SettingsPane title="account">
             <Formik
-                initialValues={{email: currentAccount?.email || "", password: ""}}
+                initialValues={{email: data?.email || "", password: ""}}
                 enableReinitialize={true}
                 onSubmit={async (values, actions) => {
                     const data = new URLSearchParams()
@@ -226,6 +226,66 @@ function AccountSettings(props) {
 }
 
 
+function Avatar(props) {
+    const className = "rounded-full w-64"
+
+    if (props.hash === null || props.hash === undefined) {
+        return <img alt="Default Avatar" className={className} src={BASE_URL + "/profile/avatar/@default"} />
+    }
+
+    return <img alt="User Avatar" className={className} src={BASE_URL + "/profile/avatar/" + props.hash} />
+}
+
+
+function AvatarSettings(props) {
+    const { data, mutate } = useAPI("/profile/@me")
+    const [token, setToken] = React.useContext(AuthContext)
+
+    const [file, setFile] = React.useState(null)
+
+    const toastMessage = React.useContext(ToastContext)
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+
+        const formData = new FormData()
+        formData.append("avatar", file)
+
+        const response = await fetchWithToken("/profile/avatar/@me", token, setToken, {
+            method: "POST",
+            body: formData,
+        })
+
+        if (response.ok) {
+            mutate({ ...data, avatarHash: response.avatarHash })
+            toastMessage("saved successfully")
+        } else {
+            toastMessage("error: " + response.msg)
+        }
+    }
+
+    const currentFileName = (file?.name || "")
+
+    return (
+        <SettingsPane title="avatar">
+            <div className="flex flex-col items-center">
+                <Avatar hash={data?.avatarHash} />
+                <p className="my-4 text-xl">current avatar</p>
+            </div>
+            <hr />
+            <div className="flex gap-4">
+            <label className="flex-grow rounded-lg bg-gray-200 hover:bg-gray-400 transition-colors duration-300 p-4 my-2 overflow-hidden overflow-ellipsis whitespace-nowrap">
+                choose file - {currentFileName || "none selected"}
+                <input type="file" name="avatar" accept="image/*" onChange={(e) => {setFile(e.target.files[0])}} className="hidden" />
+            </label>
+            <SubmitButton text="upload" onClick={handleSubmit} />
+        </div>
+        </SettingsPane>
+    )
+
+}
+
+
 export default function Settings(props) {
     const [message, setMessage] = React.useState(null)
 
@@ -238,10 +298,11 @@ export default function Settings(props) {
     return (
         <ToastContext.Provider value={toastMessage}>
             <div className="w-full my-4 px-4 flex flex-col md:flex-row justify-center items-start md:gap-8 items-stretch md:items-start">
-                <Sidebar items={["profile", "account"]}/>
+                <Sidebar items={["profile", "account", "avatar"]}/>
                 <Switch>
                     <Route path="/settings/profile" component={ProfileSettings} />
                     <Route path="/settings/account" component={AccountSettings} />
+                    <Route path="/settings/avatar" component={AvatarSettings} />
                     <Route path="/settings">
                         <Redirect to="/settings/profile" />
                     </Route>

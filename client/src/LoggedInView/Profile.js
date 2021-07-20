@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser, faLink, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons"
 
 
-import { useAPI } from "../api.js"
+import { useAPI, BASE_URL } from "../api.js"
 
 
 function UserInfo(props) {
@@ -59,7 +59,7 @@ function UserCard(props) {
 
 function BigProfile(props) {
     return (
-        <img className="flex-grow-0 rounded-full md:w-96 m-8 md:m-16" alt="User profile" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" />
+        <img className="flex-grow-0 rounded-full md:w-96 m-8 md:m-16" alt="User profile" src={BASE_URL + "/profile/avatar/" + (props.hash || "@default")} />
     )
 }
 
@@ -86,7 +86,7 @@ export default function Profile(props) {
     return (
         <div className="flex-grow w-full bg-gradient-to-r from-yellow-500 via-pink-400 to-purple-300">
             <div className="flex flex-col md:flex-row">
-                <BigProfile />
+                <BigProfile hash={data?.avatarHash} />
                 <UserCard {...data} />
             </div>
         </div>

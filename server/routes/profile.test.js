@@ -1,3 +1,4 @@
+const fetch = require("node-fetch")
 const request = require("supertest")
 
 const app = require("../index.js")
@@ -180,5 +181,72 @@ describe("get profile by id", () => {
             .set("Authorization", `Bearer ${token}`)
 
         expect(response.statusCode).toBe(404)
+    })
+})
+
+describe("user avatar", () => {
+    it("allows users to upload their avatar", async () => {
+        const { token } = await loginUser()
+
+        const avatar = await fetch('https://avatars.githubusercontent.com/u/583231?v=4')
+        const avatarBuffer = await avatar.buffer()
+
+        const response = await request(app.callback())
+            .post("/profile/avatar/@me")
+            .set("Authorization", `Bearer ${token}`)
+            .set("Content-Type", "multipart/form-data")
+            .attach("avatar", avatarBuffer, { filename: "my_cool_avatar.png" })
+
+        expect(response.statusCode).toBe(200)
+    })
+
+    it("returns other users' avatar hashes", async () => {
+        const { token: viewerToken } = await loginUser({ email: "viewer@example.com" })
+
+        const { id: targetId, token: targetToken } = await loginUser()
+
+        const targetAvatar = await fetch('https://avatars.githubusercontent.com/u/583231?v=4')
+        const targetAvatarBuffer = await targetAvatar.buffer()
+
+        await request(app.callback())
+            .post("/profile/avatar/@me")
+            .set("Authorization", `Bearer ${targetToken}`)
+            .set("Content-Type", "multipart/form-data")
+            .attach("avatar", targetAvatarBuffer, { filename: "my_cool_avatar.png" })
+
+        const response = await request(app.callback())
+            .get(`/profile/${targetId}`)
+            .set("Authorization", `Bearer ${viewerToken}`)
+
+        expect(response.statusCode).toBe(200)
+        expect(response.body.avatarHash).toEqual(expect.stringContaining(".png"))
+    })
+
+    it("returns other users' avatars", async () => {
+        const { token: viewerToken } = await loginUser({ email: "viewer@example.com" })
+
+        const { id: targetId, token: targetToken } = await loginUser()
+
+        const targetAvatar = await fetch('https://avatars.githubusercontent.com/u/583231?v=4')
+        const targetAvatarBuffer = await targetAvatar.buffer()
+
+        await request(app.callback())
+            .post("/profile/avatar/@me")
+            .set("Authorization", `Bearer ${targetToken}`)
+            .set("Content-Type", "multipart/form-data")
+            .attach("avatar", targetAvatarBuffer, { filename: "my_cool_avatar.png" })
+
+        const response = await request(app.callback())
+            .get(`/profile/${targetId}`)
+            .set("Authorization", `Bearer ${viewerToken}`)
+
+        const hash = response.body.avatarHash
+
+        const avatar = await request(app.callback())
+            .get(`/profile/avatar/${hash}`)
+            .set("Authorization", `Bearer ${viewerToken}`)
+
+        expect(avatar.statusCode).toBe(200)
+        expect(avatar.type).toBe("image/png")
     })
 })
