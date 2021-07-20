@@ -46,12 +46,6 @@ function UserCard(props) {
                     </div>
                 </>
             }
-            <hr className="my-4 border-black" />
-            <div className="bg-yellow-500 p-4">
-                Note from Brooke: Profile pictures are coming soon!
-                I need to set up object storage first.
-                Thanks for your patience!
-            </div>
         </div>
     )
 }
@@ -73,12 +67,12 @@ export default function Profile(props) {
         return <Redirect to={`/profile/${data.id}`} />
     }
 
-    if (error?.status === 404) {
+    if (data?.status_code === 404) {
         return (
-            <div>
-                <h1>profile not found</h1>
+            <div className="text-center text-xl m-4">
+                <h1 className="text-3xl mb-4">profile not found</h1>
                 <p>the requested user was not found.</p>
-                <p>go <Link to="/">home?</Link></p>
+                <p>go <Link to="/" className="underline">home?</Link></p>
             </div>
         )
     }

@@ -72,7 +72,7 @@ export async function fetchWithToken(url, token, setToken, options) {
 
     // ugly hack to expose some response fields on the data object
     data.ok = response.ok
-    data.status_code = response.status_code
+    data.status_code = response.status
 
     return data
 }
