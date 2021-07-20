@@ -75,7 +75,8 @@ router.post("/auth/login", async (ctx) => {
         access_token: createAccessToken(user),
         refresh_token: createRefreshToken(user),
         token_type: "Bearer",
-        expires_in: ACCESS_TOKEN_EXPIRES
+        expires_in: ACCESS_TOKEN_EXPIRES,
+        id: user.id,
     }
 })
 

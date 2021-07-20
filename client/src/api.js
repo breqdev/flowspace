@@ -63,14 +63,7 @@ export async function fetchWithToken(url, token, setToken, options) {
 
     const response = await fetch(BASE_URL + url, {
         headers: {
-            Authorization: `Bearer ${newToken.access_token}`,
-            "Content-Type": (
-                options?.contentType
-                || (["PUT", "POST", "PATCH"].includes(options?.method)
-                    ? "application/json"
-                    : undefined
-                )
-            )
+            Authorization: `Bearer ${newToken.access_token}`
         },
         ...options
     })

@@ -54,7 +54,8 @@ const loginUser = async (userOverride) => {
         user,
         response,
         token: response.body.access_token,
-        refresh: response.body.refresh_token
+        refresh: response.body.refresh_token,
+        id: response.body.id
     }
 }
 
