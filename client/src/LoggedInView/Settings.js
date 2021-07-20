@@ -245,8 +245,6 @@ function AvatarSettings(props) {
 
     const toastMessage = React.useContext(ToastContext)
 
-    console.log("rendered!", data?.avatarHash)
-
     const handleSubmit = async (e) => {
         e.preventDefault()
 
