@@ -61,7 +61,7 @@ function BigProfile(props) {
 export default function Profile(props) {
     const { id } = props.match.params
 
-    const { data, error } = useAPI(`/profile/${id}`)
+    const { data } = useAPI(`/profile/${id}`)
 
     if (id === "@me" && data?.id) {
         return <Redirect to={`/profile/${data.id}`} />
