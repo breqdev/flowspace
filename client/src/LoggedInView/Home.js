@@ -23,7 +23,7 @@ function BlinkingCursor(props) {
 
 function Placeholder(props) {
     return (
-        <div className="mx-auto my-16 px-8 py-8 bg-black text-white">
+        <div className="my-16 px-8 py-8 bg-black text-white">
             <code className="text-xl">
                 you are currently at the flowspace homepage.
                 <br />
@@ -48,9 +48,11 @@ function Placeholder(props) {
 
 export default function Home(props) {
     return (
-        <div className="container mx-auto px-4">
-            <h1 className="text-6xl md:text-9xl text-center my-8">flowspace</h1>
-            <Placeholder />
+        <div className="px-4 flex justify-center">
+            <div className="max-w-4xl w-full">
+                <h1 className="text-6xl md:text-9xl text-center my-8">flowspace</h1>
+                <Placeholder />
+            </div>
         </div>
     )
 }

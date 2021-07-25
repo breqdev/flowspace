@@ -79,7 +79,7 @@ export default function Navbar(props) {
 
     return (
         <div className="px-4 md:px-8 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white text-xl">
-            <div className="container mx-auto px-4 flex">
+            <div className="max-w-4xl mx-auto px-4 flex">
                 <Link to="/">flowspace</Link>
                 <div className="flex-grow" />
                 <Dropdown text={user?.name} component={UserDropdownMenu} />
