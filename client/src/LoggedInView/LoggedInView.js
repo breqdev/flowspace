@@ -3,7 +3,7 @@ import { Switch, Route, Redirect } from "react-router-dom"
 import Navbar from "./Navbar.js"
 import Home from "./Home.js"
 import Settings from "./Settings.js"
-import Profile from "./Profile.js"
+import Profile from "./Profile/Profile.js"
 
 export default function LoggedInView() {
     return (
