@@ -61,12 +61,52 @@ async function refreshIfNeeded(token, setToken) {
 export async function fetchWithToken(url, token, setToken, options) {
     const newToken = await refreshIfNeeded(token, setToken)
 
-    const response = await fetch(BASE_URL + url, {
-        headers: {
-            Authorization: `Bearer ${newToken.access_token}`
-        },
-        ...options
-    })
+    // Make sure options.headers exists
+    options = options || {}
+    options.headers = options.headers || {}
+
+    // Detect the Content-Type of the request
+    if (options?.headers["Content-Type"]) {
+        // Already set for us :)
+
+    } else if (["POST", "PUT", "PATCH"].includes(options?.method) && options?.body) {
+
+        if (options.body instanceof FormData) {
+            // multipart/form-data
+            // We need to explicitly remove the Content-Type header
+            // This allows the browser to set the boundary
+            // https://muffinman.io/blog/uploading-files-using-fetch-multipart-form-data/#problem-i-had
+
+            delete options.headers["Content-Type"]
+
+        } else if (options.body instanceof URLSearchParams) {
+            // application/x-www-form-urlencoded
+            // (keys and values encoded as a query string)
+
+            // Turn the query object into a string for convenience
+            options.body = options.body.toString()
+
+            options.headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+        } else if (typeof options.body === "object") {
+            // This is an object / not a primitive
+            // Attempt to serialize it to JSON
+
+            options.body = JSON.stringify(options.body)
+
+            options.headers["Content-Type"] = "application/json"
+
+        } else {
+            // Probably just plain text?
+            options.headers["Content-Type"] = "text/plain"
+        }
+    }
+
+    // Add the bearer token to the headers
+    options.headers.Authorization = `Bearer ${newToken.access_token}`
+
+
+    const response = await fetch(BASE_URL + url, options)
 
     const data = await response.json()
 

@@ -105,7 +105,7 @@ function ProfileSettings(props) {
                 onSubmit={async (values, actions) => {
                     await fetchWithToken("/profile/@me", token, setToken, {
                         method: "POST",
-                        body: JSON.stringify(values)
+                        body: values
                     })
                     mutate(values)
                     globalMutate("/auth/status")
@@ -162,7 +162,6 @@ function AccountSettings(props) {
 
                     const response = await fetchWithToken("/auth/email", token, setToken, {
                         method: "POST",
-                        contentType: "application/x-www-form-urlencoded",
                         body: data
                     })
 
@@ -196,7 +195,6 @@ function AccountSettings(props) {
 
                     const response = await fetchWithToken("/auth/password", token, setToken, {
                         method: "POST",
-                        contentType: "application/x-www-form-urlencoded",
                         body: data
                     })
 
