@@ -19,9 +19,9 @@ function UserInfo(props) {
 
 function UserCard(props) {
     return (
-        <div className="flex-grow m-4 md:m-16">
-            <h1 className="text-6xl mb-4 text-center md:text-left">{props.name}</h1>
-            <div className="flex flex-col md:flex-row text-xl justify-start md:gap-8">
+        <div className="flex-grow w-64 m-8 md:m-16 text-lg md:text-xl">
+            <h1 className="text-6xl mb-8 text-center sm:text-left">{props.name}</h1>
+            <div className="flex flex-col flex-wrap md:flex-row text-xl md:text-2xl justify-start md:gap-4 lg:gap-8">
                 {props.pronouns &&
                     <UserInfo icon={faUser}>
                         {props.pronouns}
@@ -40,7 +40,7 @@ function UserCard(props) {
             </div>
             {props.bio &&
                 <>
-                    <hr className="my-4 border-black" />
+                    <hr className="my-6 border-black" />
                     <div>
                         {props.bio}
                     </div>
@@ -53,7 +53,7 @@ function UserCard(props) {
 
 function BigProfile(props) {
     return (
-        <img className="flex-grow-0 rounded-full md:w-96 m-8 md:m-16" alt="User profile" src={BASE_URL + "/profile/avatar/" + (props.hash || "@default")} />
+        <img className="flex-grow-0 rounded-full w-64 lg:w-96 m-8 md:m-16" alt="User profile" src={BASE_URL + "/profile/avatar/" + (props.hash || "@default")} />
     )
 }
 
@@ -79,7 +79,7 @@ export default function Profile(props) {
 
     return (
         <div className="flex-grow w-full bg-gradient-to-r from-yellow-500 via-pink-400 to-purple-300">
-            <div className="flex flex-col md:flex-row">
+            <div className="flex flex-wrap items-start justify-center">
                 <BigProfile hash={data?.avatarHash} />
                 <UserCard {...data} />
             </div>
