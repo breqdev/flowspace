@@ -1,0 +1,12 @@
+.markdown * {
+    all: revert;
+}
+
+.markdown table {
+    border-collapse: collapse !important;
+}
+
+.markdown table td, .markdown table th {
+    border: 1px solid #ccc !important;
+    padding: 0.5em !important;
+}
