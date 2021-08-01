@@ -1,12 +1,15 @@
 const Router = require("@koa/router")
 const prisma = require("../utils/prisma")
 
+const parseBigInt = require("../utils/parseBigInt")
+
 const router = new Router()
 
 
 router.get("/relationship/outgoing/:id", async (ctx) => {
     // get your outgoing relationship to another user
-    const toId = BigInt(ctx.params.id)
+
+    const toId = parseBigInt(ctx.params.id, ctx)
     const fromId = ctx.user.id
 
     const relationship = await prisma.userRelationship.findUnique({
@@ -37,7 +40,7 @@ router.get("/relationship/outgoing/:id", async (ctx) => {
 
 router.post("/relationship/outgoing/:id", async (ctx) => {
     // create an outgoing relationship with another user
-    const toId = BigInt(ctx.params.id)
+    const toId = parseBigInt(ctx.params.id, ctx)
     const fromId = ctx.user.id
     const type = ctx.request.body.type
 
@@ -153,7 +156,7 @@ router.post("/relationship/outgoing/:id", async (ctx) => {
 router.get("/relationship/incoming/:id", async (ctx) => {
     // get the incoming relationship from another user
 
-    const fromId = BigInt(ctx.params.id)
+    const fromId = parseBigInt(ctx.params.id, ctx)
     const toId = ctx.user.id
 
     const relationship = await prisma.userRelationship.findUnique({

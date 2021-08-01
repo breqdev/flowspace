@@ -1,9 +1,9 @@
 import React from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faUser, faLink, faMapMarkerAlt, faCommentDots, faUserFriends } from "@fortawesome/free-solid-svg-icons"
+import { faUser, faLink, faMapMarkerAlt, faCommentDots, faUserFriends, faBan } from "@fortawesome/free-solid-svg-icons"
 
 
-import { BASE_URL } from "../../api.js"
+import { BASE_URL, useAPI } from "../../api.js"
 
 
 function ProfileImage(props) {
@@ -17,30 +17,31 @@ function ProfileImage(props) {
 
 function BigName(props) {
     return (
-        <div className="col-start-1 row-start-2 md:col-start-2 md:col-span-2 md:row-start-1 md:justify-self-start">
+        <div className="col-start-1 row-start-2 md:col-start-2 lg:col-start-2 lg:col-span-2 md:row-start-1 md:justify-self-start">
             <h1 className="text-6xl text-center md:text-left">{props.name}</h1>
         </div>
     )
 }
 
 
-function CtaButton(props) {
-    let text, icon
+function RelationshipButton(props) {
+    return (
+        <div className="flex flex-col justify-center items-center h-20 w-20 m-1 p-2 border-2 border-black bg-white bg-opacity-50 rounded-xl hover:bg-opacity-75 transition-colors duration-300">
+            <FontAwesomeIcon icon={props.icon} className="text-3xl" />
+            <span className="text-xl">{props.text}</span>
+        </div>
+    )
+}
 
-    if (props.friends) {
-        text = "chat"
-        icon = faCommentDots
-    } else {
-        text = "send friend request"
-        icon = faUserFriends
-    }
+
+function RelationshipButtons(props) {
+    const relationship = useAPI("/relationship/outgoing/" + props.id)
 
     return (
-        <div className="col-start-1 row-start-3">
-            <div className="self-center m-2 p-4 border-2 border-black bg-white bg-opacity-50 hover:bg-opacity-75 transition-colors duration-300 flex gap-4 items-center rounded-xl cursor-pointer text-lg lg:text-xl">
-                <FontAwesomeIcon icon={icon} />
-                {text}
-            </div>
+        <div className="col-start-1 row-start-3 flex">
+            <RelationshipButton icon={faCommentDots} text="wave" />
+            <RelationshipButton icon={faUserFriends} text="follow" />
+            <RelationshipButton icon={faBan} text="block" />
         </div>
     )
 }
@@ -97,7 +98,7 @@ function UserBio(props) {
 
 function UserInfoSection(props) {
     return (
-        <div className="col-start-1 row-start-4 md:col-start-2 md:col-span-2 md:row-start-2 md:row-span-2 self-start justify-self-stretch">
+        <div className="col-start-1 row-start-4 md:col-start-2 lg:col-span-2 md:row-start-2 md:row-span-2 self-start justify-self-stretch">
             <UserInfoRow {...props} />
             <UserBio bio={props.bio} />
         </div>
@@ -108,10 +109,10 @@ function UserInfoSection(props) {
 export default function UserCard(props) {
     return (
         <div className="md:m-16 p-12 md:rounded-3xl bg-gradient-to-r from-yellow-500 via-pink-400 to-purple-300">
-            <div className="grid grid-cols-1 md:grid-cols-3 place-items-center gap-4 md:gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center gap-4 md:gap-12">
                 <ProfileImage hash={props.user?.avatarHash} />
                 <BigName name={props.user?.name} />
-                <CtaButton friends={false} />
+                <RelationshipButtons id={props.user?.id} />
                 <UserInfoSection {...props.user} />
             </div>
         </div>
