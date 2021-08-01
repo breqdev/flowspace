@@ -25,4 +25,24 @@ describe("test database environment", () => {
 
         expect(user).toBe(null)
     })
+
+    it("accesses all model types without issues", async () => {
+        const models = ["user", "userRelationship"]
+
+        await Promise.all(models.map(async (model) => {
+            const modelType = prisma[model]
+
+            await modelType.findMany()
+        }))
+    })
+
+    it("accesses all model types without issues a second time", async () => {
+        const models = ["user", "userRelationship"]
+
+        await Promise.all(models.map(async (model) => {
+            const modelType = prisma[model]
+
+            await modelType.findMany()
+        }))
+    })
 })
