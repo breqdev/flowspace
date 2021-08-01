@@ -35,13 +35,35 @@ function RelationshipButton(props) {
 
 
 function RelationshipButtons(props) {
-    const relationship = useAPI("/relationship/outgoing/" + props.id)
+    const { data: relationship } = useAPI("/relationship/outgoing/" + props.id)
+
+    if (!relationship || relationship.toId === relationship.fromId) {
+        return <div className="col-start-1 row-start-3 flex" />
+    }
+
+    let relationshipButtons = []
+
+    if (relationship.type === "NONE") {
+        relationshipButtons.push(<RelationshipButton icon={faCommentDots} text="wave" key="wave" />)
+    } else {
+        relationshipButtons.push(<RelationshipButton icon={faCommentDots} text="message" key="wave" />)
+    }
+
+    if (relationship.type === "FOLLOW") {
+        relationshipButtons.push(<RelationshipButton icon={faUserFriends} text="following" key="follow" />)
+    } else {
+        relationshipButtons.push(<RelationshipButton icon={faUserFriends} text="follow" key="follow" />)
+    }
+
+    if (relationship.type === "BLOCK") {
+        relationshipButtons.push(<RelationshipButton icon={faBan} text="unblock" key="block" />)
+    } else {
+        relationshipButtons.push(<RelationshipButton icon={faBan} text="block" key="block" />)
+    }
 
     return (
         <div className="col-start-1 row-start-3 flex">
-            <RelationshipButton icon={faCommentDots} text="wave" />
-            <RelationshipButton icon={faUserFriends} text="follow" />
-            <RelationshipButton icon={faBan} text="block" />
+            {relationshipButtons}
         </div>
     )
 }
