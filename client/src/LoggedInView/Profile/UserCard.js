@@ -3,7 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser, faLink, faMapMarkerAlt, faCommentDots, faUserFriends, faBan } from "@fortawesome/free-solid-svg-icons"
 
 
-import { BASE_URL, useAPI } from "../../api.js"
+import AuthContext from "../../AuthContext.js"
+import { BASE_URL, fetchWithToken, useAPI } from "../../api.js"
 
 
 function ProfileImage(props) {
@@ -25,8 +26,20 @@ function BigName(props) {
 
 
 function RelationshipButton(props) {
+    let className = "flex flex-col justify-center items-center h-20 w-24 m-1 p-2 border-2 border-black rounded-xl transition-colors duration-300 "
+
+    if (props.color === "red") {
+        className += "bg-red-400 hover:bg-red-600"
+    } else if (props.color === "green") {
+        className += "bg-green-300 hover:bg-green-400"
+    } else if (props.color === "blue") {
+        className += "bg-blue-300 hover:bg-blue-400"
+    } else {
+        className += "bg-white bg-opacity-50 hover:bg-opacity-100"
+    }
+
     return (
-        <div className="flex flex-col justify-center items-center h-20 w-20 m-1 p-2 border-2 border-black bg-white bg-opacity-50 rounded-xl hover:bg-opacity-75 transition-colors duration-300">
+        <div className={className} onClick={props.onClick}>
             <FontAwesomeIcon icon={props.icon} className="text-3xl" />
             <span className="text-xl">{props.text}</span>
         </div>
@@ -35,30 +48,62 @@ function RelationshipButton(props) {
 
 
 function RelationshipButtons(props) {
-    const { data: relationship } = useAPI("/relationship/outgoing/" + props.id)
+    const [token, setToken] = React.useContext(AuthContext)
+
+    const { data: relationship, mutate } = useAPI("/relationship/outgoing/" + props.id)
 
     if (!relationship || relationship.toId === relationship.fromId) {
         return <div className="col-start-1 row-start-3 flex" />
     }
 
+    const setRelationship = async (type) => {
+        const resp = await fetchWithToken("/relationship/outgoing/" + props.id, token, setToken, {
+            method: "POST",
+            body: {
+                toId: props.id,
+                type,
+            }
+        })
+
+        mutate(resp)
+    }
+
     let relationshipButtons = []
 
-    if (relationship.type === "NONE") {
-        relationshipButtons.push(<RelationshipButton icon={faCommentDots} text="wave" key="wave" />)
+    if (relationship.type === "NONE" || relationship.type === "BLOCK") {
+        relationshipButtons.push(
+            <RelationshipButton icon={faCommentDots} text="wave" key="wave"
+            onClick={() => setRelationship("WAVE")}/>
+        )
     } else {
-        relationshipButtons.push(<RelationshipButton icon={faCommentDots} text="message" key="wave" />)
+        relationshipButtons.push(
+            <RelationshipButton icon={faCommentDots} text="message" key="wave"
+            onClick={() => console.log("message coming soon!")} color="blue" />
+        )
     }
 
     if (relationship.type === "FOLLOW") {
-        relationshipButtons.push(<RelationshipButton icon={faUserFriends} text="following" key="follow" />)
+        relationshipButtons.push(
+            <RelationshipButton icon={faUserFriends} text="following" key="follow"
+            onClick={() => setRelationship("WAVE")} color="green" />
+        )
     } else {
-        relationshipButtons.push(<RelationshipButton icon={faUserFriends} text="follow" key="follow" />)
+        relationshipButtons.push(
+            <RelationshipButton icon={faUserFriends} text="follow" key="follow"
+            onClick={() => setRelationship("FOLLOW")} />
+        )
     }
 
     if (relationship.type === "BLOCK") {
-        relationshipButtons.push(<RelationshipButton icon={faBan} text="unblock" key="block" />)
+        relationshipButtons.push(
+            <RelationshipButton icon={faBan} text="unblock" key="block" color="red"
+            onClick={() => setRelationship("NONE")} />
+        )
     } else {
-        relationshipButtons.push(<RelationshipButton icon={faBan} text="block" key="block" />)
+        relationshipButtons.push(
+            <RelationshipButton icon={faBan} text="block" key="block"
+            onClick={() => setRelationship("BLOCK")} />
+        )
     }
 
     return (
