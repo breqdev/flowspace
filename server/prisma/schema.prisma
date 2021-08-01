@@ -1,26 +1,49 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
+  previewFeatures = ["referentialActions"]
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-    id BigInt @id
+  id BigInt @id
 
-    // account data
-    email        String   @unique
-    password     String
-    verified     Boolean  @default(false)
-    registeredOn DateTime
+  // account data
+  email        String   @unique
+  password     String
+  verified     Boolean  @default(false)
+  registeredOn DateTime @default(now())
 
-    // user profile data
-    name       String
-    pronouns   String?
-    url        String?
-    location   String?
-    bio        String?
-    avatarHash String?
+  // user profile data
+  name       String
+  pronouns   String?
+  url        String?
+  location   String?
+  bio        String?
+  avatarHash String?
+
+  // relationships
+  outgoingRelationships UserRelationship[] @relation("userRelationshipOutgoing")
+  incomingRelationships UserRelationship[] @relation("userRelationshipIncoming")
+}
+
+enum UserRelationshipType {
+  WAVE
+  FOLLOW
+  BLOCK
+}
+
+model UserRelationship {
+  establishedOn DateTime             @default(now())
+  type          UserRelationshipType
+
+  fromUser User   @relation("userRelationshipOutgoing", fields: [fromId], references: [id])
+  fromId   BigInt
+  toUser   User   @relation("userRelationshipIncoming", fields: [toId], references: [id])
+  toId     BigInt
+
+  @@id([fromId, toId])
 }

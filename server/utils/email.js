@@ -23,7 +23,14 @@ const sendEmail = async (address, template, params) => {
                 },
                 personalizations: [{
                     to: [ { email: address } ],
-                    dynamic_template_data: params
+                    dynamic_template_data: {
+                        baseUrl: (
+                            process.env.NODE_ENV === "development"
+                            ? "http://localhost:3000"
+                            : "https://flowspace.breq.dev"
+                        ),
+                        ...params
+                    }
                 }],
                 template_id: EMAIL_TEMPLATES[template],
                 mail_settings: {

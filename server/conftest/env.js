@@ -40,8 +40,6 @@ class PrismaTestEnvironment extends NodeEnvironment {
     }
 
     async teardown() {
-        await super.teardown()
-
         await prisma.$disconnect()
 
         const rawClient = new Client({
@@ -51,6 +49,8 @@ class PrismaTestEnvironment extends NodeEnvironment {
         await rawClient.connect()
         await rawClient.query(`DROP SCHEMA IF EXISTS "${this.schema}" CASCADE`)
         await rawClient.end()
+
+        await super.teardown()
     }
 }
 
