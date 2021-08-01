@@ -44,6 +44,10 @@ router.post("/relationship/outgoing/:id", async (ctx) => {
     const fromId = ctx.user.id
     const type = ctx.request.body.type
 
+    if (fromId === toId) {
+        ctx.throw(400, "Cannot create relationship with self")
+    }
+
     const allowedTypes = ["WAVE", "FOLLOW", "BLOCK", "NONE"]
 
     if (!allowedTypes.includes(type)) {

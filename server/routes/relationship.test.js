@@ -113,6 +113,14 @@ describe("set outgoing relationship", () => {
 
         expect(postRes.status).toBe(404)
     })
+
+    it("does not allow following oneself", async () => {
+        const { token, id } = await loginUser({ email: "from@example.com" })
+
+        const postRes = await createRelationship(id, token, "FOLLOW")
+
+        expect(postRes.status).toBe(400)
+    })
 })
 
 describe("get outgoing relationship", () => {
