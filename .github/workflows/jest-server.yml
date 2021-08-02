@@ -1,4 +1,4 @@
-name: Server Integration Tests
+name: Server Tests
 on: [push]
 jobs:
   Test-Server:

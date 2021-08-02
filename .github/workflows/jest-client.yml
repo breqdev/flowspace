@@ -1,4 +1,4 @@
-name: Client Unit Tests
+name: Client Tests
 on: [push]
 jobs:
   Test-Client:
