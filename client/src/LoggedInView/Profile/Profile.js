@@ -11,10 +11,12 @@ import UserCard from "./UserCard.js"
 export default function Profile(props) {
     const { id } = props.match.params
 
+    const { data: status } = useAPI("/auth/status")
     const { data } = useAPI("/profile/:0", (id === "@me" ? null : id))
 
-    if (id === "@me" && data?.id) {
-        return <Redirect to={`/profile/${data.id}`} />
+    if (id === "@me" && status) {
+        console.log("redirecting...")
+        return <Redirect to={`/profile/${status.id}`} />
     }
 
     if (data?.status_code === 404) {
