@@ -16,8 +16,24 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+      minio:
+        image: minio/minio@RELEASE.2021-07-15T22-27-34Z
+        env:
+          MINIO_ROOT_USER=minio
+          MINIO_ROOT_PASSWORD=minio
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/index.html || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 9000:9000
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/flowspace
+
+      MINIO_ENDPOINT: localhost
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio
     steps:
       - uses: actions/checkout@v2
       - name: Install modules
