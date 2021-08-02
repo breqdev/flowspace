@@ -35,6 +35,8 @@ jobs:
       MINIO_ENDPOINT: localhost
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: minio
+
+      JWT_SECRET: TEST_JWT_SECRET
     steps:
       - uses: actions/checkout@v2
       - name: Install modules
