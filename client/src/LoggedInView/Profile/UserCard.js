@@ -65,7 +65,14 @@ function RelationshipButtons(props) {
             }
         })
 
-        mutate(resp)
+        if (resp.status_code === 200) {
+            mutate(resp)
+        } else {
+            mutate({
+                type: "NONE",
+                ...relationship,
+            })
+        }
     }
 
     let relationshipButtons = []
