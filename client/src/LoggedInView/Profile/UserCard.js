@@ -1,6 +1,6 @@
 import React from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faUser, faLink, faMapMarkerAlt, faCommentDots, faUserFriends, faBan } from "@fortawesome/free-solid-svg-icons"
+import { faUser, faLink, faMapMarkerAlt, faCommentDots, faUserFriends, faBan, faClipboard } from "@fortawesome/free-solid-svg-icons"
 
 
 import AuthContext from "../../AuthContext.js"
@@ -50,10 +50,47 @@ function RelationshipButton(props) {
 function RelationshipButtons(props) {
     const [token, setToken] = React.useContext(AuthContext)
 
+    const copiedMessage = React.useRef(null)
+
     const { data: relationship, mutate } = useAPI("/relationship/outgoing/:0", props.id)
 
-    if (!relationship || relationship.toId === relationship.fromId) {
+    if (!relationship) {
         return <div className="col-start-1 row-start-3 flex" />
+    }
+
+    if (relationship.toId === relationship.fromId) {
+        const profileURL = `${window.location.protocol}//${window.location.host}/profile/${props.id}`
+
+        const copyLink = () => {
+            navigator.clipboard.writeText(profileURL).then(() => {
+                copiedMessage.current.style.opacity = 1
+
+                setTimeout(() => {
+                    if (copiedMessage.current) {
+                        copiedMessage.current.style.opacity = 0
+                    }
+                }, 2000)
+            })
+        }
+
+        return (
+            <div className="col-start-1 row-start-3 justify-self-stretch flex flex-col">
+                <span className="md:-mt-2 mb-2 text-center">
+                    share your profile url
+                </span>
+                <div className="flex gap-4">
+                    <span className="w-0 flex-grow p-3 bg-white border-2 border-black rounded-xl truncate">
+                        {profileURL}
+                    </span>
+                    <span className="bg-green-400 rounded-xl px-4 py-3 border-2 border-black" onClick={copyLink}>
+                        <FontAwesomeIcon icon={faClipboard} className="text-2xl" />
+                    </span>
+                </div>
+                <span ref={copiedMessage} className="mt-1 md:-mb-6 text-center transition-opacity duration-200" style={{ opacity: 0 }}>
+                    copied to clipboard!
+                </span>
+            </div>
+        )
     }
 
     const setRelationship = async (type) => {
