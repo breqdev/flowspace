@@ -11,7 +11,7 @@ import UserCard from "./UserCard.js"
 export default function Profile(props) {
     const { id } = props.match.params
 
-    const { data } = useAPI(`/profile/${id}`)
+    const { data } = useAPI("/profile/:0", (id === "@me" ? null : id))
 
     if (id === "@me" && data?.id) {
         return <Redirect to={`/profile/${data.id}`} />

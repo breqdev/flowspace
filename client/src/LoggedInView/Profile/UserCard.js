@@ -50,7 +50,7 @@ function RelationshipButton(props) {
 function RelationshipButtons(props) {
     const [token, setToken] = React.useContext(AuthContext)
 
-    const { data: relationship, mutate } = useAPI("/relationship/outgoing/" + props.id)
+    const { data: relationship, mutate } = useAPI("/relationship/outgoing/:0", props.id)
 
     if (!relationship || relationship.toId === relationship.fromId) {
         return <div className="col-start-1 row-start-3 flex" />

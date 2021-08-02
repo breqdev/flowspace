@@ -118,10 +118,21 @@ export async function fetchWithToken(url, token, setToken, options) {
 }
 
 
-export function useAPI(url) {
+export function useAPI(url, ...args) {
     const [token, setToken] = React.useContext(AuthContext)
 
-    const result = useSWR([url, token, setToken], fetchWithToken, {
+    args.forEach((value, idx) => {
+        url = url.replace(":" + idx, value)
+    })
+
+    let fetchKey
+    if (args.includes(null) || args.includes(undefined)) {
+        fetchKey = null
+    } else {
+        fetchKey = [url, token, setToken]
+    }
+
+    const result = useSWR(fetchKey, fetchWithToken, {
         refreshInterval: 60 * 1000,
     })
 
