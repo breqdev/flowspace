@@ -218,6 +218,7 @@ router.post("/auth/reset", async (ctx) => {
 
     if (!user.verified) {
         await prisma.user.delete({ where: { id: user.id }})
+        ctx.throw(400, "Email not verified")
     }
 
     const resetToken = createRefreshToken(user, "reset")

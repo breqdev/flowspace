@@ -7,6 +7,30 @@ import { BASE_URL } from "../utils/api.js"
 
 import { Input, Button } from "./FormComponents.js"
 
+
+const postData = async (values, url) => {
+    const formData = new URLSearchParams()
+
+    for (let key in values) {
+        if (values.hasOwnProperty(key)) {
+            formData.set(key, values[key])
+        }
+    }
+
+    const response = await fetch(BASE_URL + url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: formData
+    })
+
+    const data = await response.json()
+
+    return { response, data }
+}
+
+
 export function LogIn(props) {
     const [, setToken] = React.useContext(AuthContext)
 
@@ -17,24 +41,12 @@ export function LogIn(props) {
             <Formik
                 initialValues={{email: "", password: ""}}
                 onSubmit={async (values, actions) => {
-                    const formData = new URLSearchParams()
-                    formData.append("email", values.email)
-                    formData.append("password", values.password)
-
-                    const response = await fetch(BASE_URL + "/auth/login", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded"
-                        },
-                        body: formData
-                    })
-
-                    const token = await response.json()
+                    const { response, data } = await postData(values, "/auth/login")
 
                     if (response.ok) {
-                        setToken(token)
+                        setToken(data)
                     } else {
-                        props.onError(token.msg)
+                        props.onError(data.msg)
                         history.push("/error")
                     }
                 }}
@@ -62,20 +74,7 @@ export function SignUp(props) {
             <Formik
                 initialValues={{email: "", password: "", name: ""}}
                 onSubmit={async (values, actions) => {
-                    const formData = new URLSearchParams()
-                    formData.append("email", values.email)
-                    formData.append("password", values.password)
-                    formData.append("name", values.name)
-
-                    const response = await fetch(BASE_URL + "/auth/signup", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded"
-                        },
-                        body: formData
-                    })
-
-                    const data = await response.json()
+                    const { response, data } = await postData(values, "/auth/signup")
 
                     if (response.ok) {
                         history.push("/verify")
@@ -108,20 +107,12 @@ export function ForgotPassword(props) {
             <Formik
                 initialValues={{email: ""}}
                 onSubmit={async (values, actions) => {
-                    const formData = new URLSearchParams()
-                    formData.append("email", values.email)
+                    const { response, data } = await postData(values, "/auth/reset")
 
-                    const response = await fetch(BASE_URL + "/auth/reset", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded"
-                        },
-                        body: formData
-                    })
                     if (response.ok) {
                         history.push("/reset")
                     } else {
-                        props.onError(response.msg)
+                        props.onError(data.msg)
                         history.push("/error")
                     }
                 }}
@@ -152,7 +143,7 @@ export function ResetPassword(props) {
                 initialValues={{password: ""}}
                 onSubmit={async (values, actions) => {
                     const resetFormData = new URLSearchParams()
-                    resetFormData.append("new_password", values.password)
+                    resetFormData.append("new_password", values.new_password)
 
                     // do password reset
                     const params = new URLSearchParams(search)
@@ -201,7 +192,7 @@ export function ResetPassword(props) {
             >
                 {formik => (
                     <Form className="flex flex-col">
-                        <Field type="password" name="password" placeholder="new password" component={Input} />
+                        <Field type="password" name="new_password" placeholder="new password" component={Input} />
                         <Button value="log in" />
                     </Form>
                 )}
