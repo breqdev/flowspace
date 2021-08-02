@@ -32,6 +32,10 @@ router.post("/profile/@me", async (ctx) => {
 })
 
 router.post("/profile/avatar/@me", upload.single("avatar"), async (ctx) => {
+    if (!ctx.file) {
+        ctx.throw(400, "No file specified")
+    }
+
     const originalFileName = ctx.file.originalname
     const extension = originalFileName.split(".").pop()
 
