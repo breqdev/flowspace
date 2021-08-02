@@ -121,7 +121,9 @@ export async function fetchWithToken(url, token, setToken, options) {
 export function useAPI(url) {
     const [token, setToken] = React.useContext(AuthContext)
 
-    const result = useSWR([url, token, setToken], fetchWithToken)
+    const result = useSWR([url, token, setToken], fetchWithToken, {
+        refreshInterval: 60 * 1000,
+    })
 
     if (result.error) {
         console.log(result.error)
