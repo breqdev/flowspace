@@ -3,7 +3,7 @@ import { Link, useHistory } from "react-router-dom"
 import { Formik, Form, Field } from "formik"
 
 import AuthContext from "../AuthContext.js"
-import { BASE_URL } from "../api.js"
+import { BASE_URL } from "../utils/api.js"
 
 import { Input, Button } from "./FormComponents.js"
 

@@ -1,0 +1,13 @@
+name: Client Unit Tests
+on: [push]
+jobs:
+  Test-Client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install modules
+        working-directory: client
+        run: npm install
+      - name: Run tests
+        working-directory: client
+        run: npm test -- --watchAll=false

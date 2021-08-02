@@ -4,7 +4,7 @@ import { Formik, Field, Form } from "formik"
 import { mutate as globalMutate } from "swr"
 
 import AuthContext from "../AuthContext.js"
-import { useAPI, fetchWithToken, BASE_URL } from "../api.js"
+import { useAPI, fetchWithToken, BASE_URL } from "../utils/api.js"
 
 function Sidebar(props) {
     const items = props.items.map(

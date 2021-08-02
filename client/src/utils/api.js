@@ -1,7 +1,7 @@
 import React from "react"
 import useSWR from "swr"
 
-import AuthContext from "./AuthContext.js"
+import AuthContext from "../AuthContext.js"
 
 export const BASE_URL = (process.env.NODE_ENV === "development"
                             ? "http://localhost:5000"

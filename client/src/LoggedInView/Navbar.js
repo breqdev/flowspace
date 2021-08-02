@@ -5,7 +5,7 @@ import { faChevronDown } from "@fortawesome/free-solid-svg-icons"
 import { mutate } from "swr"
 
 import AuthContext from "../AuthContext.js"
-import { useAPI } from "../api.js"
+import { useAPI } from "../utils/api.js"
 
 
 function ExpandedDropdown(props) {

@@ -4,7 +4,8 @@ import { faCommentDots, faUserFriends, faBan, faClipboard } from "@fortawesome/f
 
 
 import AuthContext from "../../AuthContext.js"
-import { fetchWithToken, useAPI } from "../../api.js"
+import { fetchWithToken, useAPI } from "../../utils/api.js"
+import { encode } from "../../utils/bigintToBase64"
 
 function RelationshipButton(props) {
     let className = "flex flex-col justify-center items-center h-20 w-24 m-1 p-2 border-2 border-black rounded-xl transition-colors duration-300 "
@@ -31,7 +32,7 @@ function RelationshipButton(props) {
 function ProfileURLCopyRow(props) {
     const copiedMessage = React.useRef(null)
 
-    const profileURL = `${window.location.protocol}//${window.location.host}/profile/${props.id}`
+    const profileURL = `${window.location.protocol}//${window.location.host}/u/${encode(props.id)}`
 
     const copyLink = () => {
         navigator.clipboard.writeText(profileURL).then(() => {

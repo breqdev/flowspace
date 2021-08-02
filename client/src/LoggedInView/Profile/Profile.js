@@ -2,7 +2,7 @@ import React from "react"
 import { Link, Redirect } from "react-router-dom"
 
 
-import { useAPI } from "../../api.js"
+import { useAPI } from "../../utils/api.js"
 
 
 import UserCard from "./UserCard.js"
