@@ -34,8 +34,7 @@ export function PromptForReset(props) {
             <h2 className="text-2xl mb-4">one more thing</h2>
             <hr />
             <p className="text-lg my-2">
-                we need you to reset your password.
-                click the link in the email you received.
+                to reset your password, click the link in the email you received.
             </p>
         </>
     )
