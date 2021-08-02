@@ -21,6 +21,8 @@ jobs:
         env:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio
+          MINIO_ACCESS_KEY: minio
+          MINIO_SECRET_KEY: miniosecret
         options: >-
           --health-cmd "curl -f http://localhost:9000/minio/health/ready || exit 1"
           --health-interval 10s
@@ -34,7 +36,7 @@ jobs:
 
       MINIO_ENDPOINT: localhost
       MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio
+      MINIO_SECRET_KEY: miniosecret
 
       JWT_SECRET: TEST_JWT_SECRET
     steps:
