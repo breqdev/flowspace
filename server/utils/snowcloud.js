@@ -24,19 +24,26 @@ class Snowcloud {
     }
 
     async register() {
-        const result = await fetch(
-            this.urlWithParams({
-                user: this.user,
-                key: this.key
-            }),
-            { method: "POST" }
-        )
 
-        const data = await result.json()
+        if (process.env.SNOWCLOUD_SANDBOX) {
+            this.workerId = 0
+            this.expires = new Date(Date.now() + 3600 * 1000)
+            this.ttl = 3600 * 1000
+        } else {
+            const result = await fetch(
+                this.urlWithParams({
+                    user: this.user,
+                    key: this.key
+                }),
+                { method: "POST" }
+            )
 
-        this.workerId = data.worker_id
-        this.expires = data.expires
-        this.ttl = data.ttl
+            const data = await result.json()
+
+            this.workerId = data.worker_id
+            this.expires = data.expires
+            this.ttl = data.ttl
+        }
     }
 
     async renew() {

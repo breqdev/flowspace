@@ -34,6 +34,9 @@ class PrismaTestEnvironment extends NodeEnvironment {
         process.env.SENDGRID_SANDBOX = "enabled"
         this.global.process.env.SENDGRID_SANDBOX = "enabled"
 
+        process.env.SNOWCLOUD_SANDBOX = "enabled"
+        this.global.process.env.SNOWCLOUD_SANDBOX = "enabled"
+
         await exec(`${prismaBinary} migrate reset --force`)
 
         await prisma.$connect()
