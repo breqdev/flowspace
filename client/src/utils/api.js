@@ -17,7 +17,7 @@ async function refreshToken(token, now) {
     const refreshTokenData = JSON.parse(atob(token.refresh_token.split(".")[1]))
 
     if (now >= refreshTokenData.exp) {
-        console.log("Refresh token is not valid")
+        // refresh token expired, log the user out completely
         return null
     }
 

@@ -15,7 +15,6 @@ export default function Profile(props) {
     const { data } = useAPI("/profile/:0", (id === "@me" ? null : id))
 
     if (id === "@me" && status) {
-        console.log("redirecting...")
         return <Redirect to={`/profile/${status.id}`} />
     }
 
