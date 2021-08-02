@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "jest"
+    "test": "jest",
+    "createMinioBucket": "node conftest/createMinioBucket.js"
   },
   "author": "",
   "license": "ISC",
