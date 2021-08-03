@@ -47,6 +47,35 @@ describe("global ratelimit middleware", () => {
         expect(response.statusCode).toBe(429)
     })
 
+    it("resets the count after the hour is over", async () => {
+        jest.useFakeTimers()
+        jest.setSystemTime(new Date("2020-01-01 00:00:00"))
+
+        process.env.DISABLE_RATE_LIMITING = "false"
+
+        for (let i = 0; i < 100; i++) {
+            await request(app.callback())
+                .get("/")
+        }
+
+        const response = await request(app.callback())
+            .get("/")
+
+        expect(response.statusCode).toBe(429)
+
+        // interval is still 0
+        // but it's the next hour
+        // so the redis keys should be expired
+        // (this only works because we mock Redis completely)
+
+        jest.setSystemTime(new Date("2020-01-01 01:00:00"))
+
+        const response2 = await request(app.callback())
+            .get("/")
+
+        expect(response2.statusCode).toBe(200)
+    })
+
     it("has separate quotas for different tokens", async () => {
         const evilUser = await loginUser({ email: "evil@thesatanictemple.com" })
         const goodUser = await loginUser({ email: "good@example.com" })
