@@ -3,8 +3,7 @@ const ipaddr = require("ipaddr.js")
 const redis = require("../utils/redis")
 
 const rateLimit = async (ctx, next) => {
-    if (process.env.DISABLE_RATE_LIMITING) {
-        // Rate limit disabled for testing
+    if (process.env.DISABLE_RATE_LIMITING === "true") {
         return next()
     }
 
@@ -51,8 +50,6 @@ const rateLimit = async (ctx, next) => {
     if (currentRequests > 100) {
         ctx.throw(429, "Too many requests")
     }
-
-    console.log(`${key} has made ${currentRequests} requests`)
 
     await redis.incr(key)
     await redis.expire(key, 60)

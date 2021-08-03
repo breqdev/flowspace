@@ -12,7 +12,7 @@ const router = new Router()
 
 
 const handleRateLimit = async (ctx, score) => {
-    if (process.env.DISABLE_RATE_LIMITING) {
+    if (process.env.DISABLE_RATE_LIMITING === "true") {
         return
     }
 
@@ -27,8 +27,6 @@ const handleRateLimit = async (ctx, score) => {
     }
 
     await redis.incrby(key, score)
-
-    console.log(`${key} has score ${parseInt(currentScore) + score} in interval ${interval}`)
 
     await redis.expire(key, 24 * 60 * 60)
 }
