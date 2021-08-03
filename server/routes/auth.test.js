@@ -403,7 +403,8 @@ describe("auth rate limiting", () => {
     })
 
     afterEach(() => {
-        jest.clearAllMocks();
+        jest.clearAllMocks()
+        jest.useRealTimers()
     })
 
     it("allows a single signup attempt", async () => {
@@ -451,5 +452,48 @@ describe("auth rate limiting", () => {
             .send({ email: "final@example.com" })
 
         expect(response.statusCode).toBe(429)
+    })
+
+    it("allows a single signup attempt again", async () => {
+        // This is to make sure that the above ratelimiting tests
+        // don't interfere with each other
+
+        process.env.DISABLE_RATE_LIMITING = "false"
+
+        const response = await request(app.callback())
+            .post("/auth/signup")
+            .type("form")
+            .send({ name: "Test User", email: "first@example.com", password: "password" })
+
+        expect(response.statusCode).toBe(200)
+    })
+
+    it("resets the quota after one day", async () => {
+        jest.useFakeTimers()
+
+        process.env.DISABLE_RATE_LIMITING = "false"
+
+        for (let i = 0; i < 10; ++i) {
+            await request(app.callback())
+                .post("/auth/signup")
+                .type("form")
+                .send({ name: "Test User", email: i + "@example.com", password: "password" })
+        }
+
+        const response = await request(app.callback())
+            .post("/auth/signup")
+            .type("form")
+            .send({ name: "Test User", email: "first@example.com", password: "password" })
+
+        expect(response.statusCode).toBe(429)
+
+        jest.setSystemTime(new Date(Date.now() + (24 * 60 * 60 * 1000)))
+
+        const dayLaterResponse = await request(app.callback())
+            .post("/auth/signup")
+            .type("form")
+            .send({ name: "Test User", email: "second@example.com", password: "password" })
+
+        expect(dayLaterResponse.statusCode).toBe(200)
     })
 })

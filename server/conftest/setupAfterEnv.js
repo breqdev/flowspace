@@ -13,6 +13,8 @@ beforeEach(async () => {
     for (let model of models) {
         await prisma[model].deleteMany()
     }
+
+    await redis.flushdb()
 })
 
 afterEach(() => {
