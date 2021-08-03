@@ -3,6 +3,11 @@ const ipaddr = require("ipaddr.js")
 const redis = require("../utils/redis")
 
 const rateLimit = async (ctx, next) => {
+    if (process.env.DISABLE_RATE_LIMITING) {
+        // Rate limit disabled for testing
+        return next()
+    }
+
     if (ctx.request.method === "OPTIONS") {
         // Ignore CORS preflight requests
         return next()

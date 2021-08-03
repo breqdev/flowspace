@@ -1,8 +1,8 @@
-const exec = require("./exec")
-
 jest.mock("../utils/email", () => jest.fn())
 
 const prisma = require("../utils/prisma")
+
+const redis = require("../utils/redis")
 
 beforeEach(async () => {
 
@@ -17,4 +17,8 @@ beforeEach(async () => {
 
 afterEach(() => {
     jest.clearAllMocks();
+})
+
+afterAll(async () => {
+    await redis.quit()
 })

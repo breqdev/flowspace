@@ -12,6 +12,10 @@ const router = new Router()
 
 
 const handleRateLimit = async (ctx, score) => {
+    if (process.env.DISABLE_RATE_LIMITING) {
+        return
+    }
+
     const interval = Math.floor((new Date()).getUTCDate())
 
     const key = `authRateLimit:${ctx.ratelimitIdentifier}:${interval}`
