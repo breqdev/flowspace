@@ -107,6 +107,19 @@ describe("user signup", () => {
 
         expect(response.statusCode).toBe(400)
     })
+
+    it("does not allow signup with an excessively long name", async () => {
+        const response = await request(app.callback())
+            .post("/auth/signup")
+            .type("form")
+            .send({
+                email: "test@example.com",
+                password: "test_password",
+                name: "a".repeat(101)
+            })
+
+        expect(response.statusCode).toBe(400)
+    })
 })
 
 describe("email verification", () => {

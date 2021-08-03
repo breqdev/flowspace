@@ -14,8 +14,8 @@ const PUBLIC_WRITABLE_FIELDS = ["name", "pronouns", "url", "location", "bio"]
 const PUBLIC_READABLE_FIELDS = PUBLIC_WRITABLE_FIELDS.concat(["id", "avatarHash"])
 
 const LENGTH_LIMITS = {
-    name: 50,
-    pronouns: 50,
+    name: 100,
+    pronouns: 100,
     url: 100,
     location: 100,
     bio: 1000
@@ -37,6 +37,10 @@ router.post("/profile/@me", async (ctx) => {
         if (ctx.request.body[field] && ctx.request.body[field].length > LENGTH_LIMITS[field]) {
             ctx.throw(400, `${field} must be less than ${LENGTH_LIMITS[field]} characters`)
         }
+    }
+
+    if (ctx.request.body.name === "") {
+        ctx.throw(400, "name cannot be empty")
     }
 
     const data = filterKeys(ctx.request.body, PUBLIC_WRITABLE_FIELDS, PUBLIC_READABLE_FIELDS)

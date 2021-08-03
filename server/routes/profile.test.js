@@ -164,6 +164,32 @@ describe("set profile", () => {
 
         expect(response.statusCode).toBe(400)
     })
+
+    it("doesn't allow setting an empty name", async () => {
+        const { token } = await loginUser()
+
+        const response = await request(app.callback())
+            .post("/profile/@me")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                name: ""
+            })
+
+        expect(response.statusCode).toBe(400)
+    })
+
+    it("doesn't allow setting an excessively long name", async () => {
+        const { token } = await loginUser()
+
+        const response = await request(app.callback())
+            .post("/profile/@me")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                name: "a".repeat(101)
+            })
+
+        expect(response.statusCode).toBe(400)
+    })
 })
 
 describe("get profile by id", () => {

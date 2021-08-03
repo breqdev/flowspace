@@ -47,6 +47,10 @@ router.post("/auth/signup", async (ctx) => {
         ctx.throw(400, "name is required")
     }
 
+    if (name.length > 100) {
+        ctx.throw(400, "name is too long")
+    }
+
     const hash = generatePasswordHash(password)
 
     const existingUser = await prisma.user.findUnique({ where: { email } })
