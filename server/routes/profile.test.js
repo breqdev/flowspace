@@ -128,6 +128,42 @@ describe("set profile", () => {
 
         expect(profile.body.bio).toBe(null)
     })
+
+    it("doesn't allow viewing the user's password hash", async () => {
+        const { token } = await loginUser()
+
+        const response = await request(app.callback())
+            .get("/profile/@me")
+            .set("Authorization", `Bearer ${token}`)
+
+        expect(response.body.password).toBeUndefined()
+    })
+
+    it("doesn't allow changing the user's ID", async () => {
+        const { token } = await loginUser()
+
+        const response = await request(app.callback())
+            .post("/profile/@me")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                id: "1234567890"
+            })
+
+        expect(response.statusCode).toBe(400)
+    })
+
+    it("doesn't allow fields beyond the length limit", async () => {
+        const { token } = await loginUser()
+
+        const response = await request(app.callback())
+            .post("/profile/@me")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                bio: "a".repeat(2000)
+            })
+
+        expect(response.statusCode).toBe(400)
+    })
 })
 
 describe("get profile by id", () => {
