@@ -6,6 +6,7 @@ import AuthContext from "../AuthContext.js"
 import { BASE_URL } from "../utils/api.js"
 
 import { Input, Button } from "./FormComponents.js"
+import { LoginSchema, SignupSchema, ForgotPasswordSchema, ResetPasswordSchema } from "./FormSchemas"
 
 
 const postData = async (values, url) => {
@@ -40,6 +41,7 @@ export function LogIn(props) {
         <>
             <Formik
                 initialValues={{email: "", password: ""}}
+                validationSchema={LoginSchema}
                 onSubmit={async (values, actions) => {
                     const { response, data } = await postData(values, "/auth/login")
 
@@ -73,6 +75,7 @@ export function SignUp(props) {
         <>
             <Formik
                 initialValues={{email: "", password: "", name: ""}}
+                validationSchema={SignupSchema}
                 onSubmit={async (values, actions) => {
                     const { response, data } = await postData(values, "/auth/signup")
 
@@ -106,6 +109,7 @@ export function ForgotPassword(props) {
         <>
             <Formik
                 initialValues={{email: ""}}
+                validationSchema={ForgotPasswordSchema}
                 onSubmit={async (values, actions) => {
                     const { response, data } = await postData(values, "/auth/reset")
 
@@ -141,6 +145,7 @@ export function ResetPassword(props) {
         <>
             <Formik
                 initialValues={{password: ""}}
+                validationSchema={ResetPasswordSchema}
                 onSubmit={async (values, actions) => {
                     const resetFormData = new URLSearchParams()
                     resetFormData.append("new_password", values.new_password)
