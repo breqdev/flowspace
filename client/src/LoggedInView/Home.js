@@ -33,7 +33,7 @@ function Placeholder(props) {
                 <br />
                 pardon the dust.
                 <br />
-                in the meantime, send brooke an email at breq@breq.dev.
+                in the meantime, send brooke your thoughts.
                 <br />
                 comments, complaints, feedback, whatever.
                 <br />
