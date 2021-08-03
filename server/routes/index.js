@@ -7,9 +7,19 @@ const router = new Router()
 
 
 router.get("/", async ctx => {
-    const users = await prisma.user.count()
+    const userCount = await prisma.user.count({
+        where: {
+            verified: true
+        }
+    })
+
+    const commit = process.env.GIT_REV
+
     ctx.body = {
-        userCount: users
+        welcome: "this is the flowspace api.",
+        didYouMean: "to go to https://flowspace.breq.dev/ ?",
+        userCount,
+        commit
     }
 })
 
