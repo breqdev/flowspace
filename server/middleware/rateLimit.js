@@ -4,6 +4,28 @@ const redis = require("../utils/redis")
 
 const MAX_REQUESTS = 100
 
+const getClientIP = ({ ip, xff }) => {
+    // We might need to check X-Forwarded-For to see the real IP
+    // in cases where our application is deployed behind a proxy.
+    // However, we have to do this carefully, or the user will be able to
+    // spoof their IP by setting X-Forwarded-For themselves.
+    // Any proxies that forward this request will append their observed IP
+    // to the end of this header -- they won't replace the original IP.
+    // Thus, blindly checking the first IP address will leave us vulnerable.
+
+    // Knowing the number of trusted proxies between us and the user,
+    // we can count backwards in the X-Forwarded-For header to find the
+    // IP address reported by the outermost trusted proxy.
+
+    const proxies = parseInt(process.env.TRUSTED_PROXIES)
+
+    if (proxies > 0) {
+        return xff.split(",").reverse()[proxies - 1].trim()
+    } else {
+        return ip
+    }
+}
+
 const rateLimit = async (ctx, next) => {
     if (process.env.DISABLE_RATE_LIMITING === "true") {
         return next()
@@ -25,13 +47,10 @@ const rateLimit = async (ctx, next) => {
         identifier = `user:${ctx.user.id}`
     } else {
         // Rely on their IP address instead
-
-        let ip = ctx.request.ip
-
-        if (process.env.BEHIND_PROXY === "true") {
-            // We are behind nginx proxy
-            ip = ctx.request.headers["x-forwarded-for"].split(",")[0]
-        }
+        let ip = getClientIP({
+            ip: ctx.request.ip,
+            xff: ctx.request.header["x-forwarded-for"]
+        })
 
         const parsedIp = ipaddr.parse(ip)
 
@@ -68,4 +87,7 @@ const rateLimit = async (ctx, next) => {
     await next()
 }
 
-module.exports = rateLimit
+module.exports = {
+    rateLimit,
+    getClientIP
+}

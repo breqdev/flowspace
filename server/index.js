@@ -3,7 +3,7 @@ require("dotenv").config()
 const Koa = require("koa")
 const bodyparser = require("koa-bodyparser")
 
-const rateLimit = require("./middleware/rateLimit")
+const { rateLimit } = require("./middleware/rateLimit")
 const authMiddleware = require("./middleware/auth")
 const { errorHandler, errorCatcher } = require("./middleware/error")
 const requireLogin = require("./middleware/requireLogin")

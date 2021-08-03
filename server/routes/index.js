@@ -19,7 +19,8 @@ router.get("/", async ctx => {
         welcome: "this is the flowspace api.",
         didYouMean: "to go to https://flowspace.breq.dev/ ?",
         userCount,
-        commit
+        commit,
+        identifier: ctx.ratelimitIdentifier
     }
 })
 

@@ -3,6 +3,66 @@ const request = require("supertest")
 const app = require("../index.js")
 
 const { loginUser } = require("../conftest/utils")
+const { getClientIP } = require("./rateLimit")
+
+describe("get client IP", () => {
+    const OLD_ENV = process.env
+
+    beforeEach(() => {
+        process.env = { ...OLD_ENV }
+    })
+
+    afterAll(() => {
+        process.env = OLD_ENV
+    })
+
+    it("returns the raw incoming IP when not behind a proxy", async () => {
+        process.env.TRUSTED_PROXIES = "0"
+
+        //      spoofed:    5.6.7.8
+        // REAL source IP:  1.2.3.4
+
+        const ip = getClientIP({
+            ip: "1.2.3.4",
+            xff: "5.6.7.8"
+        })
+
+        expect(ip).toBe("1.2.3.4")
+    })
+
+    it("reads the last entry of XFF when behind one proxy", async () => {
+        process.env.TRUSTED_PROXIES = "1"
+
+        //      spoofed:    9.10.11.12
+        // REAL source IP:  5.6.7.8
+        //      via proxy:  1.2.3.4
+
+        const ip = getClientIP({
+            ip: "1.2.3.4",
+            xff: "9.10.11.12, 5.6.7.8"
+        })
+
+        expect(ip).toBe("5.6.7.8")
+    })
+
+    it("reads the correct entry of XFF when behind multiple proxies", async () => {
+        process.env.TRUSTED_PROXIES = "3"
+
+        //      spoofed:    21.22.23.24
+        //      spoofed:    17.18.19.20
+        // REAL source IP:  13.14.15.16
+        //      via proxy:  5.6.7.8
+        //      via proxy:  9.10.11.12
+        //      via proxy:  1.2.3.4
+
+        const ip = getClientIP({
+            ip: "1.2.3.4",
+            xff: "21.22.23.24, 17.18.19.20, 13.14.15.16, 9.10.11.12, 5.6.7.8"
+        })
+
+        expect(ip).toBe("13.14.15.16")
+    })
+})
 
 describe("global ratelimit middleware", () => {
     const OLD_ENV = process.env
@@ -97,7 +157,7 @@ describe("global ratelimit middleware", () => {
 
     it("has separate quotas for different IPv4 addresses", async () => {
         process.env.DISABLE_RATE_LIMITING = "false"
-        process.env.BEHIND_PROXY = "true"
+        process.env.TRUSTED_PROXIES = "1"
 
         for (let i = 0; i < 100; i++) {
             await request(app.callback())
@@ -114,7 +174,7 @@ describe("global ratelimit middleware", () => {
 
     it("has separate quotas for different IPv6 addresses", async () => {
         process.env.DISABLE_RATE_LIMITING = "false"
-        process.env.BEHIND_PROXY = "true"
+        process.env.TRUSTED_PROXIES = "1"
 
         for (let i = 0; i < 100; i++) {
             await request(app.callback())
@@ -131,7 +191,7 @@ describe("global ratelimit middleware", () => {
 
     it("treats IPv6 /64 blocks as the same IP", async () => {
         process.env.DISABLE_RATE_LIMITING = "false"
-        process.env.BEHIND_PROXY = "true"
+        process.env.TRUSTED_PROXIES = "1"
 
         for (let i = 0; i < 100; i++) {
             await request(app.callback())
