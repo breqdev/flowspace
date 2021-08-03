@@ -36,7 +36,7 @@ describe("global ratelimit middleware", () => {
 
         process.env.DISABLE_RATE_LIMITING = "false"
 
-        for (let i = 0; i < 101; i++) {
+        for (let i = 0; i < 100; i++) {
             await request(app.callback())
                 .get("/")
         }
@@ -53,7 +53,7 @@ describe("global ratelimit middleware", () => {
 
         process.env.DISABLE_RATE_LIMITING = "false"
 
-        for (let i = 0; i < 101; i++) {
+        for (let i = 0; i < 100; i++) {
             await request(app.callback())
                 .get("/")
                 .set("Authorization", `Bearer ${evilUser.token}`)
@@ -70,7 +70,7 @@ describe("global ratelimit middleware", () => {
         process.env.DISABLE_RATE_LIMITING = "false"
         process.env.BEHIND_PROXY = "true"
 
-        for (let i = 0; i < 101; i++) {
+        for (let i = 0; i < 100; i++) {
             await request(app.callback())
                 .get("/")
                 .set("X-Forwarded-For", "6.6.6.6")
@@ -87,7 +87,7 @@ describe("global ratelimit middleware", () => {
         process.env.DISABLE_RATE_LIMITING = "false"
         process.env.BEHIND_PROXY = "true"
 
-        for (let i = 0; i < 101; i++) {
+        for (let i = 0; i < 100; i++) {
             await request(app.callback())
                 .get("/")
                 .set("X-Forwarded-For", "666:666:420:420::1")
@@ -104,7 +104,7 @@ describe("global ratelimit middleware", () => {
         process.env.DISABLE_RATE_LIMITING = "false"
         process.env.BEHIND_PROXY = "true"
 
-        for (let i = 0; i < 101; i++) {
+        for (let i = 0; i < 100; i++) {
             await request(app.callback())
                 .get("/")
                 .set("X-Forwarded-For", "666:666:420:420::1")
@@ -115,5 +115,24 @@ describe("global ratelimit middleware", () => {
             .set("X-Forwarded-For", "666:666:420:420::2")
 
         expect(response.statusCode).toBe(429)
+    })
+
+    it("adds headers to the response", async () => {
+        jest.useFakeTimers()
+
+        const startDate = new Date("1970-01-02")
+        const endDate = new Date(startDate.getTime() + 60 * 1000)
+
+        jest.setSystemTime(startDate)
+
+        process.env.DISABLE_RATE_LIMITING = "false"
+
+        const response = await request(app.callback())
+            .get("/")
+
+        expect(response.headers["x-ratelimit-limit"]).toBe("100")
+        expect(response.headers["x-ratelimit-remaining"]).toBe("99")
+        expect(response.headers["x-ratelimit-reset"]).toBe((endDate.getTime() / 1000).toString())
+        expect(response.headers["x-ratelimit-reset-after"]).toBe("60")
     })
 })
