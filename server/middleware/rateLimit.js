@@ -11,12 +11,12 @@ const rateLimit = async (ctx, next) => {
     // Every minute is a new interval
     const interval = Math.floor((new Date()).getUTCMinutes())
 
-    let key
+    let identifier
 
     if (ctx.user) {
         // The user has logged in
         // We can track them by their ID for ratelimiting purposes
-        key = `ratelimit:user:${ctx.user.id}:${interval}`
+        identifier = `user:${ctx.user.id}`
     } else {
         // Rely on their IP address instead
 
@@ -36,8 +36,10 @@ const rateLimit = async (ctx, next) => {
             ip = parsedIp.parts.slice(0, 3).join(":") + "/64"
         }
 
-        key = `ratelimit:ip:${ip}:${interval}`
+        identifier = `ip:${ip}`
     }
+
+    const key = `ratelimit:${identifier}:${interval}`
 
     const currentRequests = await redis.get(key)
 
@@ -49,6 +51,8 @@ const rateLimit = async (ctx, next) => {
 
     await redis.incr(key)
     await redis.expire(key, 60)
+
+    ctx.ratelimitIdentifier = identifier
 
     await next()
 }
