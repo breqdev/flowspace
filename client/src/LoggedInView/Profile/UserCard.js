@@ -62,7 +62,7 @@ function UserBio(props) {
         return (
             <>
                 <hr className="my-3 border-black" />
-                <div className="text-lg">
+                <div className="text-lg whitespace-pre-line">
                     {props.bio}
                 </div>
             </>
