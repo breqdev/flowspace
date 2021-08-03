@@ -14,18 +14,24 @@ a social network.
 
 client:
 * react - UI components
+* create-react-app - framework
 * useSWR - data fetching
 * tailwind css - styles
 * font awesome - icons
 * react-router - routing
 * formik - forms
 * yup - validation
-* cloudflare pages - hosting
 
 server:
 * node - runtime
 * koa - middleware handling (and koa-router, koa-bodyparser, koa-multer)
 * prisma - object-relational mapping
+
+hosting:
+* cloudflare pages - client
+* dokku (on ms azure) - server
+
+data:
 * postgres - relational database
 * minio - object storage
-* dokku - hosting
+* redis - rate limiting
