@@ -2,8 +2,8 @@ import React from "react"
 import { Switch, Route, Redirect, useLocation } from "react-router-dom"
 
 import { Error, PromptForVerify, PromptForReset } from "./Prompts.js"
-import { LogIn, SignUp } from "./Forms.js"
-import { DoVerify, DoReset } from "./Actions.js"
+import { LogIn, SignUp, ForgotPassword, ResetPassword } from "./Forms.js"
+import { DoVerify } from "./Actions.js"
 
 
 function VerifyEmail(props) {
@@ -18,12 +18,12 @@ function VerifyEmail(props) {
 }
 
 
-function ResetPassword(props) {
+function HandleReset(props) {
     const { search } = useLocation()
     const params = new URLSearchParams(search)
 
     if (params.get("token")) {
-        return <DoReset onError={props.onError} />
+        return <ResetPassword onError={props.onError} />
     } else {
         return <PromptForReset />
     }
@@ -56,8 +56,11 @@ export default function RedirectingView(props) {
                 <Route exact path="/verify">
                     <VerifyEmail onError={setError} />
                 </Route>
+                <Route exact path="/forgot">
+                    <ForgotPassword onError={setError} />
+                </Route>
                 <Route exact path="/reset">
-                    <ResetPassword onError={setError} />
+                    <HandleReset onError={setError} />
                 </Route>
                 <Route exact path="/error">
                     <Error reason={error} />

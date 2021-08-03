@@ -19,6 +19,7 @@ client:
 * font awesome - icons
 * react-router - routing
 * formik - forms
+* yup - validation
 * cloudflare pages - hosting
 
 server:
