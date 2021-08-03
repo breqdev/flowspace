@@ -82,6 +82,31 @@ describe("user signup", () => {
         expect(firstPassword[1]).not.toBe(secondPassword[1]) // Salt
         expect(firstPassword[2]).not.toBe(secondPassword[2]) // Hash
     })
+
+    it("does not allow signup with missing fields", async () => {
+        const response = await request(app.callback())
+            .post("/auth/signup")
+            .type("form")
+            .send({
+                email: "test@example.com",
+                password: "test_password"
+            })
+
+        expect(response.statusCode).toBe(400)
+    })
+
+    it("does not allow signup with an empty name", async () => {
+        const response = await request(app.callback())
+            .post("/auth/signup")
+            .type("form")
+            .send({
+                email: "test@example.com",
+                password: "test_password",
+                name: ""
+            })
+
+        expect(response.statusCode).toBe(400)
+    })
 })
 
 describe("email verification", () => {

@@ -39,6 +39,14 @@ router.post("/auth/signup", async (ctx) => {
     const email = ctx.request.body.email
     const password = ctx.request.body.password
 
+    if (!name || !email || !password) {
+        ctx.throw(400, "missing required fields")
+    }
+
+    if (name === "") {
+        ctx.throw(400, "name is required")
+    }
+
     const hash = generatePasswordHash(password)
 
     const existingUser = await prisma.user.findUnique({ where: { email } })
