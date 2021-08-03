@@ -6,11 +6,35 @@ const sendEmail = require("../utils/email")
 
 const snowcloud = require("../utils/snowcloud")
 const prisma = require("../utils/prisma")
+const redis = require("../utils/redis")
 
 const router = new Router()
 
 
+const handleRateLimit = async (ctx, score) => {
+    if (process.env.DISABLE_RATE_LIMITING === "true") {
+        return
+    }
+
+    const interval = Math.floor((new Date()).getUTCDate())
+
+    const key = `authRateLimit:${ctx.ratelimitIdentifier}:${interval}`
+
+    const currentScore = await redis.get(key)
+
+    if (currentScore + score > 100) {
+        ctx.throw(429, "too many requests")
+    }
+
+    await redis.incrby(key, score)
+
+    await redis.expire(key, 24 * 60 * 60)
+}
+
+
 router.post("/auth/signup", async (ctx) => {
+    await handleRateLimit(ctx, 10)
+
     const name = ctx.request.body.name
     const email = ctx.request.body.email
     const password = ctx.request.body.password
@@ -51,6 +75,8 @@ router.post("/auth/signup", async (ctx) => {
 
 
 router.post("/auth/login", async (ctx) => {
+    await handleRateLimit(ctx, 1)
+
     const email = ctx.request.body.email
     const password = ctx.request.body.password
 
@@ -82,6 +108,8 @@ router.post("/auth/login", async (ctx) => {
 
 
 router.post("/auth/verify", async (ctx) => {
+    await handleRateLimit(ctx, 1)
+
     if (ctx.state.tokenType !== "refresh") {
         ctx.throw(401, "Invalid token")
     }
@@ -102,6 +130,8 @@ router.post("/auth/verify", async (ctx) => {
 
 
 router.post("/auth/refresh", async (ctx) => {
+    await handleRateLimit(ctx, 1)
+
     if (ctx.state.tokenType !== "refresh") {
         ctx.throw(401, "Invalid token")
     }
@@ -121,6 +151,8 @@ router.post("/auth/refresh", async (ctx) => {
 
 
 router.post("/auth/delete", async (ctx) => {
+    await handleRateLimit(ctx, 1)
+
     if (!ctx.user) {
         ctx.throw(401, "Unauthorized")
     }
@@ -134,6 +166,8 @@ router.post("/auth/delete", async (ctx) => {
 
 
 router.post("/auth/email", async (ctx) => {
+    await handleRateLimit(ctx, 10)
+
     if (!ctx.user) {
         ctx.throw(401, "Unauthorized")
     }
@@ -155,7 +189,7 @@ router.post("/auth/email", async (ctx) => {
 
     const refreshToken = createRefreshToken(ctx.user)
 
-    await sendEmail(ctx.user.email, "EMAIL_CHANGE", {
+    await sendEmail(newEmail, "EMAIL_CHANGE", {
         name: ctx.user.name,
         token: refreshToken
     })
@@ -167,6 +201,8 @@ router.post("/auth/email", async (ctx) => {
 
 
 router.post("/auth/password", async (ctx) => {
+    await handleRateLimit(ctx, 10)
+
     const newPassword = ctx.request.body.new_password
 
     let user
@@ -208,6 +244,8 @@ router.post("/auth/password", async (ctx) => {
 
 
 router.post("/auth/reset", async (ctx) => {
+    await handleRateLimit(ctx, 40)
+
     const email = ctx.request.body.email
 
     const user = await prisma.user.findUnique({ where: { email } })

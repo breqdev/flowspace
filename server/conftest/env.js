@@ -11,6 +11,7 @@ const exec = require("./exec")
 const prismaBinary = "./node_modules/.bin/prisma2"
 
 
+
 class PrismaTestEnvironment extends NodeEnvironment {
     constructor(config) {
         super(config)
@@ -25,17 +26,18 @@ class PrismaTestEnvironment extends NodeEnvironment {
 
         this.global.__PRISMA__ = prisma
 
-        process.env.DATABASE_URL = this.dbURL
-        this.global.process.env.DATABASE_URL = this.dbURL
+        const envVars = {
+            DATABASE_URL: this.dbURL,
+            PRISMA_BINARY: prismaBinary,
+            SENDGRID_SANDBOX: "enabled",
+            SNOWCLOUD_SANDBOX: "enabled",
+            DISABLE_RATE_LIMITING: "true"
+        }
 
-        process.env.PRISMA_BINARY = prismaBinary
-        this.global.process.env.PRISMA_BINARY = prismaBinary
-
-        process.env.SENDGRID_SANDBOX = "enabled"
-        this.global.process.env.SENDGRID_SANDBOX = "enabled"
-
-        process.env.SNOWCLOUD_SANDBOX = "enabled"
-        this.global.process.env.SNOWCLOUD_SANDBOX = "enabled"
+        for (const key in envVars) {
+            process.env[key] = envVars[key]
+            this.global.process.env[key] = envVars[key]
+        }
 
         await exec(`${prismaBinary} migrate reset --force`)
 

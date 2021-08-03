@@ -1,8 +1,8 @@
-const exec = require("./exec")
-
 jest.mock("../utils/email", () => jest.fn())
 
 const prisma = require("../utils/prisma")
+
+const redis = require("../utils/redis")
 
 beforeEach(async () => {
 
@@ -13,8 +13,14 @@ beforeEach(async () => {
     for (let model of models) {
         await prisma[model].deleteMany()
     }
+
+    await redis.flushdb()
 })
 
 afterEach(() => {
     jest.clearAllMocks();
+})
+
+afterAll(async () => {
+    await redis.quit()
 })

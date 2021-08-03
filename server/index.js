@@ -3,6 +3,7 @@ require("dotenv").config()
 const Koa = require("koa")
 const bodyparser = require("koa-bodyparser")
 
+const rateLimit = require("./middleware/rateLimit")
 const authMiddleware = require("./middleware/auth")
 const { errorHandler, errorCatcher } = require("./middleware/error")
 const requireLogin = require("./middleware/requireLogin")
@@ -33,6 +34,8 @@ app.use(bodyparser({
 
 // Preliminary Authentication Middleware
 app.use(authMiddleware)
+
+app.use(rateLimit)
 
 // Unprotected Routes
 app.use(indexRoutes.routes())
