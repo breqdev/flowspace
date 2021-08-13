@@ -1,20 +1,29 @@
 import React from "react"
 import { Link } from "react-router-dom"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faChevronDown } from "@fortawesome/free-solid-svg-icons"
+import { faChevronDown, faHome, faInbox, faPaperPlane, faPlus } from "@fortawesome/free-solid-svg-icons"
 import { mutate } from "swr"
 
 import AuthContext from "../AuthContext.js"
-import { useAPI } from "../utils/api.js"
+import { useAPI, BASE_URL } from "../utils/api.js"
 
 
 function ExpandedDropdown(props) {
     const Component = props.component
 
     return (
-        <div className="absolute mt-2 -mr-2 right-0 z-10 w-60 py-4 px-6 bg-white text-black flex flex-col gap-2 rounded-xl shadow-xl cursor-auto">
+        <div className="absolute mt-2 -mr-2 right-0 z-10 w-60 py-4 px-6 bg-white text-black flex flex-col gap-2 rounded-xl shadow-2xl cursor-auto">
             <Component doRetract={props.doRetract} />
         </div>
+    )
+}
+
+
+function ExpandButton(props) {
+    const className = "m-2 transform transition-transform " + (props.expanded ? "rotate-180" : "rotate-0")
+
+    return (
+        <FontAwesomeIcon icon={faChevronDown} className={className} />
     )
 }
 
@@ -44,27 +53,34 @@ function Dropdown(props) {
 
     return (
         <div className="flex-shrink min-w-0 relative cursor-pointer select-none" ref={wrapperRef}>
-            <div className="flex" onClick={handleExpand}>
-                <span className="flex-shrink min-w-0 mx-4 whitespace-nowrap overflow-ellipsis overflow-hidden">{props.text}</span>
-                <FontAwesomeIcon icon={faChevronDown}
-                className={"transform transition-transform " + (expanded ? "rotate-180" : "rotate-0")} />
+            <div className="flex items-center border-white border rounded-full" onClick={handleExpand}>
+                {props.children}
+                <ExpandButton expanded={expanded} />
             </div>
             {expanded && <ExpandedDropdown component={props.component} doRetract={() => setExpanded(false)} />}
         </div>
     )
 }
 
+
 function UserDropdownMenu(props) {
     const [, setToken] = React.useContext(AuthContext)
+
+    const { data: user } = useAPI("/profile/@me")
 
     const handleLogout = (e) => {
         props.doRetract()
         mutate("/auth/status")
+        mutate("/profile/@me")
         setToken(null)
     }
 
     return (
         <>
+            <span className="text-base text-gray-600 -mb-2">
+                hi, <span className="text-blue-500">{user?.name}</span>
+            </span>
+            <hr />
             <Link to="/profile/@me" onClick={props.doRetract}>my profile</Link>
             <hr />
             <Link to="/settings" onClick={props.doRetract}>settings</Link>
@@ -74,15 +90,40 @@ function UserDropdownMenu(props) {
     )
 }
 
-export default function Navbar(props) {
-    const { data: user } = useAPI("/auth/status")
 
+function NavbarIcons(props) {
+    const { data: user } = useAPI("/profile/@me")
+
+    return (
+        <div className="flex items-center gap-4">
+            <Link to="/">
+                <FontAwesomeIcon icon={faHome} />
+            </Link>
+
+            <Link to="/messages">
+                <FontAwesomeIcon icon={faPaperPlane} />
+            </Link>
+
+            <FontAwesomeIcon icon={faInbox} />
+
+            <FontAwesomeIcon icon={faPlus} />
+
+            <Dropdown text={user?.name} component={UserDropdownMenu}>
+                <img className="rounded-full w-8" alt="User profile" src={BASE_URL + "/profile/avatar/" + (user?.avatarHash || "@default")} />
+            </Dropdown>
+        </div>
+    )
+
+}
+
+
+export default function Navbar(props) {
     return (
         <div className="px-4 md:px-8 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white text-xl">
             <div className="max-w-4xl mx-auto px-4 flex">
-                <Link to="/">flowspace</Link>
+                <Link to="/" className="text-2xl">flowspace</Link>
                 <div className="flex-grow" />
-                <Dropdown text={user?.name} component={UserDropdownMenu} />
+                <NavbarIcons />
             </div>
         </div>
     )
