@@ -96,7 +96,7 @@ function NavbarIcons(props) {
 
     return (
         <div className="flex items-center gap-4">
-            <Link to="/">
+            <Link to="/" className="hidden sm:block">
                 <FontAwesomeIcon icon={faHome} />
             </Link>
 
@@ -104,9 +104,9 @@ function NavbarIcons(props) {
                 <FontAwesomeIcon icon={faPaperPlane} />
             </Link>
 
-            <FontAwesomeIcon icon={faInbox} />
+            <FontAwesomeIcon icon={faInbox} className="hidden sm:block" />
 
-            <FontAwesomeIcon icon={faPlus} />
+            <FontAwesomeIcon icon={faPlus} className="hidden sm:block" />
 
             <Dropdown text={user?.name} component={UserDropdownMenu}>
                 <img className="rounded-full w-8" alt="User profile" src={BASE_URL + "/profile/avatar/" + (user?.avatarHash || "@default")} />
