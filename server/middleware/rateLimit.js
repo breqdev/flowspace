@@ -19,8 +19,6 @@ const getClientIP = ({ ip, xff }) => {
 
     const proxies = parseInt(process.env.TRUSTED_PROXIES)
 
-    console.log({ xff })
-
     if (proxies > 0) {
         return xff.split(",").reverse()[proxies - 1].trim()
     } else {
