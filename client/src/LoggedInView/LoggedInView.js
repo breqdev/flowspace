@@ -3,6 +3,7 @@ import { Switch, Route, Redirect } from "react-router-dom"
 import Navbar from "./Navbar.js"
 import Home from "./Home.js"
 import Settings from "./Settings.js"
+import Messages from "./Messages.js"
 import Profile from "./Profile/Profile.js"
 import ShortUrl from "./Profile/ShortUrl"
 
@@ -13,6 +14,7 @@ export default function LoggedInView() {
             <Switch>
                 <Route exact path="/" component={Home} />
                 <Route path="/settings" component={Settings} />
+                <Route path="/messages" component={Messages} />
                 <Route path="/profile/:id" component={Profile} />
                 <Route path="/u/:shortcode" component={ShortUrl} />
                 <Route path="/">
