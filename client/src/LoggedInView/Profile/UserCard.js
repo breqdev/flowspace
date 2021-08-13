@@ -26,7 +26,7 @@ function BigName(props) {
 
 function UserInfoItem(props) {
     return (
-        <div className="flex gap-4 items-center justify-center">
+        <div className="flex gap-3 items-center justify-center">
             <FontAwesomeIcon icon={props.icon} />
             {props.children}
         </div>
@@ -36,7 +36,7 @@ function UserInfoItem(props) {
 
 function UserInfoRow(props) {
     return (
-        <div className="flex flex-col flex-wrap md:flex-row text-xl md:text-2xl justify-between md:gap-4">
+        <div className="flex flex-col flex-wrap md:flex-row text-xl md:text-2xl md:gap-8">
             {props.pronouns &&
                 <UserInfoItem icon={faUser}>
                     {props.pronouns}
