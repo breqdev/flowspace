@@ -66,7 +66,7 @@ const rateLimit = async (ctx, next) => {
 
     const key = `ratelimit:${identifier}:${interval}`
 
-    let currentRequests = await redis.get(key)
+    let currentRequests = parseInt(await redis.get(key) || "0")
 
     await redis.incr(key)
     await redis.expire(key, 60)
@@ -89,5 +89,6 @@ const rateLimit = async (ctx, next) => {
 
 module.exports = {
     rateLimit,
-    getClientIP
+    getClientIP,
+    MAX_REQUESTS
 }

@@ -3,7 +3,8 @@ const request = require("supertest")
 const app = require("../index.js")
 
 const { loginUser } = require("../conftest/utils")
-const { getClientIP } = require("./rateLimit")
+const { getClientIP, MAX_REQUESTS } = require("./rateLimit")
+
 
 describe("get client IP", () => {
     const OLD_ENV = process.env
@@ -89,14 +90,31 @@ describe("global ratelimit middleware", () => {
         expect(response.statusCode).toBe(200)
     })
 
-    it("blocks more than 100 requests in one minute", async () => {
+    it("allows up to the limit of requests", async () => {
+        jest.useFakeTimers()
+        jest.setSystemTime(new Date(Date.now()))
+
+        process.env.DISABLE_RATE_LIMITING = "false"
+
+        for (let i = 0; i < MAX_REQUESTS - 1; i++) {
+            await request(app.callback())
+                .get("/")
+        }
+
+        const response = await request(app.callback())
+            .get("/")
+
+        expect(response.statusCode).toBe(200)
+    })
+
+    it("blocks more than MAX_REQUESTS requests in one minute", async () => {
         // Set the system time constant
         jest.useFakeTimers()
         jest.setSystemTime(new Date(Date.now()))
 
         process.env.DISABLE_RATE_LIMITING = "false"
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < MAX_REQUESTS; i++) {
             await request(app.callback())
                 .get("/")
         }
@@ -113,7 +131,7 @@ describe("global ratelimit middleware", () => {
 
         process.env.DISABLE_RATE_LIMITING = "false"
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < MAX_REQUESTS; i++) {
             await request(app.callback())
                 .get("/")
         }
@@ -142,7 +160,7 @@ describe("global ratelimit middleware", () => {
 
         process.env.DISABLE_RATE_LIMITING = "false"
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < MAX_REQUESTS; i++) {
             await request(app.callback())
                 .get("/")
                 .set("Authorization", `Bearer ${evilUser.token}`)
@@ -159,7 +177,7 @@ describe("global ratelimit middleware", () => {
         process.env.DISABLE_RATE_LIMITING = "false"
         process.env.TRUSTED_PROXIES = "1"
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < MAX_REQUESTS; i++) {
             await request(app.callback())
                 .get("/")
                 .set("X-Forwarded-For", "6.6.6.6")
@@ -176,7 +194,7 @@ describe("global ratelimit middleware", () => {
         process.env.DISABLE_RATE_LIMITING = "false"
         process.env.TRUSTED_PROXIES = "1"
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < MAX_REQUESTS; i++) {
             await request(app.callback())
                 .get("/")
                 .set("X-Forwarded-For", "666:666:420:420::1")
@@ -193,7 +211,7 @@ describe("global ratelimit middleware", () => {
         process.env.DISABLE_RATE_LIMITING = "false"
         process.env.TRUSTED_PROXIES = "1"
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < MAX_REQUESTS; i++) {
             await request(app.callback())
                 .get("/")
                 .set("X-Forwarded-For", "666:666:420:420::1")
@@ -219,8 +237,8 @@ describe("global ratelimit middleware", () => {
         const response = await request(app.callback())
             .get("/")
 
-        expect(response.headers["x-ratelimit-limit"]).toBe("100")
-        expect(response.headers["x-ratelimit-remaining"]).toBe("99")
+        expect(response.headers["x-ratelimit-limit"]).toBe(String(MAX_REQUESTS))
+        expect(response.headers["x-ratelimit-remaining"]).toBe(String(MAX_REQUESTS - 1))
         expect(response.headers["x-ratelimit-reset"]).toBe((endDate.getTime() / 1000).toString())
         expect(response.headers["x-ratelimit-reset-after"]).toBe("60")
     })
