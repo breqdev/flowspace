@@ -281,7 +281,7 @@ describe("user avatar", () => {
             .set("Authorization", `Bearer ${viewerToken}`)
 
         expect(response.statusCode).toBe(200)
-        expect(response.body.avatarHash).toEqual(expect.stringContaining(".png"))
+        expect(response.body.avatarHash).toBeDefined()
     })
 
     it("returns other users' avatars", async () => {
@@ -305,10 +305,38 @@ describe("user avatar", () => {
         const hash = response.body.avatarHash
 
         const avatar = await request(app.callback())
-            .get(`/profile/avatar/${hash}`)
+            .get(`/profile/avatar/${hash}/1024`)
             .set("Authorization", `Bearer ${viewerToken}`)
 
         expect(avatar.statusCode).toBe(200)
-        expect(avatar.type).toBe("image/png")
+        expect(avatar.type).toBe("image/webp")
+    })
+
+    it("returns smaller versions of the avatars", async () => {
+        const { token: viewerToken } = await loginUser({ email: "viewer@example.com" })
+
+        const { id: targetId, token: targetToken } = await loginUser()
+
+        const targetAvatar = await fetch('https://avatars.githubusercontent.com/u/583231?v=4')
+        const targetAvatarBuffer = await targetAvatar.buffer()
+
+        await request(app.callback())
+            .post("/profile/avatar/@me")
+            .set("Authorization", `Bearer ${targetToken}`)
+            .set("Content-Type", "multipart/form-data")
+            .attach("avatar", targetAvatarBuffer, { filename: "my_cool_avatar.png" })
+
+        const response = await request(app.callback())
+            .get(`/profile/${targetId}`)
+            .set("Authorization", `Bearer ${viewerToken}`)
+
+        const hash = response.body.avatarHash
+
+        const avatar = await request(app.callback())
+            .get(`/profile/avatar/${hash}/32`)
+            .set("Authorization", `Bearer ${viewerToken}`)
+
+        expect(avatar.statusCode).toBe(200)
+        expect(avatar.type).toBe("image/webp")
     })
 })

@@ -2,14 +2,14 @@ import React from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser, faLink, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons"
 
-import { BASE_URL } from "../../utils/api.js"
+import { BASE_URL, avatarUrl } from "../../utils/api.js"
 import RelationshipButtons from "./RelationshipButtons"
 
 
 function ProfileImage(props) {
     return (
         <div className="col-start-1 row-start-1 md:row-span-2">
-            <img className="rounded-full max-w-sm w-full" alt="User profile" src={BASE_URL + "/profile/avatar/" + (props.hash || "@default")} />
+            <img className="rounded-full max-w-sm w-full" alt="User profile" src={avatarUrl(props.hash, 1024)} />
         </div>
     )
 }

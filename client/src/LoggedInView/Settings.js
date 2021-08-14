@@ -4,7 +4,7 @@ import { Formik, Field, Form } from "formik"
 import { mutate as globalMutate } from "swr"
 
 import AuthContext from "../AuthContext.js"
-import { useAPI, fetchWithToken, BASE_URL } from "../utils/api.js"
+import { useAPI, fetchWithToken, avatarUrl } from "../utils/api.js"
 
 function Sidebar(props) {
     const items = props.items.map(
@@ -225,13 +225,7 @@ function AccountSettings(props) {
 
 
 function Avatar(props) {
-    const className = "rounded-full w-64"
-
-    if (props.hash === null || props.hash === undefined) {
-        return <img alt="Default Avatar" className={className} src={BASE_URL + "/profile/avatar/@default"} />
-    }
-
-    return <img alt="User Avatar" className={className} src={BASE_URL + "/profile/avatar/" + props.hash} />
+    return <img alt="User Avatar" className="rounded-full w-64" src={avatarUrl(props.hash, 1024)} />
 }
 
 

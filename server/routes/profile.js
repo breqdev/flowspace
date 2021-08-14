@@ -1,10 +1,13 @@
 const crypto = require("crypto")
+const sharp = require("sharp")
 
 const Router = require("@koa/router")
 const multer = require("@koa/multer")
 
 const prisma = require("../utils/prisma")
 const minio = require("../utils/minio")
+
+const { IMAGE_SIZES } = require("./avatar")
 
 const router = new Router()
 const upload = multer({ storage: multer.memoryStorage() })
@@ -20,6 +23,7 @@ const LENGTH_LIMITS = {
     location: 100,
     bio: 1000
 }
+
 
 const filterKeys = (input, allowed, denied) => (
     Object.keys(input).reduce((output, key) => {
@@ -80,19 +84,22 @@ router.post("/profile/avatar/@me", upload.single("avatar"), async (ctx) => {
     }
 
     const avatar = ctx.request.file.buffer
+    const hash = crypto.createHash("sha256").update(avatar).digest("hex")
 
-    const avatarHash = crypto.createHash("sha256").update(avatar).digest("hex") + "." + extension
-
-    minio.putObject("flowspace", avatarHash, avatar)
+    await Promise.all(IMAGE_SIZES.map(async (size) => {
+        const resized = await sharp(avatar).resize(size, size).toBuffer({ resolveWithObject: false, toFormat: "webp" })
+        const filename = `${hash}-${size}.webp`
+        minio.putObject("flowspace", filename, resized)
+    }))
 
     await prisma.user.update({
         where: { id: ctx.user.id },
-        data: { avatarHash }
+        data: { avatarHash: hash }
     })
 
     ctx.body = {
         msg: "Updated user avatar",
-        avatarHash
+        avatarHash: hash
     }
 })
 

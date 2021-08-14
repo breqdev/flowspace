@@ -5,7 +5,7 @@ import { faChevronDown, faHome, faInbox, faPaperPlane, faPlus } from "@fortaweso
 import { mutate } from "swr"
 
 import AuthContext from "../AuthContext.js"
-import { useAPI, BASE_URL } from "../utils/api.js"
+import { useAPI, avatarUrl } from "../utils/api.js"
 
 
 function ExpandedDropdown(props) {
@@ -109,7 +109,7 @@ function NavbarIcons(props) {
             <FontAwesomeIcon icon={faPlus} className="hidden sm:block" />
 
             <Dropdown text={user?.name} component={UserDropdownMenu}>
-                <img className="rounded-full w-8" alt="User profile" src={BASE_URL + "/profile/avatar/" + (user?.avatarHash || "@default")} />
+                <img className="rounded-full w-8" alt="User profile" src={avatarUrl(user?.avatarHash, 32)} />
             </Dropdown>
         </div>
     )

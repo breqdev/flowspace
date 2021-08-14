@@ -143,3 +143,6 @@ export function useAPI(url, ...args) {
 
     return result
 }
+
+
+export const avatarUrl = (hash, size) => `${BASE_URL}/profile/avatar/${hash || "@default"}/${size}`
