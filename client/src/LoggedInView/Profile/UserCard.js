@@ -2,7 +2,7 @@ import React from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faUser, faLink, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons"
 
-import { BASE_URL, avatarUrl } from "../../utils/api.js"
+import { avatarUrl } from "../../utils/api.js"
 import RelationshipButtons from "./RelationshipButtons"
 
 
