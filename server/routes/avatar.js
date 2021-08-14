@@ -5,7 +5,7 @@ const minio = require("../utils/minio")
 const router = new Router()
 
 
-const IMAGE_SIZES = [1024, 128, 32]
+const IMAGE_SIZES = [1024, 256, 64]
 
 
 router.get("/profile/avatar/:hash/:size", async (ctx) => {

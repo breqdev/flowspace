@@ -333,7 +333,7 @@ describe("user avatar", () => {
         const hash = response.body.avatarHash
 
         const avatar = await request(app.callback())
-            .get(`/profile/avatar/${hash}/32`)
+            .get(`/profile/avatar/${hash}/64`)
             .set("Authorization", `Bearer ${viewerToken}`)
 
         expect(avatar.statusCode).toBe(200)

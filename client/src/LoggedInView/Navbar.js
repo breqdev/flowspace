@@ -98,10 +98,12 @@ function NavbarIcons(props) {
         <div className="flex items-center gap-4">
             <Link to="/" className="hidden sm:block">
                 <FontAwesomeIcon icon={faHome} />
+                <span className="sr-only">home</span>
             </Link>
 
             <Link to="/messages">
                 <FontAwesomeIcon icon={faPaperPlane} />
+                <span className="sr-only">messages</span>
             </Link>
 
             <FontAwesomeIcon icon={faInbox} className="hidden sm:block" />
@@ -109,7 +111,8 @@ function NavbarIcons(props) {
             <FontAwesomeIcon icon={faPlus} className="hidden sm:block" />
 
             <Dropdown text={user?.name} component={UserDropdownMenu}>
-                <img className="rounded-full w-8" alt="User profile" src={avatarUrl(user?.avatarHash, 32)} />
+                <img className="rounded-full w-8" alt="user profile" src={avatarUrl(user?.avatarHash, 64)} />
+                <span className="sr-only">user menu</span>
             </Dropdown>
         </div>
     )
