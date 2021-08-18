@@ -12,7 +12,7 @@ export default function Profile(props) {
     const { id } = props.match.params
 
     const { data: status } = useAPI("/auth/status")
-    const { data } = useAPI("/profile/:0", (id === "@me" ? null : id))
+    const { data } = useAPI("/profile/:0", [id === "@me" ? null : id])
 
     if (id === "@me" && status) {
         return <Redirect to={`/profile/${status.id}`} />

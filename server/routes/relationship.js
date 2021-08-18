@@ -192,4 +192,38 @@ router.get("/relationship/incoming/:id", async (ctx) => {
     }
 })
 
+
+router.get("/relationship/mutual", async (ctx) => {
+    // get the ids of users that we follow/wave and that wave/follow us
+    // this is the list of users that we can message
+
+    const users = await prisma.user.findMany({
+        where: {
+            outgoingRelationships: {
+                some: {
+                    toId: {
+                        equals: ctx.user.id
+                    },
+                    type: {
+                        in: ["WAVE", "FOLLOW"]
+                    }
+                }
+            },
+            incomingRelationships: {
+                some: {
+                    fromId: {
+                        equals: ctx.user.id
+                    },
+                    type: {
+                        in: ["WAVE", "FOLLOW"]
+                    }
+                }
+            }
+        }
+    })
+
+    ctx.body = users.map(user => user.id)
+})
+
+
 module.exports = router

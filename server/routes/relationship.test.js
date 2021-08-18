@@ -23,6 +23,14 @@ const getIncomingRelationship = async (fromId, token) => {
         .set("Authorization", `Bearer ${token}`)
 }
 
+
+const getMutualRelationships = async (token) => {
+    return await request(app.callback())
+        .get("/relationship/mutual")
+        .set("Authorization", `Bearer ${token}`)
+}
+
+
 describe("set outgoing relationship", () => {
     it("allows users to wave to another user", async () => {
         const { token } = await loginUser({ email: "from@example.com" })
@@ -299,5 +307,72 @@ describe("BLOCK restrictions", () => {
 
         const relationship = await getOutgoingRelationship(blockerId, blockeeToken)
         expect(relationship.body.type).toBe("BLOCK")
+    })
+})
+
+
+describe("get mutual relationships", () => {
+    it("returns the user when there is a mutual relationship", async () => {
+        const { id: toId, token: toToken } = await loginUser({ email: "to@example.com" })
+        const { id: fromId, token: fromToken } = await loginUser({ email: "from@example.com" })
+
+        await createRelationship(toId, fromToken, "WAVE")
+        await createRelationship(fromId, toToken, "FOLLOW")
+
+        const res = await getMutualRelationships(fromToken)
+
+        expect(res.status).toBe(200)
+        expect(res.body.length).toBe(1)
+        expect(res.body[0]).toBe(toId)
+    })
+
+    it("does not return a user when there is no incoming relationship", async () => {
+        const { id: toId } = await loginUser({ email: "to@example.com" })
+        const { token: fromToken } = await loginUser({ email: "from@example.com" })
+
+        await createRelationship(toId, fromToken, "WAVE")
+
+        const res = await getMutualRelationships(fromToken)
+
+        expect(res.status).toBe(200)
+        expect(res.body.length).toBe(0)
+    })
+
+    it("does not return a user when there is no outgoing relationship", async () => {
+        const { token: toToken } = await loginUser({ email: "to@example.com" })
+        const { id: fromId, token: fromToken } = await loginUser({ email: "from@example.com" })
+
+        await createRelationship(fromId, toToken, "FOLLOW")
+
+        const res = await getMutualRelationships(fromToken)
+
+        expect(res.status).toBe(200)
+        expect(res.body.length).toBe(0)
+    })
+
+    it("does not return a user when there is an outgoing BLOCK", async () => {
+        const { id: toId, token: toToken } = await loginUser({ email: "to@example.com" })
+        const { id: fromId, token: fromToken } = await loginUser({ email: "from@example.com" })
+
+        await createRelationship(toId, fromToken, "BLOCK")
+        await createRelationship(fromId, toToken, "FOLLOW")
+
+        const res = await getMutualRelationships(fromToken)
+
+        expect(res.status).toBe(200)
+        expect(res.body.length).toBe(0)
+    })
+
+    it("does not return a user when there is an incoming BLOCK", async () => {
+        const { id: toId, token: toToken } = await loginUser({ email: "to@example.com" })
+        const { id: fromId, token: fromToken } = await loginUser({ email: "from@example.com" })
+
+        await createRelationship(toId, fromToken, "FOLLOW")
+        await createRelationship(fromId, toToken, "BLOCK")
+
+        const res = await getMutualRelationships(fromToken)
+
+        expect(res.status).toBe(200)
+        expect(res.body.length).toBe(0)
     })
 })

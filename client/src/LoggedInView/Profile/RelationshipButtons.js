@@ -138,7 +138,7 @@ function ProfileInteractionButtons(props) {
 
 
 export default function RelationshipButtons(props) {
-    const { data: relationship, mutate } = useAPI("/relationship/outgoing/:0", props.id)
+    const { data: relationship, mutate } = useAPI("/relationship/outgoing/:0", [props.id])
 
     if (!relationship) {
         // no data, return an empty row
