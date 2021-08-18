@@ -33,12 +33,6 @@ function Placeholder(props) {
                 <br />
                 pardon the dust.
                 <br />
-                in the meantime, send brooke your thoughts.
-                <br />
-                comments, complaints, feedback, whatever.
-                <br />
-                she'd love to hear from you.
-                <br />
                 &gt; <BlinkingCursor />
             </code>
         </div>
@@ -48,11 +42,13 @@ function Placeholder(props) {
 
 export default function Home(props) {
     return (
-        <div className="px-4 flex justify-center">
-            <div className="max-w-4xl w-full">
-                <h1 className="text-6xl md:text-9xl text-center my-8">flowspace</h1>
-                <Placeholder />
-            </div>
+        <div className="px-4 flex max-w-4xl w-full h-full flex-col mx-auto">
+            <h1 className="text-6xl md:text-9xl text-center my-8">flowspace</h1>
+            <Placeholder />
+            <span className="flex-grow" />
+            <p className="text-center my-2 text-gray-500">
+                build version: {(process.env.CF_PAGES_COMMIT_SHA || "LOCALDEV").substr(0, 8)}
+            </p>
         </div>
     )
 }
