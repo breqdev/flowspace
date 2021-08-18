@@ -106,7 +106,10 @@ function NavbarIcons(props) {
                 <span className="sr-only">messages</span>
             </Link>
 
-            <FontAwesomeIcon icon={faInbox} className="hidden sm:block" />
+            <Link to="/inbox">
+                <FontAwesomeIcon icon={faInbox} className="hidden sm:block" />
+                <span className="sr-only">inbox</span>
+            </Link>
 
             <FontAwesomeIcon icon={faPlus} className="hidden sm:block" />
 

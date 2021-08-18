@@ -226,4 +226,51 @@ router.get("/relationship/mutual", async (ctx) => {
 })
 
 
+router.get("/relationship/inbox", async (ctx) => {
+    // get all incoming relationships that are not blocked
+    // this is the list of users that might want to message us
+
+    // get the relevant users
+    const users = await prisma.user.findMany({
+        where: {
+            outgoingRelationships: {
+                some: {
+                    toId: {
+                        equals: ctx.user.id
+                    },
+                    type: {
+                        in: ["WAVE", "FOLLOW"]
+                    }
+                }
+            },
+            incomingRelationships: {
+                none: {
+                    fromId: {
+                        equals: ctx.user.id
+                    }
+                }
+            }
+        }
+    })
+
+    // get the relevant relationships
+    const relationships = []
+    for (const user of users) {
+        const incoming = await prisma.userRelationship.findUnique({
+            where: {
+                fromId_toId: {
+                    fromId: user.id,
+                    toId: ctx.user.id
+                }
+            }
+        })
+        relationships.push(incoming)
+    }
+
+    relationships.sort((a, b) => (b.establishedOn - a.establishedOn))
+
+    ctx.body = relationships.map(relationship => relationship.fromId)
+})
+
+
 module.exports = router

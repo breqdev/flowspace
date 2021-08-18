@@ -7,7 +7,7 @@ import AuthContext from "../../AuthContext.js"
 import { fetchWithToken, useAPI } from "../../utils/api.js"
 import { encode } from "../../utils/bigintToBase64"
 
-function RelationshipButton(props) {
+export function RelationshipButton(props) {
     let className = "flex flex-col justify-center items-center h-20 w-24 m-1 p-2 border-2 border-black rounded-xl transition-colors duration-300 "
 
     if (props.color === "red") {

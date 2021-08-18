@@ -31,6 +31,13 @@ const getMutualRelationships = async (token) => {
 }
 
 
+const getRelationshipInbox = async (token) => {
+    return await request(app.callback())
+        .get("/relationship/inbox")
+        .set("Authorization", `Bearer ${token}`)
+}
+
+
 describe("set outgoing relationship", () => {
     it("allows users to wave to another user", async () => {
         const { token } = await loginUser({ email: "from@example.com" })
@@ -374,5 +381,69 @@ describe("get mutual relationships", () => {
 
         expect(res.status).toBe(200)
         expect(res.body.length).toBe(0)
+    })
+})
+
+
+describe("relationship inbox", () => {
+    it("returns incoming, non-reciprocated relationships", async () => {
+        const { id: toId, token: toToken } = await loginUser({ email: "to@example.com" })
+        const { id: fromId, token: fromToken } = await loginUser({ email: "from@example.com" })
+
+        await createRelationship(toId, fromToken, "FOLLOW")
+
+        const res = await getRelationshipInbox(toToken)
+
+        expect(res.status).toBe(200)
+        expect(res.body.length).toBe(1)
+        expect(res.body[0]).toBe(fromId)
+    })
+
+    it("does not return reciprocated relationships", async () => {
+        const { id: toId, token: toToken } = await loginUser({ email: "to@example.com" })
+        const { id: fromId, token: fromToken } = await loginUser({ email: "from@example.com" })
+
+        await createRelationship(toId, fromToken, "WAVE")
+        await createRelationship(fromId, toToken, "FOLLOW")
+
+        const res = await getRelationshipInbox(toToken)
+
+        expect(res.status).toBe(200)
+        expect(res.body.length).toBe(0)
+    })
+
+    it("does not return incoming blocks", async () => {
+        const { id: toId, token: toToken } = await loginUser({ email: "to@example.com" })
+        const { token: fromToken } = await loginUser({ email: "from@example.com" })
+
+        await createRelationship(toId, fromToken, "BLOCK")
+
+        const res = await getRelationshipInbox(toToken)
+
+        expect(res.status).toBe(200)
+        expect(res.body.length).toBe(0)
+    })
+
+    it("sorts by relationship time", async () => {
+        jest.useFakeTimers()
+
+        const { id: toId, token: toToken } = await loginUser({ email: "to@example.com" })
+
+        const { id: from1Id, token: from1Token } = await loginUser({ email: "from1@example.com" })
+        jest.advanceTimersByTime(1000)
+        const { id: from2Id, token: from2Token } = await loginUser({ email: "from2@example.com" })
+
+        await createRelationship(toId, from1Token, "FOLLOW")
+        jest.advanceTimersByTime(1000)
+        await createRelationship(toId, from2Token, "FOLLOW")
+
+        const res = await getRelationshipInbox(toToken)
+
+        expect(res.status).toBe(200)
+        expect(res.body.length).toBe(2)
+        expect(res.body[0]).toBe(from2Id)
+        expect(res.body[1]).toBe(from1Id)
+
+        jest.useRealTimers()
     })
 })

@@ -77,6 +77,7 @@ const rateLimit = async (ctx, next) => {
     ctx.set("X-RateLimit-Remaining", MAX_REQUESTS - currentRequests)
     ctx.set("X-RateLimit-Reset", Math.floor(Date.now() / 1000) + 60)
     ctx.set("X-RateLimit-Reset-After", 60)
+    ctx.set("X-RateLimit-Type", "GLOBAL")
 
     if (currentRequests > MAX_REQUESTS) {
         ctx.throw(429, "Too many requests")

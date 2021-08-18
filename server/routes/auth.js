@@ -20,9 +20,10 @@ const handleRateLimit = async (ctx, score) => {
 
     const key = `authRateLimit:${ctx.ratelimitIdentifier}:${interval}`
 
-    const currentScore = await redis.get(key)
+    const currentScore = parseInt(await redis.get(key))
 
     if (currentScore + score > 100) {
+        ctx.set("X-RateLimit-Type", "AUTH")
         ctx.throw(429, "too many requests")
     }
 
