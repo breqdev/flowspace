@@ -28,7 +28,7 @@
     "yup": "^0.32.9"
   },
   "scripts": {
-    "start": "CF_PAGES_COMMIT_SHA=`git rev-parse --short HEAD` craco start",
+    "start": "craco start",
     "build": "craco build",
     "test": "craco test",
     "analyze": "source-map-explorer 'build/static/js/*.js'",

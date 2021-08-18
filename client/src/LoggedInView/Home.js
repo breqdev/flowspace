@@ -47,7 +47,7 @@ export default function Home(props) {
             <Placeholder />
             <span className="flex-grow" />
             <p className="text-center my-2 text-gray-500">
-                build version: {(process.env.CF_PAGES_COMMIT_SHA || "LOCALDEV").substr(0, 8)}
+                build version: {process.env.REACT_APP_COMMIT_SHA.substr(0, 8) || "LOCALDEV"}
             </p>
         </div>
     )
