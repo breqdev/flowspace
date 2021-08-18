@@ -61,7 +61,7 @@ function IncomingList(props) {
 
     if (users && users.length) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 w-full mx-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 w-full px-4 gap-8">
                 {users.map(user => <User key={user} id={user} onUserAction={handleUserAction} />)}
             </div>
         )

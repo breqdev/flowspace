@@ -107,7 +107,7 @@ function NavbarIcons(props) {
             </Link>
 
             <Link to="/inbox">
-                <FontAwesomeIcon icon={faInbox} className="hidden sm:block" />
+                <FontAwesomeIcon icon={faInbox} />
                 <span className="sr-only">inbox</span>
             </Link>
 
