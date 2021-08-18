@@ -1,4 +1,4 @@
-import { faPaperPlane } from "@fortawesome/free-solid-svg-icons"
+import { faAngleLeft, faPaperPlane } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Field, Form, Formik } from "formik"
 import React from "react"
@@ -24,7 +24,7 @@ function User(props) {
 
 function UsersList(props) {
     return (
-        <div className="max-w-sm w-full flex flex-col gap-2 py-4 bg-green-100">
+        <div className={"max-w-sm w-full flex flex-col gap-2 py-4 bg-green-100 md:block " + (props.mobileExpanded ? "block" : "hidden")}>
             <h1 className="text-center text-xl">messages</h1>
             <ul className="flex-grow">
                 {props.users ? props.users.map(
@@ -66,23 +66,26 @@ function EmptyChatWindow(props) {
 function ChatWindow(props) {
     const { data: user } = useAPI("/profile/:0", [props.id])
 
-    if (!props.id) {
-        return <EmptyChatWindow />
-    }
-
     return (
-        <div className="flex-grow flex flex-col">
-            <div className="bg-gray-100 flex p-4">
-                <h1 className="text-3xl">
-                    <Link to={`/profile/${props.id}`}>
-                        {user?.name}
-                    </Link>
-                </h1>
-            </div>
-            <div className="flex-grow flex items-center justify-center">
-                <p>messages will go here... eventually</p>
-            </div>
-            <MessageComposeBox />
+        <div className={"flex-grow flex-col md:flex " + (props.mobileExpanded ? "flex" : "hidden")}>
+            {props.id ? (
+                <>
+                    <div className="bg-gray-100 flex p-4">
+                        <h1 className="text-3xl flex gap-4 items-center">
+                            <button className="inline-block md:hidden" onClick={props.onMobileExit}>
+                                <FontAwesomeIcon icon={faAngleLeft} />
+                            </button>
+                            <Link to={`/profile/${props.id}`}>
+                                {user?.name}
+                            </Link>
+                        </h1>
+                    </div>
+                    <div className="flex-grow flex items-center justify-center">
+                        <p>messages will go here... eventually</p>
+                    </div>
+                    <MessageComposeBox />
+                </>
+            ) : <EmptyChatWindow /> }
         </div>
     )
 }
@@ -104,10 +107,17 @@ export default function Messages(props) {
         setFocusedUser(users?.[0])
     }
 
+    const [mobileUserExpanded, setMobileUserExpanded] = React.useState(false)
+
+    const handleFocusUser = (user) => {
+        setFocusedUser(user)
+        setMobileUserExpanded(true)
+    }
+
     return (
         <div className="flex items-stretch h-full">
-            <UsersList users={users} onFocusUser={setFocusedUser} />
-            <ChatWindow id={focusedUser} />
+            <UsersList users={users} onFocusUser={handleFocusUser} mobileExpanded={!mobileUserExpanded} />
+            <ChatWindow id={focusedUser} mobileExpanded={mobileUserExpanded} onMobileExit={() => setMobileUserExpanded(false)} />
         </div>
     )
 }
