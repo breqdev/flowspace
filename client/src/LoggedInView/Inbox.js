@@ -27,10 +27,10 @@ function User(props) {
     }
 
     return (
-        <section className="bg-gradient-to-r from-yellow-500 via-pink-400 to-purple-300 rounded-2xl p-4 flex flex-col gap-4">
-            <Link to={"/profile/" + user?.id} className="flex gap-4">
+        <section className="bg-gradient-to-r from-yellow-500 via-pink-400 to-purple-300 rounded-2xl p-4 flex flex-col gap-4 items-stretch">
+            <Link to={"/profile/" + user?.id} className="flex">
                 <img src={avatarUrl(user?.avatarHash, 256)} alt={user?.name} className="rounded-full w-24 h-24" />
-                <div>
+                <div className="flex-grow mx-4">
                     <h1 className="text-2xl line-clamp-1">{user?.name}</h1>
                     <hr className="border-black my-3" />
                     <p className="line-clamp-2">{user?.bio}</p>
@@ -68,7 +68,7 @@ function IncomingList(props) {
 
     } else {
         return (
-            <p className="text-center">
+            <p className="text-center mx-8">
                 when people wave or follow you, they'll show up here.
             </p>
         )
