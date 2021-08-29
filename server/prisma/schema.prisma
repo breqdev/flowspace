@@ -77,4 +77,6 @@ model Message {
 
   author   User   @relation(fields: [authorId], references: [id])
   authorId BigInt
+
+  content String
 }

@@ -14,6 +14,7 @@ const { avatarRoutes } = require("./routes/avatar")
 const authRoutes = require("./routes/auth")
 const profileRoutes = require("./routes/profile")
 const relationshipRoutes = require("./routes/relationship")
+const messagesRoutes = require("./routes/messages")
 
 const app = new Koa()
 
@@ -58,6 +59,9 @@ app.use(profileRoutes.allowedMethods())
 
 app.use(relationshipRoutes.routes())
 app.use(relationshipRoutes.allowedMethods())
+
+app.use(messagesRoutes.routes())
+app.use(messagesRoutes.allowedMethods())
 
 
 if (require.main === module) {
