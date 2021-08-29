@@ -1,9 +1,10 @@
 import { faAngleLeft, faPaperPlane } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Field, Form, Formik } from "formik"
-import React from "react"
+import React, { useContext } from "react"
 import { Link } from "react-router-dom"
-import { avatarUrl, useAPI } from "../utils/api"
+import AuthContext from "../AuthContext"
+import { avatarUrl, fetchWithToken, useAPI } from "../utils/api"
 
 
 function User(props) {
@@ -37,10 +38,24 @@ function UsersList(props) {
 
 
 function MessageComposeBox(props) {
+    const [token, setToken] = useContext(AuthContext)
+
+    const handleSubmit = async (values, actions) => {
+        await fetchWithToken(`/messages/direct/${props.id}`, token, setToken, {
+            method: "POST",
+            body: {
+                content: values.message,
+            }
+        })
+
+        props.onSendMessage(values.message)
+        actions.resetForm()
+    }
+
     return (
         <Formik
             initialValues={{ message: "" }}
-            onSubmit={() => {}}
+            onSubmit={handleSubmit}
         >
             {formik => (
                 <Form className="flex p-4 gap-4">
@@ -62,9 +77,45 @@ function EmptyChatWindow(props) {
     )
 }
 
+function Message(props) {
+    const { data: user } = useAPI("/profile/:0", [props.authorId])
+
+    return (
+        <div className="flex gap-4">
+            <div className="h-16">
+                <img src={avatarUrl(user?.avatarHash, 256)} className="h-full rounded-full" alt={user?.name} />
+            </div>
+            <div className="flex flex-col">
+                <span className="font-bold">{user?.name}</span>
+                <span>{props.content}</span>
+            </div>
+        </div>
+    )
+}
+
+
+function MessageList(props) {
+    return (
+        <div className="flex-grow overflow-y-scroll h-0">
+            <div className="flex flex-col p-4 gap-4">
+                {props.messages ? props.messages.map(message => <Message key={message.id} {...message} />) : null}
+            </div>
+        </div>
+    )
+}
+
 
 function ChatWindow(props) {
+    const { data: currentUser } = useAPI("/profile/@me")
     const { data: user } = useAPI("/profile/:0", [props.id])
+    const { data: messages, mutate } = useAPI("/messages/direct/:0", [props.id])
+
+    const handleSendMessage = (content) => {
+        mutate([...messages, {
+            content,
+            authorId: currentUser?.id,
+        }])
+    }
 
     return (
         <div className={"flex-grow flex-col md:flex " + (props.mobileExpanded ? "flex" : "hidden")}>
@@ -80,10 +131,8 @@ function ChatWindow(props) {
                             </Link>
                         </h1>
                     </div>
-                    <div className="flex-grow flex items-center justify-center">
-                        <p>messages will go here... eventually</p>
-                    </div>
-                    <MessageComposeBox />
+                    <MessageList id={props.id} messages={messages} />
+                    <MessageComposeBox id={props.id} onSendMessage={handleSendMessage} />
                 </>
             ) : <EmptyChatWindow /> }
         </div>
@@ -115,7 +164,7 @@ export default function Messages(props) {
     }
 
     return (
-        <div className="flex items-stretch h-full">
+        <div className="flex items-stretch flex-grow">
             <UsersList users={users} onFocusUser={handleFocusUser} mobileExpanded={!mobileUserExpanded} />
             <ChatWindow id={focusedUser} mobileExpanded={mobileUserExpanded} onMobileExit={() => setMobileUserExpanded(false)} />
         </div>
