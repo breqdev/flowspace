@@ -2,7 +2,7 @@ import { faAngleLeft, faPaperPlane } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Field, Form, Formik } from "formik"
 import React, { useContext } from "react"
-import { Link } from "react-router-dom"
+import { Link, Route, Switch, useHistory } from "react-router-dom"
 import AuthContext from "../AuthContext"
 import { avatarUrl, fetchWithToken, useAPI } from "../utils/api"
 
@@ -12,24 +12,31 @@ function User(props) {
 
     return (
         <li className="flex">
-            <button className="flex-grow m-4 bg-white rounded-xl p-4 flex h-24 gap-6 items-center" onClick={props.onFocus}>
+            <Link to={`/messages/${props.id}`} className="flex-grow m-4 bg-white rounded-xl p-4 flex h-24 gap-6 items-center">
                 <img src={avatarUrl(user?.avatar, 256)} className="h-full rounded-full" alt={user?.name} />
                 <div className="flex-grow">
                     <h3 className="text-left text-xl">{user?.name}</h3>
                 </div>
-            </button>
+            </Link>
         </li>
     )
 }
 
 
 function UsersList(props) {
+    const { data: users } = useAPI("/relationship/mutual")
+
+    let className = "max-w-sm w-full flex flex-col gap-2 py-4 bg-green-100 "
+    if (props.hiddenOnMobile) {
+        className += "hidden md:flex"
+    }
+
     return (
-        <div className={"max-w-sm w-full flex flex-col gap-2 py-4 bg-green-100 md:block " + (props.mobileExpanded ? "block" : "hidden")}>
+        <div className={className}>
             <h1 className="text-center text-xl">messages</h1>
             <ul className="flex-grow">
-                {props.users ? props.users.map(
-                    user => <User key={user} id={user} onFocus={() => props.onFocusUser(user)} />
+                {users ? users.map(
+                    user => <User key={user} id={user} />
                 ) : null}
             </ul>
         </div>
@@ -106,9 +113,10 @@ function MessageList(props) {
 
 
 function ChatWindow(props) {
+    const id = props.match.params.id
     const { data: currentUser } = useAPI("/profile/@me")
-    const { data: user } = useAPI("/profile/:0", [props.id])
-    const { data: messages, mutate } = useAPI("/messages/direct/:0", [props.id])
+    const { data: user } = useAPI("/profile/:0", [id])
+    const { data: messages, mutate } = useAPI("/messages/direct/:0", [id])
 
     const handleSendMessage = (content) => {
         mutate([...messages, {
@@ -118,55 +126,39 @@ function ChatWindow(props) {
     }
 
     return (
-        <div className={"flex-grow flex-col md:flex " + (props.mobileExpanded ? "flex" : "hidden")}>
-            {props.id ? (
-                <>
-                    <div className="bg-gray-100 flex p-4">
-                        <h1 className="text-3xl flex gap-4 items-center">
-                            <button className="inline-block md:hidden" onClick={props.onMobileExit}>
-                                <FontAwesomeIcon icon={faAngleLeft} />
-                            </button>
-                            <Link to={`/profile/${props.id}`}>
-                                {user?.name}
-                            </Link>
-                        </h1>
-                    </div>
-                    <MessageList id={props.id} messages={messages} />
-                    <MessageComposeBox id={props.id} onSendMessage={handleSendMessage} />
-                </>
-            ) : <EmptyChatWindow /> }
-        </div>
+        <>
+            <UsersList hiddenOnMobile />
+            <div className="flex-grow flex flex-col">
+                {id ? (
+                    <>
+                        <div className="bg-gray-100 flex p-4">
+                            <h1 className="text-3xl flex gap-4 items-center">
+                                <Link to="/messages">
+                                    <FontAwesomeIcon icon={faAngleLeft} />
+                                </Link>
+                                <Link to={`/profile/${id}`}>
+                                    {user?.name}
+                                </Link>
+                            </h1>
+                        </div>
+                        <MessageList id={id} messages={messages} />
+                        <MessageComposeBox id={props.id} onSendMessage={handleSendMessage} />
+                    </>
+                ) : <EmptyChatWindow /> }
+            </div>
+        </>
     )
 }
 
 
 
 export default function Messages(props) {
-    const { data: users } = useAPI("/relationship/mutual", [], {
-        onSuccess: (data) => {
-            if (!focusedUser) {
-                setFocusedUser(data[0])
-            }
-        }
-    })
-
-    const [focusedUser, setFocusedUser] = React.useState(users?.[0])
-
-    if (users && focusedUser && !users.includes(focusedUser)) {
-        setFocusedUser(users?.[0])
-    }
-
-    const [mobileUserExpanded, setMobileUserExpanded] = React.useState(false)
-
-    const handleFocusUser = (user) => {
-        setFocusedUser(user)
-        setMobileUserExpanded(true)
-    }
-
     return (
         <div className="flex items-stretch flex-grow">
-            <UsersList users={users} onFocusUser={handleFocusUser} mobileExpanded={!mobileUserExpanded} />
-            <ChatWindow id={focusedUser} mobileExpanded={mobileUserExpanded} onMobileExit={() => setMobileUserExpanded(false)} />
+            <Switch>
+                <Route path="/messages/:id" component={ChatWindow} />
+                <Route path="/messages" component={UsersList} />
+            </Switch>
         </div>
     )
 }
