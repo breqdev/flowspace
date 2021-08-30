@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faChevronDown, faHome, faInbox, faPaperPlane, faPlus } from "@fortawesome/free-solid-svg-icons"
 import { mutate } from "swr"
 
-import AuthContext from "../AuthContext.js"
+import AuthContext from "../context/AuthContext.js"
 import { useAPI, avatarUrl } from "../utils/api.js"
 
 

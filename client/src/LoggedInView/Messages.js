@@ -1,9 +1,11 @@
 import { faAngleLeft, faPaperPlane } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Field, Form, Formik } from "formik"
-import React from "react"
-import { Link } from "react-router-dom"
-import { avatarUrl, useAPI } from "../utils/api"
+import React, { useCallback, useContext, useEffect, useRef } from "react"
+import { Link, Route, Switch } from "react-router-dom"
+import AuthContext from "../context/AuthContext"
+import GatewayContext from "../context/GatewayContext"
+import { avatarUrl, fetchWithToken, useAPI } from "../utils/api"
 
 
 function User(props) {
@@ -11,24 +13,31 @@ function User(props) {
 
     return (
         <li className="flex">
-            <button className="flex-grow m-4 bg-white rounded-xl p-4 flex h-24 gap-6 items-center" onClick={props.onFocus}>
+            <Link to={`/messages/${props.id}`} className="flex-grow m-4 bg-white rounded-xl p-4 flex h-24 gap-6 items-center">
                 <img src={avatarUrl(user?.avatar, 256)} className="h-full rounded-full" alt={user?.name} />
                 <div className="flex-grow">
                     <h3 className="text-left text-xl">{user?.name}</h3>
                 </div>
-            </button>
+            </Link>
         </li>
     )
 }
 
 
 function UsersList(props) {
+    const { data: users } = useAPI("/relationship/mutual")
+
+    let className = "max-w-sm w-full flex flex-col gap-2 py-4 bg-green-100 "
+    if (props.hiddenOnMobile) {
+        className += "hidden md:flex"
+    }
+
     return (
-        <div className={"max-w-sm w-full flex flex-col gap-2 py-4 bg-green-100 md:block " + (props.mobileExpanded ? "block" : "hidden")}>
+        <div className={className}>
             <h1 className="text-center text-xl">messages</h1>
             <ul className="flex-grow">
-                {props.users ? props.users.map(
-                    user => <User key={user} id={user} onFocus={() => props.onFocusUser(user)} />
+                {users ? users.map(
+                    user => <User key={user} id={user} />
                 ) : null}
             </ul>
         </div>
@@ -37,10 +46,24 @@ function UsersList(props) {
 
 
 function MessageComposeBox(props) {
+    const [token, setToken] = useContext(AuthContext)
+
+    const handleSubmit = async (values, actions) => {
+        const message = await fetchWithToken(`/messages/direct/${props.id}`, token, setToken, {
+            method: "POST",
+            body: {
+                content: values.message,
+            }
+        })
+
+        props.onSendMessage(message)
+        actions.resetForm()
+    }
+
     return (
         <Formik
             initialValues={{ message: "" }}
-            onSubmit={() => {}}
+            onSubmit={handleSubmit}
         >
             {formik => (
                 <Form className="flex p-4 gap-4">
@@ -62,62 +85,121 @@ function EmptyChatWindow(props) {
     )
 }
 
-
-function ChatWindow(props) {
-    const { data: user } = useAPI("/profile/:0", [props.id])
+function Message(props) {
+    const { data: user } = useAPI("/profile/:0", [props.authorId])
 
     return (
-        <div className={"flex-grow flex-col md:flex " + (props.mobileExpanded ? "flex" : "hidden")}>
-            {props.id ? (
-                <>
-                    <div className="bg-gray-100 flex p-4">
-                        <h1 className="text-3xl flex gap-4 items-center">
-                            <button className="inline-block md:hidden" onClick={props.onMobileExit}>
-                                <FontAwesomeIcon icon={faAngleLeft} />
-                            </button>
-                            <Link to={`/profile/${props.id}`}>
-                                {user?.name}
-                            </Link>
-                        </h1>
-                    </div>
-                    <div className="flex-grow flex items-center justify-center">
-                        <p>messages will go here... eventually</p>
-                    </div>
-                    <MessageComposeBox />
-                </>
-            ) : <EmptyChatWindow /> }
+        <div className="flex gap-4">
+            <div className="h-16">
+                <img src={avatarUrl(user?.avatarHash, 256)} className="h-full rounded-full" alt={user?.name} />
+            </div>
+            <div className="flex flex-col">
+                <span className="font-bold">{user?.name}</span>
+                <span>{props.content}</span>
+            </div>
         </div>
+    )
+}
+
+
+function MessageList(props) {
+    const window = useRef(null)
+
+    useEffect(() => {
+        window.current.scrollIntoView({ behavior: "smooth", block: "end" })
+    }, [props.messages])
+
+    return (
+        <div className="flex-grow overflow-y-scroll h-0">
+            <div className="flex flex-col p-4 gap-4" ref={window}>
+                {props.messages ? props.messages.map(message => <Message key={message.id} {...message} />) : null}
+            </div>
+        </div>
+    )
+}
+
+
+function ChatWindow(props) {
+    const id = props.match.params.id
+    const { data: user } = useAPI("/profile/:0", [id])
+    const { data: messages, mutate } = useAPI("/messages/direct/:0", [id])
+
+    const { sendMessage, addHandler, removeHandler, readyState } = useContext(GatewayContext)
+
+    useEffect(() => {
+        if (readyState !== "AUTHENTICATED") {
+            return
+        }
+
+        sendMessage({
+            type: "SUBSCRIBE",
+            target: "MESSAGES_DIRECT",
+            user: id
+        })
+
+        return () => {
+            sendMessage({
+                type: "UNSUBSCRIBE",
+                target: "MESSAGES_DIRECT",
+                user: id
+            })
+        }
+    }, [id, sendMessage, readyState])
+
+    const messageHandler = useCallback(async (message) => {
+        if (message.type === "MESSAGES_DIRECT" && message.user === id) {
+            // skip revalidation - we trust the gateway
+            mutate(messages.concat(message.data), false)
+        }
+    }, [id, messages, mutate])
+
+    useEffect(() => {
+        addHandler(messageHandler)
+
+        return () => {
+            removeHandler(messageHandler)
+        }
+    }, [addHandler, removeHandler, messageHandler])
+
+    const handleSendMessage = (message) => {
+        // skip revalidation - once we hear back from the POST request, we know the message was sent
+        mutate(messages.concat(message), false)
+    }
+
+    return (
+        <>
+            <UsersList hiddenOnMobile />
+            <div className="flex-grow flex flex-col">
+                {id ? (
+                    <>
+                        <div className="bg-gray-100 flex p-4">
+                            <h1 className="text-3xl flex gap-4 items-center">
+                                <Link to="/messages">
+                                    <FontAwesomeIcon icon={faAngleLeft} />
+                                </Link>
+                                <Link to={`/profile/${id}`}>
+                                    {user?.name}
+                                </Link>
+                            </h1>
+                        </div>
+                        <MessageList id={id} messages={messages} />
+                        <MessageComposeBox id={id} onSendMessage={handleSendMessage} />
+                    </>
+                ) : <EmptyChatWindow /> }
+            </div>
+        </>
     )
 }
 
 
 
 export default function Messages(props) {
-    const { data: users } = useAPI("/relationship/mutual", [], {
-        onSuccess: (data) => {
-            if (!focusedUser) {
-                setFocusedUser(data[0])
-            }
-        }
-    })
-
-    const [focusedUser, setFocusedUser] = React.useState(users?.[0])
-
-    if (users && focusedUser && !users.includes(focusedUser)) {
-        setFocusedUser(users?.[0])
-    }
-
-    const [mobileUserExpanded, setMobileUserExpanded] = React.useState(false)
-
-    const handleFocusUser = (user) => {
-        setFocusedUser(user)
-        setMobileUserExpanded(true)
-    }
-
     return (
-        <div className="flex items-stretch h-full">
-            <UsersList users={users} onFocusUser={handleFocusUser} mobileExpanded={!mobileUserExpanded} />
-            <ChatWindow id={focusedUser} mobileExpanded={mobileUserExpanded} onMobileExit={() => setMobileUserExpanded(false)} />
+        <div className="flex items-stretch flex-grow">
+            <Switch>
+                <Route path="/messages/:id" component={ChatWindow} />
+                <Route path="/messages" component={UsersList} />
+            </Switch>
         </div>
     )
 }

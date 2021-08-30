@@ -2,10 +2,9 @@ const Router = require("@koa/router")
 
 const minio = require("../utils/minio")
 
+const IMAGE_SIZES = require("../utils/avatarImageSizes")
+
 const router = new Router()
-
-
-const IMAGE_SIZES = [1024, 256, 64]
 
 
 router.get("/profile/avatar/:hash/:size", async (ctx) => {
@@ -25,7 +24,4 @@ router.get("/profile/avatar/:hash/:size", async (ctx) => {
     ctx.type = "webp"
 })
 
-module.exports = {
-    avatarRoutes: router,
-    IMAGE_SIZES
-}
+module.exports = router

@@ -1,11 +1,15 @@
 import React from "react"
 import useSWR from "swr"
 
-import AuthContext from "../AuthContext.js"
+import AuthContext from "../context/AuthContext.js"
 
-export const BASE_URL = (process.env.NODE_ENV === "development"
-                            ? "http://localhost:5000"
-                            : "https://flowspace-api.breq.dev")
+export const BASE_URL = (
+    process.env.NODE_ENV === "development"
+    ? "http://localhost:5000"
+    : "https://flowspace-api.breq.dev"
+)
+
+export const GATEWAY_URL = BASE_URL.replace("http", "ws") + "/gateway"
 
 
 // Token must be an argument to the fetcher.
@@ -135,7 +139,7 @@ export function useAPI(url, args, options) {
     }
 
     const result = useSWR(fetchKey, fetchWithToken, {
-        refreshInterval: 60 * 1000,
+        refreshInterval: 10 * 60 * 1000,
         ...options
     })
 

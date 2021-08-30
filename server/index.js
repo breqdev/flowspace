@@ -2,6 +2,7 @@ require("dotenv").config()
 
 const Koa = require("koa")
 const bodyparser = require("koa-bodyparser")
+const websocket = require("koa-easy-ws")
 
 const { rateLimit } = require("./middleware/rateLimit")
 const authMiddleware = require("./middleware/auth")
@@ -10,10 +11,12 @@ const requireLogin = require("./middleware/requireLogin")
 const cors = require("./middleware/cors")
 
 const indexRoutes = require("./routes/index")
-const { avatarRoutes } = require("./routes/avatar")
+const avatarRoutes = require("./routes/avatar")
 const authRoutes = require("./routes/auth")
 const profileRoutes = require("./routes/profile")
 const relationshipRoutes = require("./routes/relationship")
+const messagesRoutes = require("./routes/messages")
+const gateway = require("./middleware/gateway")
 
 const app = new Koa()
 
@@ -49,6 +52,12 @@ app.use(avatarRoutes.allowedMethods())
 app.use(authRoutes.routes())
 app.use(authRoutes.allowedMethods())
 
+// WebSocket / Gateway Server
+// Unprotected since the JavaScript WebSockets API doesn't allow setting
+// the Authorization header. We roll our own auth packet system
+app.use(websocket())
+app.use(gateway)
+
 // Authentication Required Middleware -- login required beyond this point
 app.use(requireLogin)
 
@@ -58,6 +67,9 @@ app.use(profileRoutes.allowedMethods())
 
 app.use(relationshipRoutes.routes())
 app.use(relationshipRoutes.allowedMethods())
+
+app.use(messagesRoutes.routes())
+app.use(messagesRoutes.allowedMethods())
 
 
 if (require.main === module) {

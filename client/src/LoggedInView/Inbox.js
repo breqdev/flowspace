@@ -3,7 +3,7 @@ import React from "react"
 import { Link } from "react-router-dom"
 import { avatarUrl, useAPI, fetchWithToken } from "../utils/api"
 import { RelationshipButton } from "./Profile/RelationshipButtons"
-import AuthContext from "../AuthContext"
+import AuthContext from "../context/AuthContext"
 
 
 

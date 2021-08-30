@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["referentialActions"]
 }
 
@@ -28,6 +28,10 @@ model User {
   // relationships
   outgoingRelationships UserRelationship[] @relation("userRelationshipOutgoing")
   incomingRelationships UserRelationship[] @relation("userRelationshipIncoming")
+
+  // messages
+  directChannels Channel[]
+  messages       Message[]
 }
 
 enum UserRelationshipType {
@@ -46,4 +50,33 @@ model UserRelationship {
   toId     BigInt
 
   @@id([fromId, toId])
+}
+
+enum ChannelType {
+  DIRECT
+}
+
+model Channel {
+  id BigInt @id
+
+  type ChannelType
+
+  messages Message[]
+
+  // direct messages
+  directRecipients User[]
+}
+
+model Message {
+  id BigInt @id
+
+  sentOn DateTime @default(now())
+
+  channel   Channel @relation(fields: [channelId], references: [id])
+  channelId BigInt
+
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId BigInt
+
+  content String
 }
