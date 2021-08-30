@@ -35,6 +35,7 @@ function useGateway(callback) {
         }
 
         ws.current.onerror = (error) => {
+            setReadyState("ERROR")
             console.error("Socket error", error)
             ws.current.close()
         }
