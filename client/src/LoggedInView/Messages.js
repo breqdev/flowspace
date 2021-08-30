@@ -49,14 +49,14 @@ function MessageComposeBox(props) {
     const [token, setToken] = useContext(AuthContext)
 
     const handleSubmit = async (values, actions) => {
-        await fetchWithToken(`/messages/direct/${props.id}`, token, setToken, {
+        const message = await fetchWithToken(`/messages/direct/${props.id}`, token, setToken, {
             method: "POST",
             body: {
                 content: values.message,
             }
         })
 
-        props.onSendMessage(values.message)
+        props.onSendMessage(message)
         actions.resetForm()
     }
 
@@ -103,7 +103,6 @@ function Message(props) {
 
 
 function MessageList(props) {
-    console.log(props.messages.map(message => message.id))
     return (
         <div className="flex-grow overflow-y-scroll h-0">
             <div className="flex flex-col p-4 gap-4">
@@ -143,9 +142,8 @@ function ChatWindow(props) {
     }, [id, sendMessage, readyState])
 
     const messageHandler = useCallback(async (message) => {
-        console.log(message)
-        if (message.type === "MESSAGES_DIRECT" && message.data.authorId === id) {
-            mutate(messages.concat(message.data))
+        if (message.type === "MESSAGES_DIRECT" && message.user === id) {
+            mutate(messages.concat(message.data), false) // skip revalidation
         }
     }, [id, messages, mutate])
 
@@ -157,11 +155,8 @@ function ChatWindow(props) {
         }
     }, [addHandler, removeHandler, messageHandler])
 
-    const handleSendMessage = (content) => {
-        mutate([...messages, {
-            content,
-            authorId: currentUser?.id,
-        }])
+    const handleSendMessage = (message) => {
+        mutate(messages.concat(message), false) // skip revalidation
     }
 
     return (
