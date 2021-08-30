@@ -1,7 +1,7 @@
 import { faAngleLeft, faPaperPlane } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Field, Form, Formik } from "formik"
-import React, { useCallback, useContext, useEffect } from "react"
+import React, { useCallback, useContext, useEffect, useRef } from "react"
 import { Link, Route, Switch } from "react-router-dom"
 import AuthContext from "../context/AuthContext"
 import GatewayContext from "../context/GatewayContext"
@@ -103,9 +103,15 @@ function Message(props) {
 
 
 function MessageList(props) {
+    const window = useRef(null)
+
+    useEffect(() => {
+        window.current.scrollIntoView({ behavior: "smooth", block: "end" })
+    }, [props.messages])
+
     return (
         <div className="flex-grow overflow-y-scroll h-0">
-            <div className="flex flex-col p-4 gap-4">
+            <div className="flex flex-col p-4 gap-4" ref={window}>
                 {props.messages ? props.messages.map(message => <Message key={message.id} {...message} />) : null}
             </div>
         </div>
@@ -115,7 +121,6 @@ function MessageList(props) {
 
 function ChatWindow(props) {
     const id = props.match.params.id
-    const { data: currentUser } = useAPI("/profile/@me")
     const { data: user } = useAPI("/profile/:0", [id])
     const { data: messages, mutate } = useAPI("/messages/direct/:0", [id])
 
@@ -143,7 +148,8 @@ function ChatWindow(props) {
 
     const messageHandler = useCallback(async (message) => {
         if (message.type === "MESSAGES_DIRECT" && message.user === id) {
-            mutate(messages.concat(message.data), false) // skip revalidation
+            // skip revalidation - we trust the gateway
+            mutate(messages.concat(message.data), false)
         }
     }, [id, messages, mutate])
 
@@ -156,7 +162,8 @@ function ChatWindow(props) {
     }, [addHandler, removeHandler, messageHandler])
 
     const handleSendMessage = (message) => {
-        mutate(messages.concat(message), false) // skip revalidation
+        // skip revalidation - once we hear back from the POST request, we know the message was sent
+        mutate(messages.concat(message), false)
     }
 
     return (
