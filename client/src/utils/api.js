@@ -139,7 +139,7 @@ export function useAPI(url, args, options) {
     }
 
     const result = useSWR(fetchKey, fetchWithToken, {
-        refreshInterval: 10 * 60 * 1000,
+        refreshInterval: 2 * 60 * 1000,
         ...options
     })
 
