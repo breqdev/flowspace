@@ -7,22 +7,25 @@ import Messages from "./Messages.js"
 import Inbox from "./Inbox.js"
 import Profile from "./Profile/Profile.js"
 import ShortUrl from "./Profile/ShortUrl"
+import SocketProvider from "./SocketProvider.js"
 
 export default function LoggedInView() {
     return (
-        <div className="flex flex-col h-screen">
-            <Navbar />
-            <Switch>
-                <Route exact path="/" component={Home} />
-                <Route path="/settings" component={Settings} />
-                <Route path="/messages" component={Messages} />
-                <Route path="/inbox" component={Inbox} />
-                <Route path="/profile/:id" component={Profile} />
-                <Route path="/u/:shortcode" component={ShortUrl} />
-                <Route path="/">
-                    <Redirect to="/" />
-                </Route>
-            </Switch>
-        </div>
+        <SocketProvider>
+            <div className="flex flex-col h-screen">
+                <Navbar />
+                <Switch>
+                    <Route exact path="/" component={Home} />
+                    <Route path="/settings" component={Settings} />
+                    <Route path="/messages" component={Messages} />
+                    <Route path="/inbox" component={Inbox} />
+                    <Route path="/profile/:id" component={Profile} />
+                    <Route path="/u/:shortcode" component={ShortUrl} />
+                    <Route path="/">
+                        <Redirect to="/" />
+                    </Route>
+                </Switch>
+            </div>
+        </SocketProvider>
     )
 }

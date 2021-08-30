@@ -29,11 +29,7 @@ describe("websocket gateway", () => {
     let server
 
     const getWebsocket = async (token) => {
-        const ws = new WebSocket(`ws://localhost:${server.address().port}/gateway`, {
-            headers: {
-                authorization: `Bearer ${token}`,
-            },
-        })
+        const ws = new WebSocket(`ws://localhost:${server.address().port}/gateway`)
 
         await new Promise((resolve, reject) => {
             ws.on("open", resolve)
@@ -41,6 +37,17 @@ describe("websocket gateway", () => {
         })
 
         ws.on("error", console.error)
+
+        ws.send(JSON.stringify({
+            type: "AUTHENTICATE",
+            token
+        }))
+
+        const response = await getNextMessage(ws)
+
+        if (response.type !== "AUTHENTICATED") {
+            throw new Error(`Expected AUTHENTICATED, got ${response.message}`)
+        }
 
         return ws
     }
@@ -63,15 +70,45 @@ describe("websocket gateway", () => {
         await server.close()
     })
 
-    it("rejects connections from users that are not logged in", async () => {
+    it("rejects connections with invalid tokens", async () => {
         const ws = new WebSocket(`ws://localhost:${server.address().port}/gateway`)
 
         await new Promise((resolve, reject) => {
-            // Yes, this is backwards... Remember, we *want* the socket to
-            // reject connections for this test case.
-            ws.on("open", reject)
-            ws.on("error", resolve)
+            ws.on("open", resolve)
+            ws.on("error", () => reject(new Error("WebSocket not established")))
         })
+
+        ws.send(JSON.stringify({
+            type: "AUTHENTICATE",
+            token: "invalid"
+        }))
+
+        const response = await getNextMessage(ws)
+
+        expect(response.type).toBe("ERROR")
+
+        ws.terminate()
+    })
+
+    it("rejects message types for unauthenticated users", async () => {
+        const { id } = await loginUser()
+
+        const ws = new WebSocket(`ws://localhost:${server.address().port}/gateway`)
+
+        await new Promise((resolve, reject) => {
+            ws.on("open", resolve)
+            ws.on("error", () => reject(new Error("WebSocket not established")))
+        })
+
+        ws.send(JSON.stringify({
+            type: "SUBSCRIBE",
+            target: "MESSAGES_DIRECT",
+            user: id,
+        }))
+
+        const response = await getNextMessage(ws)
+
+        expect(response.type).toBe("ERROR")
 
         ws.terminate()
     })

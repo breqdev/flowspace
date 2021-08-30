@@ -52,6 +52,12 @@ app.use(avatarRoutes.allowedMethods())
 app.use(authRoutes.routes())
 app.use(authRoutes.allowedMethods())
 
+// WebSocket / Gateway Server
+// Unprotected since the JavaScript WebSockets API doesn't allow setting
+// the Authorization header. We roll our own auth packet system
+app.use(websocket())
+app.use(gateway)
+
 // Authentication Required Middleware -- login required beyond this point
 app.use(requireLogin)
 
@@ -64,10 +70,6 @@ app.use(relationshipRoutes.allowedMethods())
 
 app.use(messagesRoutes.routes())
 app.use(messagesRoutes.allowedMethods())
-
-// WebSocket / Gateway Server
-app.use(websocket())
-app.use(gateway)
 
 
 if (require.main === module) {

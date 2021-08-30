@@ -1,6 +1,47 @@
+const jwt = require("jsonwebtoken")
+
+const prisma = require("../utils/prisma")
 const redis = require("../utils/redis")
+const { getSignature } = require("../utils/createJWT")
 const areAllowedToMessage = require("../utils/areAllowedToMessage")
 const getDirectMessageChannel = require("../utils/getDirectMessageChannel")
+
+
+const authenticateUser = async (token) => {
+    const jwtPayload = jwt.decode(token)
+
+    if (jwtPayload === null) {
+        return false
+    }
+
+    const claimedUser = await prisma.user.findUnique({
+        where: { id: BigInt(jwtPayload.sub) }
+    })
+
+    if (claimedUser === null) {
+        return false
+    }
+
+    try {
+        jwt.verify(
+            token,
+            getSignature(claimedUser),
+            {
+                algorithms: ["HS256"],
+                subject: claimedUser.id.toString(),
+            }
+        )
+    } catch (e) {
+        return false
+    }
+
+    if (jwtPayload.type !== "access") {
+        return false
+    }
+
+    return claimedUser
+}
+
 
 const gateway = async (ctx, next) => {
     if (ctx.request.path !== "/gateway") {
@@ -14,16 +55,42 @@ const gateway = async (ctx, next) => {
     const ws = await ctx.ws()
     const subscriber = redis.createConnectedClient()
 
+    let user = null
+
     const handleWebsocketMessage = async (message) => {
         const data = JSON.parse(message)
+
+        if (!user) {
+            if (data.type === "AUTHENTICATE") {
+                user = await authenticateUser(data.token)
+
+                if (!user) {
+                    ws.send(JSON.stringify({
+                        type: "ERROR",
+                        message: "Invalid token",
+                    }))
+                    return
+                } else {
+                    ws.send(JSON.stringify({
+                        type: "AUTHENTICATED",
+                    }))
+                }
+            } else {
+                ws.send(JSON.stringify({
+                    type: "ERROR",
+                    message: "You must authenticate first."
+                }))
+            }
+            return
+        }
 
         if (data.type === "SUBSCRIBE") {
             if (data.target === "MESSAGES_DIRECT") {
                 // Subscribe to direct messages from a user
-                let { user } = data
+                let { user: targetUser } = data
 
                 try {
-                    user = BigInt(user)
+                    targetUser = BigInt(targetUser)
                 } catch (e) {
                     ws.send(JSON.stringify({
                         type: "ERROR",
@@ -33,7 +100,7 @@ const gateway = async (ctx, next) => {
                 }
 
                 // Make sure the users are allowed to exchange messages
-                if (!areAllowedToMessage(ctx.user.id, user)) {
+                if (!areAllowedToMessage(user.id, targetUser)) {
                     ws.send(JSON.stringify({
                         type: "ERROR",
                         message: "Invalid user ID"
@@ -41,14 +108,14 @@ const gateway = async (ctx, next) => {
                     return
                 }
 
-                const channel = await getDirectMessageChannel(ctx.user.id, user)
+                const channel = await getDirectMessageChannel(user.id, targetUser)
 
                 await subscriber.subscribe(`messages:direct:${channel.id}`)
 
                 ws.send(JSON.stringify({
                     type: "SUBSCRIBED",
                     target: "MESSAGES_DIRECT",
-                    user
+                    user: targetUser
                 }))
             } else {
                 ws.send(JSON.stringify({

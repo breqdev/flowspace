@@ -289,7 +289,7 @@ export default function Settings(props) {
 
     return (
         <ToastContext.Provider value={toastMessage}>
-            <div className="w-full my-4 px-4 flex flex-col md:flex-row justify-center items-start md:gap-8 items-stretch md:items-start">
+            <div className="w-full my-4 px-4 flex flex-col md:flex-row justify-center md:gap-8 items-stretch md:items-start">
                 <Sidebar items={["profile", "account", "avatar"]}/>
                 <Switch>
                     <Route path="/settings/profile" component={ProfileSettings} />

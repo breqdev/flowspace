@@ -1,10 +1,10 @@
 import { faAngleLeft, faPaperPlane } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Field, Form, Formik } from "formik"
-import React, { useContext } from "react"
+import React, { useCallback, useContext, useEffect } from "react"
 import { Link, Route, Switch } from "react-router-dom"
-import useWebSocket from "react-use-websocket"
 import AuthContext from "../context/AuthContext"
+import GatewayContext from "../context/GatewayContext"
 import { avatarUrl, fetchWithToken, useAPI } from "../utils/api"
 
 
@@ -103,6 +103,7 @@ function Message(props) {
 
 
 function MessageList(props) {
+    console.log(props.messages.map(message => message.id))
     return (
         <div className="flex-grow overflow-y-scroll h-0">
             <div className="flex flex-col p-4 gap-4">
@@ -118,6 +119,43 @@ function ChatWindow(props) {
     const { data: currentUser } = useAPI("/profile/@me")
     const { data: user } = useAPI("/profile/:0", [id])
     const { data: messages, mutate } = useAPI("/messages/direct/:0", [id])
+
+    const { sendMessage, addHandler, removeHandler, readyState } = useContext(GatewayContext)
+
+    useEffect(() => {
+        if (readyState !== "AUTHENTICATED") {
+            return
+        }
+
+        sendMessage({
+            type: "SUBSCRIBE",
+            target: "MESSAGES_DIRECT",
+            user: id
+        })
+
+        return () => {
+            sendMessage({
+                type: "UNSUBSCRIBE",
+                target: "MESSAGES_DIRECT",
+                user: id
+            })
+        }
+    }, [id, sendMessage, readyState])
+
+    const messageHandler = useCallback(async (message) => {
+        console.log(message)
+        if (message.type === "MESSAGES_DIRECT" && message.data.authorId === id) {
+            mutate(messages.concat(message.data))
+        }
+    }, [id, messages, mutate])
+
+    useEffect(() => {
+        addHandler(messageHandler)
+
+        return () => {
+            removeHandler(messageHandler)
+        }
+    }, [addHandler, removeHandler, messageHandler])
 
     const handleSendMessage = (content) => {
         mutate([...messages, {
@@ -143,7 +181,7 @@ function ChatWindow(props) {
                             </h1>
                         </div>
                         <MessageList id={id} messages={messages} />
-                        <MessageComposeBox id={props.id} onSendMessage={handleSendMessage} />
+                        <MessageComposeBox id={id} onSendMessage={handleSendMessage} />
                     </>
                 ) : <EmptyChatWindow /> }
             </div>

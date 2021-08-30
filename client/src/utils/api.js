@@ -3,9 +3,13 @@ import useSWR from "swr"
 
 import AuthContext from "../context/AuthContext.js"
 
-export const BASE_URL = (process.env.NODE_ENV === "development"
-                            ? "http://localhost:5000"
-                            : "https://flowspace-api.breq.dev")
+export const BASE_URL = (
+    process.env.NODE_ENV === "development"
+    ? "http://localhost:5000"
+    : "https://flowspace-api.breq.dev"
+)
+
+export const GATEWAY_URL = BASE_URL.replace("http", "ws") + "/gateway"
 
 
 // Token must be an argument to the fetcher.
