@@ -11,7 +11,7 @@ const requireLogin = require("./middleware/requireLogin")
 const cors = require("./middleware/cors")
 
 const indexRoutes = require("./routes/index")
-const { avatarRoutes } = require("./routes/avatar")
+const avatarRoutes = require("./routes/avatar")
 const authRoutes = require("./routes/auth")
 const profileRoutes = require("./routes/profile")
 const relationshipRoutes = require("./routes/relationship")

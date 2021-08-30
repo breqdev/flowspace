@@ -3,39 +3,12 @@ const parseBigInt = require("../utils/parseBigInt")
 
 const snowcloud = require("../utils/snowcloud")
 const prisma = require("../utils/prisma")
+const areAllowedToMessage = require("../utils/areAllowedToMessage")
+const getDirectMessageChannel = require("../utils/getDirectMessageChannel")
+const sendGatewayMessage = require("../utils/sendGatewayMessage")
 
 const router = new Router()
 
-
-const areAllowedToMessage = async (fromId, toId) => {
-    const outgoingRelationship = await prisma.userRelationship.findUnique({
-        where: {
-            fromId_toId: {
-                fromId,
-                toId
-            }
-        }
-    })
-
-    const incomingRelationship = await prisma.userRelationship.findUnique({
-        where: {
-            fromId_toId: {
-                fromId: toId,
-                toId: fromId
-            }
-        }
-    })
-
-    if (!outgoingRelationship || !incomingRelationship) {
-        return false
-    }
-
-    if (outgoingRelationship.type === "BLOCK" || incomingRelationship.type === "BLOCK") {
-        return false
-    }
-
-    return true
-}
 
 
 router.get("/messages/direct/:id", async ctx => {
@@ -46,19 +19,7 @@ router.get("/messages/direct/:id", async ctx => {
         ctx.throw(404, "User not found")
     }
 
-    const channel = await prisma.channel.findFirst({
-        where: {
-            type: "DIRECT",
-            directRecipients: {
-                every: { id: { in: [fromId, toId] } }
-            }
-        }
-    })
-
-    if (!channel) {
-        ctx.body = []
-        return
-    }
+    const channel = await getDirectMessageChannel(fromId, toId)
 
     const messages = await prisma.message.findMany({
         where: { channelId: channel.id },
@@ -77,26 +38,7 @@ router.post("/messages/direct/:id", async ctx => {
         ctx.throw(404, "User not found")
     }
 
-    let channel = await prisma.channel.findFirst({
-        where: {
-            type: "DIRECT",
-            directRecipients: {
-                every: { id: { in: [fromId, toId] } }
-            }
-        }
-    })
-
-    if (!channel) {
-        channel = await prisma.channel.create({
-            data: {
-                id: await snowcloud.generate(),
-                type: "DIRECT",
-                directRecipients: {
-                    connect: [ { id: fromId }, { id: toId } ]
-                }
-            }
-        })
-    }
+    const channel = await getDirectMessageChannel(fromId, toId)
 
     const message = await prisma.message.create({
         data: {
@@ -107,6 +49,12 @@ router.post("/messages/direct/:id", async ctx => {
             content: ctx.request.body.content
         }
     })
+
+    await sendGatewayMessage(
+        `messages:direct:${channel.id.toString()}`,
+        "MESSAGES_DIRECT",
+        message
+    )
 
     ctx.body = message
 })

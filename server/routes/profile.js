@@ -7,7 +7,7 @@ const multer = require("@koa/multer")
 const prisma = require("../utils/prisma")
 const minio = require("../utils/minio")
 
-const { IMAGE_SIZES } = require("./avatar")
+const IMAGE_SIZES = require("../utils/avatarImageSizes")
 
 const router = new Router()
 const upload = multer({ storage: multer.memoryStorage() })

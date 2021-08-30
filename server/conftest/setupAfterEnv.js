@@ -1,4 +1,5 @@
 jest.mock("../utils/email", () => jest.fn())
+jest.mock("ioredis", () => require("ioredis-mock/jest"))
 
 const prisma = require("../utils/prisma")
 
