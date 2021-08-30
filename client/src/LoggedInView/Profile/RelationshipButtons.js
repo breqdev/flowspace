@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCommentDots, faUserFriends, faBan, faClipboard } from "@fortawesome/free-solid-svg-icons"
 
 
-import AuthContext from "../../AuthContext.js"
+import AuthContext from "../../context/AuthContext.js"
 import { fetchWithToken, useAPI } from "../../utils/api.js"
 import { encode } from "../../utils/bigintToBase64"
 

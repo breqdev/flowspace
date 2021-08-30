@@ -3,7 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Field, Form, Formik } from "formik"
 import React, { useContext } from "react"
 import { Link, Route, Switch } from "react-router-dom"
-import AuthContext from "../AuthContext"
+import useWebSocket from "react-use-websocket"
+import AuthContext from "../context/AuthContext"
 import { avatarUrl, fetchWithToken, useAPI } from "../utils/api"
 
 

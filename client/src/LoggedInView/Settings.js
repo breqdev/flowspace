@@ -3,7 +3,7 @@ import { NavLink, Switch, Route, Redirect, useHistory } from "react-router-dom"
 import { Formik, Field, Form } from "formik"
 import { mutate as globalMutate } from "swr"
 
-import AuthContext from "../AuthContext.js"
+import AuthContext from "../context/AuthContext.js"
 import { useAPI, fetchWithToken, avatarUrl } from "../utils/api.js"
 
 function Sidebar(props) {

@@ -2,7 +2,7 @@ import React from "react"
 import { BrowserRouter as Router } from "react-router-dom"
 import useLocalStorageState from "use-local-storage-state"
 
-import AuthContext from "./AuthContext.js"
+import AuthContext from "./context/AuthContext.js"
 import LoggedOutView from "./LoggedOutView/LoggedOutView.js"
 import LoggedInView from "./LoggedInView/LoggedInView.js"
 

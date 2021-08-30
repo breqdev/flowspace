@@ -1,7 +1,7 @@
 import React from "react"
 import { useLocation } from "react-router-dom"
 
-import AuthContext from "../AuthContext.js"
+import AuthContext from "../context/AuthContext.js"
 import { BASE_URL } from "../utils/api.js"
 
 export function DoVerify(props) {
