@@ -2,7 +2,7 @@ import { faAngleLeft, faPaperPlane } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Field, Form, Formik } from "formik"
 import React, { useContext } from "react"
-import { Link, Route, Switch, useHistory } from "react-router-dom"
+import { Link, Route, Switch } from "react-router-dom"
 import AuthContext from "../AuthContext"
 import { avatarUrl, fetchWithToken, useAPI } from "../utils/api"
 

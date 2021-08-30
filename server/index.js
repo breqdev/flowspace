@@ -2,6 +2,7 @@ require("dotenv").config()
 
 const Koa = require("koa")
 const bodyparser = require("koa-bodyparser")
+const websocket = require("koa-easy-ws")
 
 const { rateLimit } = require("./middleware/rateLimit")
 const authMiddleware = require("./middleware/auth")
@@ -15,6 +16,7 @@ const authRoutes = require("./routes/auth")
 const profileRoutes = require("./routes/profile")
 const relationshipRoutes = require("./routes/relationship")
 const messagesRoutes = require("./routes/messages")
+const gateway = require("./middleware/gateway")
 
 const app = new Koa()
 
@@ -62,6 +64,10 @@ app.use(relationshipRoutes.allowedMethods())
 
 app.use(messagesRoutes.routes())
 app.use(messagesRoutes.allowedMethods())
+
+// WebSocket / Gateway Server
+app.use(websocket())
+app.use(gateway)
 
 
 if (require.main === module) {
