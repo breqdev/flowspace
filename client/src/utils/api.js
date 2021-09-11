@@ -114,6 +114,12 @@ export async function fetchWithToken(url, token, setToken, options) {
 
     const data = await response.json()
 
+    if (response.status === 401) {
+        // Token is not valid, most likely the user changed their password
+        setToken(null)
+        return null
+    }
+
     // ugly hack to expose some response fields on the data object
     data.ok = response.ok
     data.status_code = response.status

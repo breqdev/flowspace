@@ -37,7 +37,7 @@ function Post(props) {
 function Feed(props) {
     return (
         <div className="max-w-xl mx-auto p-4">
-            {props.posts?.map?.(post => <Post key={post.id} {...post} />)}
+            {props.posts?.map(post => <Post key={post.id} {...post} />)}
         </div>
     )
 }
