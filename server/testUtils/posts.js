@@ -41,9 +41,17 @@ const deletePost = async (id, token) => {
 }
 
 
+const getUserPosts = async (id, token) => {
+    return await request(app.callback())
+        .get(`/posts/user/${id}`)
+        .set("Authorization", `Bearer ${token}`)
+}
+
+
 module.exports = {
     createPost,
     getPost,
     editPost,
-    deletePost
+    deletePost,
+    getUserPosts
 }

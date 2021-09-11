@@ -42,8 +42,8 @@ router.get("/posts/user/:id", async ctx => {
 
     const posts = await prisma.post.findMany({
         where: {
-            authorId: { eq: parseBigInt(ctx.params.id, ctx) },
-            isPrivate: (allowPrivate ? { eq: false } : undefined),
+            authorId: parseBigInt(ctx.params.id, ctx),
+            isPrivate: (allowPrivate ? {} : { equals: false }),
         },
         orderBy: { createdAt: "desc" },
     })

@@ -1,5 +1,5 @@
 const { loginUser } = require("../testUtils/auth")
-const { createPost, getPost, editPost, deletePost } = require("../testUtils/posts")
+const { createPost, getPost, editPost, deletePost, getUserPosts } = require("../testUtils/posts")
 const { createMutualRelationship } = require("../testUtils/relationship")
 const prisma = require("../utils/prisma")
 
@@ -195,5 +195,79 @@ describe("delete post", () => {
 
         const { body: original } = await getPost(body.id, poster)
         expect(original.title).toBe("My Title")
+    })
+})
+
+
+describe("get user posts", () => {
+    afterEach(() => {
+        jest.useRealTimers()
+    })
+
+    it("retrieves a post that a user has made", async () => {
+        const { id, token } = await loginUser()
+
+        await createPost("My Title", "My Post Content", false, token)
+
+        const response = await getUserPosts(id, token)
+
+        expect(response.status).toBe(200)
+        expect(response.body.length).toBe(1)
+        expect(response.body[0].title).toBe("My Title")
+    })
+
+    it("returns posts newest-to-oldest", async () => {
+        jest.useFakeTimers()
+
+        const { id, token } = await loginUser()
+
+        jest.setSystemTime(new Date("2020-01-01 00:00:00"))
+        await createPost("My Title", "My Post Content", false, token)
+
+        jest.setSystemTime(new Date("2020-01-02 00:00:00"))
+        await createPost("My Second Title", "My Second Post Content", false, token)
+
+        const response = await getUserPosts(id, token)
+
+        expect(response.status).toBe(200)
+        expect(response.body.length).toBe(2)
+        expect(response.body[0].title).toBe("My Second Title")
+        expect(response.body[1].title).toBe("My Title")
+    })
+
+    it("restricts access to private posts", async () => {
+        const { token: poster, id } = await loginUser({ email: "poster@example.com" })
+        const { token: reader } = await loginUser({ email: "reader@example.com" })
+
+        await createPost("My Title", "My Post Content", false, poster)
+        await createPost("My Private Post", "My Private Content", true, poster)
+
+        const response = await getUserPosts(id, reader)
+
+        expect(response.status).toBe(200)
+        expect(response.body.length).toBe(1)
+        expect(response.body[0].title).toBe("My Title")
+    })
+
+    it("allows mutuals to access private posts", async () => {
+        const { fromToken, fromId, toToken } = await createMutualRelationship()
+
+        await createPost("My Title", "My Post Content", false, fromToken)
+        await createPost("My Private Post", "My Private Content", true, fromToken)
+
+        const response = await getUserPosts(fromId, toToken)
+
+        expect(response.status).toBe(200)
+        expect(response.body.length).toBe(2)
+        expect(response.body.map(x => x.title)).toContain("My Private Post")
+    })
+
+    it("returns an empty array if the user has no posts", async () => {
+        const { id, token } = await loginUser()
+
+        const response = await getUserPosts(id, token)
+
+        expect(response.status).toBe(200)
+        expect(response.body.length).toBe(0)
     })
 })
