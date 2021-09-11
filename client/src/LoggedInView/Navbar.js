@@ -111,7 +111,10 @@ function NavbarIcons(props) {
                 <span className="sr-only">inbox</span>
             </Link>
 
-            <FontAwesomeIcon icon={faPlus} className="hidden sm:block" />
+            <Link to="/compose">
+                <FontAwesomeIcon icon={faPlus} className="hidden sm:block" />
+                <span className="sr-only">compose</span>
+            </Link>
 
             <Dropdown text={user?.name} component={UserDropdownMenu}>
                 <img className="rounded-full w-8" alt="user profile" src={avatarUrl(user?.avatarHash, 64)} />
