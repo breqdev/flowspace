@@ -175,7 +175,7 @@ export function ResetPassword(props) {
                     // do new login
                     const formData = new URLSearchParams()
                     formData.append("email", resetJson.email)
-                    formData.append("password", values.password)
+                    formData.append("password", values.new_password)
 
                     const response = await fetch(BASE_URL + "/auth/login", {
                         method: "POST",

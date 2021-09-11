@@ -6,6 +6,7 @@ import { faCommentDots, faUserFriends, faBan, faClipboard } from "@fortawesome/f
 import AuthContext from "../../context/AuthContext.js"
 import { fetchWithToken, useAPI } from "../../utils/api.js"
 import { encode } from "../../utils/bigintToBase64"
+import { Link } from "react-router-dom"
 
 export function RelationshipButton(props) {
     let className = "flex flex-col justify-center items-center h-20 w-24 m-1 p-2 border-2 border-black rounded-xl transition-colors duration-300 "
@@ -100,8 +101,9 @@ function ProfileInteractionButtons(props) {
         )
     } else {
         relationshipButtons.push(
-            <RelationshipButton icon={faCommentDots} text="message" key="wave"
-            onClick={() => console.log("message coming soon!")} color="blue" />
+            <Link to={`/messages/${props.id}`}>
+                <RelationshipButton icon={faCommentDots} text="message" key="wave" color="blue" />
+            </Link>
         )
     }
 

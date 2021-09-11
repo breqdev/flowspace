@@ -1,11 +1,14 @@
 import { Field, Form, Formik } from "formik"
 import React from "react"
+import { useHistory } from "react-router"
 import AuthContext from "../context/AuthContext"
 import { fetchWithToken } from "../utils/api"
 
 
 export default function Compose(props) {
     const [token, setToken] = React.useContext(AuthContext)
+
+    const history = useHistory()
 
 
     return (
@@ -22,7 +25,7 @@ export default function Compose(props) {
                 })
 
                 if (response.ok) {
-                    props.history.push("/profile/@me")
+                    history.push("/profile/@me")
                 }
             }}
         >
