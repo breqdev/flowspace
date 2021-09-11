@@ -14,7 +14,7 @@ function User(props) {
     return (
         <li className="flex">
             <Link to={`/messages/${props.id}`} className="flex-grow m-4 bg-white rounded-xl p-4 flex h-24 gap-6 items-center">
-                <img src={avatarUrl(user?.avatar, 256)} className="h-full rounded-full" alt={user?.name} />
+                <img src={avatarUrl(user?.avatarHash, 256)} className="h-full rounded-full" alt={user?.name} />
                 <div className="flex-grow">
                     <h3 className="text-left text-xl">{user?.name}</h3>
                 </div>
