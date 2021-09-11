@@ -3,7 +3,7 @@ const request = require("supertest")
 
 const app = require("../index.js")
 
-const { loginUser } = require("../conftest/utils")
+const { loginUser } = require("../testUtils/auth")
 
 describe("get own profile", () => {
     it("returns the logged-in user's profile", async () => {

@@ -91,4 +91,9 @@ model Post {
 
   author   User   @relation(fields: [authorId], references: [id])
   authorId BigInt
+
+  title String
+  content String?
+
+  isPrivate Boolean
 }

@@ -3,7 +3,7 @@ const parseBigInt = require("../utils/parseBigInt")
 
 const snowcloud = require("../utils/snowcloud")
 const prisma = require("../utils/prisma")
-const areAllowedToMessage = require("../utils/areAllowedToMessage")
+const areMutual = require("../utils/areMutual")
 const getDirectMessageChannel = require("../utils/getDirectMessageChannel")
 const sendGatewayMessage = require("../utils/sendGatewayMessage")
 
@@ -15,7 +15,7 @@ router.get("/messages/direct/:id", async ctx => {
     const fromId = ctx.user.id
     const toId = parseBigInt(ctx.params.id, ctx)
 
-    if (!(await areAllowedToMessage(fromId, toId))) {
+    if (!(await areMutual(fromId, toId))) {
         ctx.throw(404, "User not found")
     }
 
@@ -34,7 +34,7 @@ router.post("/messages/direct/:id", async ctx => {
     const fromId = ctx.user.id
     const toId = parseBigInt(ctx.params.id, ctx)
 
-    if (!(await areAllowedToMessage(fromId, toId))) {
+    if (!(await areMutual(fromId, toId))) {
         ctx.throw(404, "User not found")
     }
 

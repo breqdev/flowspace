@@ -1,7 +1,11 @@
 const prisma = require("../utils/prisma")
 
 
-const areAllowedToMessage = async (fromId, toId) => {
+const areMutual = async (fromId, toId) => {
+    if (fromId === toId) {
+        return true
+    }
+
     const outgoingRelationship = await prisma.userRelationship.findUnique({
         where: {
             fromId_toId: {
@@ -32,4 +36,4 @@ const areAllowedToMessage = async (fromId, toId) => {
 }
 
 
-module.exports = areAllowedToMessage
+module.exports = areMutual

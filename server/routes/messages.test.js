@@ -1,4 +1,6 @@
-const { loginUser, createRelationship, createMutualRelationship, getMessages, sendMessage } = require("../conftest/utils")
+const { loginUser } = require("../testUtils/auth")
+const { createRelationship, createMutualRelationship } = require("../testUtils/relationship")
+const { getMessages, sendMessage } = require("../testUtils/messages")
 const prisma = require("../utils/prisma")
 
 describe("get messages", () => {
