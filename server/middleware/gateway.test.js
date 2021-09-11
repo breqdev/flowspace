@@ -2,7 +2,9 @@ const WebSocket = require("ws")
 
 const app = require("../index.js")
 
-const { loginUser, createMutualRelationship, sendMessage } = require("../conftest/utils")
+const { loginUser } = require("../testUtils/auth")
+const { createMutualRelationship } = require("../testUtils/relationship")
+const { sendMessage } = require("../testUtils/messages")
 
 
 const timeoutPromise = (timeout, callback, error) => {

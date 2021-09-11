@@ -1,6 +1,5 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialActions"]
 }
 
 datasource db {
@@ -32,6 +31,9 @@ model User {
   // messages
   directChannels Channel[]
   messages       Message[]
+
+  // posts
+  posts Post[]
 }
 
 enum UserRelationshipType {
@@ -79,4 +81,19 @@ model Message {
   authorId BigInt
 
   content String
+}
+
+model Post {
+  id BigInt @id
+
+  createdAt DateTime @default(now())
+  editedAt  DateTime @default(now())
+
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId BigInt
+
+  title String
+  content String?
+
+  isPrivate Boolean
 }

@@ -31,7 +31,8 @@ class PrismaTestEnvironment extends NodeEnvironment {
             PRISMA_BINARY: prismaBinary,
             SENDGRID_SANDBOX: "enabled",
             SNOWCLOUD_SANDBOX: "enabled",
-            DISABLE_RATE_LIMITING: "true"
+            DISABLE_RATE_LIMITING: "true",
+            TZ: "UTC",
         }
 
         for (const key in envVars) {

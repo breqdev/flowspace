@@ -95,23 +95,28 @@ function NavbarIcons(props) {
     const { data: user } = useAPI("/profile/@me")
 
     return (
-        <div className="flex items-center gap-4">
-            <Link to="/" className="hidden sm:block">
-                <FontAwesomeIcon icon={faHome} />
-                <span className="sr-only">home</span>
-            </Link>
+        <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+                <Link to="/" className="hidden sm:block">
+                    <FontAwesomeIcon icon={faHome} />
+                    <span className="sr-only">home</span>
+                </Link>
 
-            <Link to="/messages">
-                <FontAwesomeIcon icon={faPaperPlane} />
-                <span className="sr-only">messages</span>
-            </Link>
+                <Link to="/messages">
+                    <FontAwesomeIcon icon={faPaperPlane} />
+                    <span className="sr-only">messages</span>
+                </Link>
 
-            <Link to="/inbox">
-                <FontAwesomeIcon icon={faInbox} />
-                <span className="sr-only">inbox</span>
-            </Link>
+                <Link to="/inbox">
+                    <FontAwesomeIcon icon={faInbox} />
+                    <span className="sr-only">inbox</span>
+                </Link>
 
-            <FontAwesomeIcon icon={faPlus} className="hidden sm:block" />
+                <Link to="/compose">
+                    <FontAwesomeIcon icon={faPlus} />
+                    <span className="sr-only">compose</span>
+                </Link>
+            </div>
 
             <Dropdown text={user?.name} component={UserDropdownMenu}>
                 <img className="rounded-full w-8" alt="user profile" src={avatarUrl(user?.avatarHash, 64)} />

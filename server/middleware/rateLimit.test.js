@@ -2,7 +2,7 @@ const request = require("supertest")
 
 const app = require("../index.js")
 
-const { loginUser } = require("../conftest/utils")
+const { loginUser } = require("../testUtils/auth")
 const { getClientIP, MAX_REQUESTS } = require("./rateLimit")
 
 

@@ -2,7 +2,8 @@ const request = require("supertest")
 
 const app = require("../index.js")
 
-const { loginUser, createRelationship } = require("../conftest/utils")
+const { loginUser } = require("../testUtils/auth")
+const { createRelationship } = require("../testUtils/relationship")
 
 const getOutgoingRelationship = async (toId, token) => {
     return await request(app.callback())

@@ -3,7 +3,7 @@ const request = require("supertest")
 const app = require("../index.js")
 const prisma = require("../utils/prisma")
 
-const { signupUser, loginUser, verifyUser, sendEmail } = require("../conftest/utils")
+const { signupUser, loginUser, verifyUser, sendEmail } = require("../testUtils/auth")
 
 
 const verifyToken = (token) => {

@@ -73,3 +73,9 @@ describe("test redis environment", () => {
         expect(message).toBe("test")
     })
 })
+
+describe("time", () => {
+    it("is in UTC", async () => {
+        expect(new Date().getTimezoneOffset()).toBe(0)
+    })
+})

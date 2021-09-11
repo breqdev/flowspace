@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken")
 const prisma = require("../utils/prisma")
 const redis = require("../utils/redis")
 const { getSignature } = require("../utils/createJWT")
-const areAllowedToMessage = require("../utils/areAllowedToMessage")
+const areMutual = require("../utils/areMutual")
 const getDirectMessageChannel = require("../utils/getDirectMessageChannel")
 
 
@@ -109,7 +109,7 @@ const gateway = async (ctx, next) => {
                 }
 
                 // Make sure the users are allowed to exchange messages
-                if (!areAllowedToMessage(client.id, targetUser)) {
+                if (!areMutual(client.id, targetUser)) {
                     ws.send(JSON.stringify({
                         type: "ERROR",
                         message: "Invalid user ID"
