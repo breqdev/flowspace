@@ -20,6 +20,7 @@ export default function LoggedInView() {
                     <Route path="/settings" component={Settings} />
                     <Route path="/messages" component={Messages} />
                     <Route path="/inbox" component={Inbox} />
+                    <Route path="/compose/:id" component={Compose} />
                     <Route path="/compose" component={Compose} />
                     <Route path="/profile/:id" component={Profile} />
                     <Route path="/u/:shortcode" component={ShortUrl} />

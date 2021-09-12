@@ -2,32 +2,49 @@ import { Field, Form, Formik } from "formik"
 import React from "react"
 import { useHistory } from "react-router"
 import AuthContext from "../context/AuthContext"
-import { fetchWithToken, useUserId } from "../utils/api"
+import { fetchWithToken, useAPI, useUserId } from "../utils/api"
 
 
 export default function Compose(props) {
+    const { id } = props.match.params
+
     const [token, setToken] = React.useContext(AuthContext)
 
     const history = useHistory()
 
-    const id = useUserId()
+    const userId = useUserId()
 
+    const { data: existing } = useAPI(`/posts/:0`, [id])
+
+    const initialValues = {
+        title: existing?.title ?? "",
+        content: existing?.content ?? "",
+        isPrivate: existing?.isPrivate ?? false
+    }
 
     return (
         <Formik
-            initialValues={{
-                title: "",
-                content: "",
-                isPrivate: false
-            }}
+            initialValues={initialValues}
+            enableReinitialize={true}
             onSubmit={async (values) => {
-                const response = await fetchWithToken("/posts", token, setToken, {
-                    method: "POST",
-                    body: values,
-                })
+                let response
+
+                if (id) {
+                    // Update the existing post
+                    response = await fetchWithToken(`/posts/${id}`, token, setToken, {
+                        method: "PATCH",
+                        body: values,
+                    })
+                } else {
+                    // Create a new post
+                    response = await fetchWithToken("/posts", token, setToken, {
+                        method: "POST",
+                        body: values,
+                    })
+                }
 
                 if (response.ok) {
-                    history.push(`/profile/${id}`)
+                    history.push(`/profile/${userId}`)
                 }
             }}
         >

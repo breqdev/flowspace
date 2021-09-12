@@ -21,18 +21,14 @@ function PostActions(props) {
         props.onMutate(posts => posts.filter(post => post.id !== props.id), false)
     }
 
-    const handleEdit = async () => {
-        //
-    }
-
     return (
         <div className="flex-grow text-right">
             <button className={className} onClick={handleDelete}>
                 <FontAwesomeIcon icon={faTrash} />
             </button>
-            <button className={className} onClick={handleEdit}>
+            <Link to={`/compose/${props.id}`} className={className}>
                 <FontAwesomeIcon icon={faPencilAlt} />
-            </button>
+            </Link>
         </div>
     )
 }
@@ -67,7 +63,7 @@ function Post(props) {
 
 function Feed(props) {
     return (
-        <div className="max-w-xl mx-auto p-4">
+        <div className="max-w-xl mx-auto p-4 flex flex-col gap-8">
             {props.posts?.map(post => <Post key={post.id} onMutate={props.onMutate} {...post} />)}
         </div>
     )
