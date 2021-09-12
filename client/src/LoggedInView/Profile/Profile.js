@@ -1,15 +1,45 @@
-import React from "react"
+import React, { useContext } from "react"
 import dayjs from "dayjs"
 import { Link, Redirect } from "react-router-dom"
-
-
-import { avatarUrl, useAPI } from "../../utils/api.js"
-
-
+import { avatarUrl, fetchWithToken, useAPI } from "../../utils/api.js"
 import UserCard from "./UserCard.js"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faPencilAlt, faTrash } from "@fortawesome/free-solid-svg-icons"
+import AuthContext from "../../context/AuthContext.js"
+
+
+function PostActions(props) {
+    const className = "ml-2 text-gray-700 hover:text-black"
+
+    const [token, setToken] = useContext(AuthContext)
+
+    const handleDelete = async () => {
+        await fetchWithToken(`/posts/${props.id}`, token, setToken, {
+            method: "DELETE"
+        })
+
+        props.onMutate(posts => posts.filter(post => post.id !== props.id), false)
+    }
+
+    const handleEdit = async () => {
+        //
+    }
+
+    return (
+        <div className="flex-grow text-right">
+            <button className={className} onClick={handleDelete}>
+                <FontAwesomeIcon icon={faTrash} />
+            </button>
+            <button className={className} onClick={handleEdit}>
+                <FontAwesomeIcon icon={faPencilAlt} />
+            </button>
+        </div>
+    )
+}
 
 
 function Post(props) {
+    const { data: currentUser } = useAPI("/auth/status")
     const { data: author } = useAPI("/profile/:0", [props.authorId])
 
     const createdAt = dayjs(props.createdAt).fromNow()
@@ -28,6 +58,7 @@ function Post(props) {
             <div className="text-gray-700 border-t-2 border-black p-3 flex gap-2">
                 <span>created {createdAt}</span>
                 {editedAt && <span>· last edited {editedAt}</span>}
+                {props.authorId === currentUser.id && <PostActions id={props.id} onMutate={props.onMutate} />}
             </div>
         </article>
     )
@@ -37,7 +68,7 @@ function Post(props) {
 function Feed(props) {
     return (
         <div className="max-w-xl mx-auto p-4">
-            {props.posts?.map(post => <Post key={post.id} {...post} />)}
+            {props.posts?.map(post => <Post key={post.id} onMutate={props.onMutate} {...post} />)}
         </div>
     )
 }
@@ -48,7 +79,7 @@ export default function Profile(props) {
 
     const { data: status } = useAPI("/auth/status")
     const { data } = useAPI("/profile/:0", [id === "@me" ? null : id])
-    const { data: posts } = useAPI("/posts/user/:0", [id === "@me" ? null : id])
+    const { data: posts, mutate } = useAPI("/posts/user/:0", [id === "@me" ? null : id])
 
     if (id === "@me" && status) {
         return <Redirect to={`/profile/${status.id}`} />
@@ -67,7 +98,7 @@ export default function Profile(props) {
     return (
         <div className="max-w-6xl mx-auto w-full">
             <UserCard user={data} />
-            <Feed posts={posts} />
+            <Feed posts={posts} onMutate={mutate} />
         </div>
     )
 }
