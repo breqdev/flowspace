@@ -15,7 +15,7 @@ const cors = async (ctx, next) => {
         ) {
             // This is a preflight request
 
-            ctx.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+            ctx.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 
             ctx.status = 204
             return
