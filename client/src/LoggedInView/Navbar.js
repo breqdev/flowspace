@@ -81,7 +81,7 @@ function UserDropdownMenu(props) {
                 hi, <span className="text-blue-500">{user?.name}</span>
             </span>
             <hr />
-            <Link to="/profile/@me" onClick={props.doRetract}>my profile</Link>
+            <Link to={`/profile/${user?.id}`} onClick={props.doRetract}>my profile</Link>
             <hr />
             <Link to="/settings" onClick={props.doRetract}>settings</Link>
             <hr />

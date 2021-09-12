@@ -158,4 +158,10 @@ export function useAPI(url, args, options) {
 }
 
 
+export function useUserId() {
+    const { data } = useAPI("/auth/status")
+    return data?.id
+}
+
+
 export const avatarUrl = (hash, size) => `${BASE_URL}/profile/avatar/${hash || "@default"}/${size}`
