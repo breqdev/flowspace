@@ -50,7 +50,9 @@ export default function Compose(props) {
         >
             {formik => (
                 <Form className="max-w-2xl mx-auto my-4 px-2 flex flex-col gap-4 w-full text-lg">
-                    <h1 className="text-center text-3xl">compose a new post</h1>
+                    <h1 className="text-center text-3xl">
+                        {id ? "edit your post" : "compose a new post"}
+                    </h1>
                     <Field type="text" name="title" placeholder="title" className="rounded-md border-2 border-gray-200 focus:border-blue-500 outline-none py-2 px-3" />
                     <Field as="textarea" name="content" className="rounded-md border-2 border-gray-200 focus:border-blue-500 outline-none py-2 px-3 h-60" />
 
