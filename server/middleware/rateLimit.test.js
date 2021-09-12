@@ -70,6 +70,9 @@ describe("global ratelimit middleware", () => {
 
     beforeEach(() => {
         process.env = { ...OLD_ENV }
+
+        jest.useFakeTimers()
+        jest.setSystemTime(new Date(Date.now()))
     })
 
     afterAll(() => {
@@ -91,9 +94,6 @@ describe("global ratelimit middleware", () => {
     })
 
     it("allows up to the limit of requests", async () => {
-        jest.useFakeTimers()
-        jest.setSystemTime(new Date(Date.now()))
-
         process.env.DISABLE_RATE_LIMITING = "false"
 
         for (let i = 0; i < MAX_REQUESTS - 1; i++) {
@@ -108,10 +108,6 @@ describe("global ratelimit middleware", () => {
     })
 
     it("blocks more than MAX_REQUESTS requests in one minute", async () => {
-        // Set the system time constant
-        jest.useFakeTimers()
-        jest.setSystemTime(new Date(Date.now()))
-
         process.env.DISABLE_RATE_LIMITING = "false"
 
         for (let i = 0; i < MAX_REQUESTS; i++) {
@@ -126,7 +122,6 @@ describe("global ratelimit middleware", () => {
     })
 
     it("resets the count after the hour is over", async () => {
-        jest.useFakeTimers()
         jest.setSystemTime(new Date("2020-01-01 00:00:00"))
 
         process.env.DISABLE_RATE_LIMITING = "false"
@@ -225,8 +220,6 @@ describe("global ratelimit middleware", () => {
     })
 
     it("adds headers to the response", async () => {
-        jest.useFakeTimers()
-
         const startDate = new Date("1970-01-02")
         const endDate = new Date(startDate.getTime() + 60 * 1000)
 
