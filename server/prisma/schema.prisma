@@ -1,5 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -33,7 +33,8 @@ model User {
   messages       Message[]
 
   // posts
-  posts Post[]
+  posts    Post[]
+  comments Comment[]
 }
 
 enum UserRelationshipType {
@@ -92,8 +93,30 @@ model Post {
   author   User   @relation(fields: [authorId], references: [id])
   authorId BigInt
 
-  title String
+  title   String
   content String?
 
   isPrivate Boolean
+
+  comments Comment[]
+}
+
+model Comment {
+  id BigInt @id
+
+  createdAt DateTime @default(now())
+  editedAt  DateTime @default(now())
+
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId BigInt
+
+  content String
+
+  post   Post   @relation(fields: [postId], references: [id])
+  postId BigInt
+
+  parent   Comment? @relation("CommentHierarchy", fields: [parentId], references: [id])
+  parentId BigInt?
+
+  children Comment[] @relation("CommentHierarchy")
 }
