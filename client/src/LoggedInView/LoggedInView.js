@@ -9,6 +9,7 @@ import Profile from "./Profile/Profile.js"
 import Compose from "./Compose.js"
 import ShortUrl from "./Profile/ShortUrl"
 import SocketProvider from "./SocketProvider.js"
+import PostPage from "./PostPage.js"
 
 export default function LoggedInView() {
     return (
@@ -23,6 +24,7 @@ export default function LoggedInView() {
                     <Route path="/compose/:id" component={Compose} />
                     <Route path="/compose" component={Compose} />
                     <Route path="/profile/:id" component={Profile} />
+                    <Route path="/post/:id" component={PostPage} />
                     <Route path="/u/:shortcode" component={ShortUrl} />
                     <Route path="/">
                         <Redirect to="/" />

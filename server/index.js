@@ -19,6 +19,7 @@ const relationshipRoutes = require("./routes/relationship")
 const messagesRoutes = require("./routes/messages")
 const postsRoutes = require("./routes/posts")
 const feedRoutes = require("./routes/feed")
+const commentsRoutes = require("./routes/comments")
 
 const app = new Koa()
 
@@ -78,6 +79,9 @@ app.use(postsRoutes.allowedMethods())
 
 app.use(feedRoutes.routes())
 app.use(feedRoutes.allowedMethods())
+
+app.use(commentsRoutes.routes())
+app.use(commentsRoutes.allowedMethods())
 
 
 if (require.main === module) {
