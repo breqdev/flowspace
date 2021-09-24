@@ -1,4 +1,5 @@
 import React from "react"
+import { Link } from "react-router-dom"
 
 import Post from "../components/Post"
 import { useAPI } from "../utils/api"
@@ -20,6 +21,10 @@ export default function Home(props) {
     return (
         <div className="px-4 flex max-w-4xl w-full h-full flex-col mx-auto">
             <h1 className="text-6xl md:text-9xl text-center my-8">flowspace</h1>
+
+            <Link to="/compose" className="max-w-lg w-full mx-auto p-8 flex items-center justify-center bg-green-300 rounded-2xl text-2xl">
+                compose a new post
+            </Link>
 
             <div className="max-w-xl w-full mx-auto p-4 flex flex-col gap-8">
                 {posts?.length > 0
