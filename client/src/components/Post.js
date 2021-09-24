@@ -33,6 +33,34 @@ function PostActions(props) {
 }
 
 
+function Comment(props) {
+    const { data: author } = useAPI("/profile/:0", [props.authorId])
+
+    return (
+        <div className="flex gap-2">
+            <img alt="" src={avatarUrl(author?.avatarHash, 64)} className="rounded-full h-6 w-6" />
+            <span className="font-bold">{author?.name}</span>
+            <span>{props.content}</span>
+        </div>
+    )
+}
+
+
+function Comments(props) {
+    const { data } = useAPI("/comments/post/:0", [props.postId])
+
+    return (
+        <Link to={`/post/${props.postId}`} className="block border-t-2 border-black p-3">
+            {(data && data.length > 0) ? (
+                data.map(comment => <Comment key={comment.id} {...comment} />)
+            ) : (
+                <span>add a comment...</span>
+            )}
+        </Link>
+    )
+}
+
+
 export default function Post(props) {
     const { data: currentUser } = useAPI("/auth/status")
     const { data: author } = useAPI("/profile/:0", [props.authorId])
@@ -49,12 +77,14 @@ export default function Post(props) {
             <div className="p-3">
                 <h2 className="text-3xl mb-2">{props.title}</h2>
                 <p>{props.content}</p>
+                <hr className="my-2" />
+                <div className="text-gray-700 flex gap-2">
+                    <span>created {createdAt}</span>
+                    {editedAt && <span>· last edited {editedAt}</span>}
+                    {props.authorId === currentUser?.id && <PostActions id={props.id} onMutate={props.onMutate} />}
+                </div>
             </div>
-            <div className="text-gray-700 border-t-2 border-black p-3 flex gap-2">
-                <span>created {createdAt}</span>
-                {editedAt && <span>· last edited {editedAt}</span>}
-                {props.authorId === currentUser?.id && <PostActions id={props.id} onMutate={props.onMutate} />}
-            </div>
+            <Comments postId={props.id} />
         </article>
     )
 }
