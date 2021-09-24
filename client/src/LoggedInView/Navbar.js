@@ -95,8 +95,8 @@ function NavbarIcons(props) {
     const { data: user } = useAPI("/profile/@me")
 
     return (
-        <div className="flex items-center gap-2">
-            <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-3 md:text-2xl md:gap-4">
                 <Link to="/" className="hidden sm:block">
                     <FontAwesomeIcon icon={faHome} />
                     <span className="sr-only">home</span>
