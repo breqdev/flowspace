@@ -9,6 +9,7 @@ const authMiddleware = require("./middleware/auth")
 const { errorHandler, errorCatcher } = require("./middleware/error")
 const requireLogin = require("./middleware/requireLogin")
 const cors = require("./middleware/cors")
+const gateway = require("./middleware/gateway")
 
 const indexRoutes = require("./routes/index")
 const avatarRoutes = require("./routes/avatar")
@@ -17,7 +18,7 @@ const profileRoutes = require("./routes/profile")
 const relationshipRoutes = require("./routes/relationship")
 const messagesRoutes = require("./routes/messages")
 const postsRoutes = require("./routes/posts")
-const gateway = require("./middleware/gateway")
+const feedRoutes = require("./routes/feed")
 
 const app = new Koa()
 
@@ -74,6 +75,9 @@ app.use(messagesRoutes.allowedMethods())
 
 app.use(postsRoutes.routes())
 app.use(postsRoutes.allowedMethods())
+
+app.use(feedRoutes.routes())
+app.use(feedRoutes.allowedMethods())
 
 
 if (require.main === module) {

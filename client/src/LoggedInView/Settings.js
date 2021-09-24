@@ -301,6 +301,9 @@ export default function Settings(props) {
                 </Switch>
             </div>
             <Toast message={message} clearMessage={clearMessage}/>
+            <p className="text-center my-2 text-gray-500">
+                build version: {process.env.REACT_APP_COMMIT_SHA.substr(0, 8) || "LOCALDEV"}
+            </p>
         </ToastContext.Provider>
     )
 }
