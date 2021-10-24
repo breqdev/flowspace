@@ -89,7 +89,7 @@ router.post("/profile/avatar/@me", upload.single("avatar"), async (ctx) => {
     await Promise.all(IMAGE_SIZES.map(async (size) => {
         const resized = await sharp(avatar).resize(size, size).toBuffer({ resolveWithObject: false, toFormat: "webp" })
         const filename = `${hash}-${size}.webp`
-        minio.putObject("flowspace", filename, resized)
+        minio.putObject(process.env.MINIO_BUCKET_NAME, filename, resized)
     }))
 
     await prisma.user.update({

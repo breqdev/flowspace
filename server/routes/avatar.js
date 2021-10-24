@@ -15,7 +15,7 @@ router.get("/profile/avatar/:hash/:size", async (ctx) => {
     }
 
     try  {
-        avatar = await minio.getObject("flowspace", `${ctx.params.hash}-${ctx.params.size}.webp`)
+        avatar = await minio.getObject(process.env.MINIO_BUCKET_NAME, `${ctx.params.hash}-${ctx.params.size}.webp`)
     } catch (e) {
         ctx.throw(404, "No such avatar")
     }
