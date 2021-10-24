@@ -33,6 +33,7 @@ class PrismaTestEnvironment extends NodeEnvironment {
             SNOWCLOUD_SANDBOX: "enabled",
             DISABLE_RATE_LIMITING: "true",
             TZ: "UTC",
+            MINIO_BUCKET_NAME: "flowspace",
         }
 
         for (const key in envVars) {
