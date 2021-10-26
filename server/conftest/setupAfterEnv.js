@@ -6,7 +6,6 @@ const prisma = require("../utils/prisma")
 const redis = require("../utils/redis")
 
 beforeEach(async () => {
-
     // NOTE: We need to delete these tables in this order
     // or we will have orphaned userRelationship records
     const models = ["userRelationship", "message", "channel", "comment", "post", "user"]

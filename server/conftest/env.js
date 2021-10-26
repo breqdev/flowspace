@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require("uuid")
 
 const util = require("util")
 const exec = require("./exec")
+const { PrismaClient } = require(".prisma/client")
 
 
 const prismaBinary = "./node_modules/.bin/prisma2"
@@ -24,7 +25,7 @@ class PrismaTestEnvironment extends NodeEnvironment {
     async setup() {
         await super.setup()
 
-        this.global.__PRISMA__ = prisma
+        this.global.__PRISMA__ = new PrismaClient()
 
         const envVars = {
             DATABASE_URL: this.dbURL,

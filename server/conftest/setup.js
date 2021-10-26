@@ -1,1 +1,1 @@
-jest.mock("../utils/prisma", () => global.__PRISMA__)
+jest.mock("../utils/prisma", () => global.__PRISMA__);
