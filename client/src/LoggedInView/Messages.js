@@ -27,7 +27,7 @@ function User(props) {
 function UsersList(props) {
     const { data: users } = useAPI("/relationship/mutual")
 
-    let className = "max-w-sm w-full flex flex-col gap-2 py-4 bg-green-100 "
+    let className = "max-w-sm w-full flex flex-col flex-shrink-0 gap-2 py-4 bg-green-100 "
     if (props.hiddenOnMobile) {
         className += "hidden md:flex"
     }
