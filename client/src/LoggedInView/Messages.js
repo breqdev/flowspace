@@ -90,7 +90,7 @@ function Message(props) {
 
     return (
         <div className="flex gap-4">
-            <div className="h-16">
+            <div className="h-16 flex-shrink-0">
                 <img src={avatarUrl(user?.avatarHash, 256)} className="h-full rounded-full" alt={user?.name} />
             </div>
             <div className="flex flex-col">

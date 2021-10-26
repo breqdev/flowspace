@@ -1,6 +1,6 @@
 import React from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCommentDots, faUserFriends, faBan, faClipboard } from "@fortawesome/free-solid-svg-icons"
+import { faCommentDots, faUserFriends, faBan, faClipboard, faEllipsisH } from "@fortawesome/free-solid-svg-icons"
 
 
 import AuthContext from "../../context/AuthContext.js"
@@ -17,6 +17,8 @@ export function RelationshipButton(props) {
         className += "bg-green-300 hover:bg-green-400"
     } else if (props.color === "blue") {
         className += "bg-blue-300 hover:bg-blue-400"
+    } else if (props.color === "disabled") {
+        className += "bg-gray-400"
     } else {
         className += "bg-white bg-opacity-50 hover:bg-opacity-100"
     }
@@ -69,7 +71,7 @@ function ProfileURLCopyRow(props) {
 
 
 function ProfileInteractionButtons(props) {
-    const { relationship } = props
+    const { relationship, incoming } = props
 
     const [token, setToken] = React.useContext(AuthContext)
 
@@ -100,11 +102,17 @@ function ProfileInteractionButtons(props) {
             onClick={() => setRelationship("WAVE")}/>
         )
     } else {
-        relationshipButtons.push(
-            <Link to={`/messages/${props.id}`}>
-                <RelationshipButton icon={faCommentDots} text="message" key="wave" color="blue" />
-            </Link>
-        )
+        if (incoming?.type === "WAVE" || incoming?.type === "FOLLOW") {
+            relationshipButtons.push(
+                <Link to={`/messages/${props.id}`}>
+                    <RelationshipButton icon={faCommentDots} text="message" key="wave" color="blue" />
+                </Link>
+            )
+        } else {
+            relationshipButtons.push(
+                <RelationshipButton icon={faEllipsisH} text="" key="wave" color="disabled" />
+            )
+        }
     }
 
     if (relationship.type === "FOLLOW") {
@@ -141,6 +149,7 @@ function ProfileInteractionButtons(props) {
 
 export default function RelationshipButtons(props) {
     const { data: relationship, mutate } = useAPI("/relationship/outgoing/:0", [props.id])
+    const { data: incoming } = useAPI("/relationship/incoming/:0", [props.id])
 
     if (!relationship) {
         // no data, return an empty row
@@ -153,6 +162,6 @@ export default function RelationshipButtons(props) {
     }
 
     // it's someone else's profile, show buttons
-    return <ProfileInteractionButtons id={props.id} relationship={relationship} mutate={mutate} />
+    return <ProfileInteractionButtons id={props.id} relationship={relationship} incoming={incoming} mutate={mutate} />
 
 }
