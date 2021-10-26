@@ -93,6 +93,7 @@ function UserDropdownMenu(props) {
 
 function NavbarIcons(props) {
     const { data: user } = useAPI("/profile/@me")
+    const { data: inbox } = useAPI("/relationship/inbox")
 
     return (
         <div className="flex items-center gap-2 md:gap-4">
@@ -107,9 +108,10 @@ function NavbarIcons(props) {
                     <span className="sr-only">messages</span>
                 </Link>
 
-                <Link to="/inbox">
+                <Link to="/inbox" className="relative">
                     <FontAwesomeIcon icon={faInbox} />
                     <span className="sr-only">inbox</span>
+                    {inbox?.length > 0 && <span className="absolute top-0 right-0 -mr-1 -mt-1 bg-red-500 text-white text-xs px-1 rounded-full">{inbox?.length}</span>}
                 </Link>
 
                 <Link to="/compose">
