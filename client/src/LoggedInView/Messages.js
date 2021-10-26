@@ -1,5 +1,7 @@
 import { faAngleLeft, faPaperPlane } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import dayjs from "dayjs"
+import FromNow from "../components/FromNow"
 import { Field, Form, Formik } from "formik"
 import React, { useCallback, useContext, useEffect, useRef } from "react"
 import { Link, Route, Switch } from "react-router-dom"
@@ -86,6 +88,12 @@ function EmptyChatWindow(props) {
 }
 
 function Message(props) {
+    return (
+        <span>{props.content}</span>
+    )
+}
+
+function MessageBox(props) {
     const { data: user } = useAPI("/profile/:0", [props.authorId])
 
     return (
@@ -94,8 +102,13 @@ function Message(props) {
                 <img src={avatarUrl(user?.avatarHash, 256)} className="h-full rounded-full" alt={user?.name} />
             </div>
             <div className="flex flex-col">
-                <span className="font-bold">{user?.name}</span>
-                <span>{props.content}</span>
+                <div className="flex gap-2">
+                    <span className="font-bold">{user?.name}</span>
+                    <span className="italic text-gray-400"><FromNow date={props.messages[0].sentOn} /></span>
+                </div>
+                <div className="flex flex-col gap-2">
+                    {props.messages.map(message => <Message key={message.id} {...message} />)}
+                </div>
             </div>
         </div>
     )
@@ -109,10 +122,46 @@ function MessageList(props) {
         window.current.scrollIntoView({ behavior: "smooth", block: "end" })
     }, [props.messages])
 
+
+    const collapsable = (last, current) => {
+        if (last.authorId !== current.authorId) {
+            return false
+        }
+
+        if (last.messages.length >= 5) {
+            return false
+        }
+
+        if (dayjs(current.sentOn) - dayjs(last.messages[last.messages.length - 1].sentOn) > 60 * 5 * 1000) {
+            return false
+        }
+
+        return true
+    }
+
+
+    const messageBoxes = props.messages ? props.messages.reduce((acc, message) => {
+        // Try to push the message into an existing box
+        if (acc.length > 0) {
+            const lastBox = acc[acc.length - 1]
+            if (collapsable(lastBox, message)) {
+                lastBox.messages.push(message)
+                return acc
+            }
+        }
+
+        acc.push({
+            authorId: message.authorId,
+            messages: [message],
+        })
+
+        return acc
+    }, []) : []
+
     return (
         <div className="flex-grow overflow-y-scroll h-0">
             <div className="flex flex-col p-4 gap-4" ref={window}>
-                {props.messages ? props.messages.map(message => <Message key={message.id} {...message} />) : null}
+                {messageBoxes.map(message => <MessageBox key={message.id} {...message} />)}
             </div>
         </div>
     )
